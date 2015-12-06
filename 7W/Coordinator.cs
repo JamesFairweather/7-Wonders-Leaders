@@ -165,7 +165,7 @@ namespace SevenWonders
         /// </summary>
         public void quit()
         {
-
+            Application.Current.Shutdown(0);
             //If the client is a server, send the 
         }
 
@@ -307,6 +307,9 @@ namespace SevenWonders
             client = new Client(this, nickname);
 
             client.InitializeConnection(myIP);
+
+            if (!client.Connected)
+                return;
 
             //display the TableUI
             tableUI = new TableUI(this);

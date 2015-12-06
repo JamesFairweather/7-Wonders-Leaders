@@ -60,6 +60,8 @@ namespace SevenWonders
                 coordinator.hasGame = false;
 
                 coordinator.client.CloseConnection();
+
+                Application.Current.Shutdown(0);
             }
         }
 

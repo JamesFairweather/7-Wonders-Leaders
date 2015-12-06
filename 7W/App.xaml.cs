@@ -37,7 +37,7 @@ namespace SevenWonders
             // the dispatch queue to terminate the application after the first window is closed, which in
             // turn causes MainWindow.ShowDialog() to return before it's closed.  To prevent this , we change
             // the ShutdownMode to OnExpliciShutdown (its default value is OnMainWindowClose).
-            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            //ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
             /*
             NameValueCollection nv = new NameValueCollection();
@@ -57,6 +57,10 @@ namespace SevenWonders
             gameCoordinator = new Coordinator();
             gameCoordinator.createGame();
 
+            if (!gameCoordinator.client.Connected)
+                return;
+
+
             // after createGame we know how many players and therefore how many player panels are required.
 
             // Create the startup window.  Needs gameCoordinator so it knows how many players to create.
@@ -74,6 +78,8 @@ namespace SevenWonders
 
             // Show the window
             wnd.ShowDialog();
+
+            Application.Current.Shutdown(0);
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Net;
 using System.Windows.Controls;
 using System.ComponentModel;
 using System.Data;
+using System.Windows;
 
 namespace SevenWonders
 {
@@ -53,9 +54,14 @@ namespace SevenWonders
                 swSender = new StreamWriter(tcpUser.GetStream());
                 srReceiver = new StreamReader(tcpUser.GetStream());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Console.WriteLine("Client.InitializeConnection: could not connect to the server at the IP address");
+                string msg = "Fatal problem: the server could not be reached or is not responding.  Press OK to quit." + Environment.NewLine;
+                msg += "Exception message: " + Environment.NewLine;
+                msg += ex.ToString();
+
+                MessageBox.Show(msg, "Seven Wonders");
+                Application.Current.Shutdown(-1);
                 return;
             }
 
@@ -94,28 +100,25 @@ namespace SevenWonders
             // While we are successfully connected, read incoming lines from the server and pass it to coordinator
             while (Connected) 
             {
-                //try
-               // {
+                try
+                {
                     messageReceived = srReceiver.ReadLine();
                     if (Connected == false)
                     {
                         break;
                     }
                     //objWriter.WriteLine(messageReceived);
-                    if (Connected == false)
-                    {
-                        break;
-                    }
                     c.receiveMessage(messageReceived);
                     if (Connected == false)
                     {
                         break;
                     }
-                //}
-                //catch (Exception)
-               /// {
-                //    Connected = false;
-               // }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("The connection with the server has been lost.  Exiting the application." + ex.ToString(), "Seven Wonders");
+                    Connected = false;
+                }
             }
         }
 
