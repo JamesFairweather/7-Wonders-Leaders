@@ -1084,7 +1084,8 @@ namespace SevenWonders
             Cost cost = card.cost;
 
             //if the player already owns a copy of the card, Return F immediatley
-            if (playedStructure.Contains(card))
+            // Note cannot use playedStructure.Contains(card) because Age 1 Loom != Age 2 Loom, so it's possible to build more than one of them.
+            if (playedStructure.Exists(x => x.Id == card.Id))
                 return Buildable.StructureAlreadyBuilt;
 
             //if the cost is !, that means its free. Return T immediately

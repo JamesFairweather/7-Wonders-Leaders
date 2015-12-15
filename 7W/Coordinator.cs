@@ -553,17 +553,12 @@ namespace SevenWonders
                         break;
 
                     case "SetPlyrH":        // Set player hand
-                        {
-                            // we cannot use the nicer NameValuePair because there may be two of the same
-                            // card in the hand and these would be duplicate keys.  So we have to use a data
-                            // structure 
-                            IList<KeyValuePair<string, string>> qscoll = UriExtensions.ParseQueryString(message.Substring(8));
+                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
 
-                            Application.Current.Dispatcher.Invoke(new Action(delegate
-                            {
-                                gameUI.showHandPanel(qscoll);
-                            }));
-                        }
+                        Application.Current.Dispatcher.Invoke(new Action(delegate
+                        {
+                            gameUI.showHandPanel(qcoll);
+                        }));
 
                         messageHandled = true;
                         break;

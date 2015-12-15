@@ -194,7 +194,7 @@ namespace SevenWonders
         /// display the Cards in Player's hands and the available actions
         /// </summary>
         /// <param name="information"></param>
-        public void showHandPanel(IList<KeyValuePair<string, string>> cardsAndStates/*String information*/)
+        public void showHandPanel(NameValueCollection qscoll)
         {
             //the player is in a new turn now because his UI are still updating.
             //Therefore set playerPlayedHisturn to false
@@ -203,36 +203,35 @@ namespace SevenWonders
 
             hand.Clear();
 
-            foreach (KeyValuePair<string, string> kvp in cardsAndStates)
+            string[] strCards = qscoll["Cards"].Split(',');
+            string[] strBuildStates = qscoll["BuildStates"].Split(',');
+
+            for (int i = 0; i < strCards.Length; ++i)
             {
-                switch (kvp.Key)
+                if (strCards[i] != string.Empty)
                 {
-                    case "CanDiscard":
-                        canDiscardStructure = kvp.Value == "True";
-                        break;
-
-                    case "Instructions":
-                        lblPlayMessage.Content = new TextBlock()
-                        {
-                            Text = kvp.Value,
-                            TextWrapping = TextWrapping.Wrap,
-                            FontSize = 14,
-                        };
-                        break;
-
-                    default:
-                        // Any other parameters are card names
-                        if (kvp.Key.StartsWith("WonderStage"))
-                        {
-                            stageBuildable = (Buildable)Enum.Parse(typeof(Buildable), kvp.Value);
-                        }
-                        else
-                        {
-                            hand.Add(new KeyValuePair<Card, Buildable>(coordinator.FindCard(kvp.Key), (Buildable)Enum.Parse(typeof(Buildable), kvp.Value)));
-                        }
-                    break;
+                    // can get an empty string after last card in the age was built.
+                    hand.Add(new KeyValuePair<Card, Buildable>(coordinator.FindCard(strCards[i]), (Buildable)Enum.Parse(typeof(Buildable), strBuildStates[i])));
                 }
             }
+
+            string strWonderStage = qscoll["WonderStage"];
+            if (strWonderStage != null)
+            {
+                stageBuildable = (Buildable)Enum.Parse(typeof(Buildable), strWonderStage.Substring(2));
+            }
+
+            if (qscoll["Instructions"] != null)
+            {
+                lblPlayMessage.Content = new TextBlock()
+                {
+                    Text = qscoll["Instructions"],
+                    TextWrapping = TextWrapping.Wrap,
+                    FontSize = 14,
+                };
+            }
+
+            canDiscardStructure = qscoll["CanDiscard"] == null || (qscoll["CanDiscard"] == "True");
 
             handPanel.Items.Clear();
 

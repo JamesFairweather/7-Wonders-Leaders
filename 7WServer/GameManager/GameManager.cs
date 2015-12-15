@@ -1092,15 +1092,20 @@ namespace SevenWonders
                     gmCoordinator.sendMessage(p, strCardsPlayed);
                     gmCoordinator.sendMessage(p, strUpdateCoinsMessage);
 
-                    string strHand = "SetPlyrH";
+                    string strCards = "&Cards=";
+                    string strBuildStates = "&BuildStates=";
 
                     foreach (Card card in p.draftedLeaders)
                     {
-                        strHand += string.Format("&{0}={1}", card.Id, p.isCardBuildable(card).ToString());
+                        strCards += card.Id + ",";
+                        strBuildStates += p.isCardBuildable(card) + ",";
                     }
 
-                    strHand += string.Format("&WonderStage{0}={1}", p.currentStageOfWonder, p.isStageBuildable().ToString());
+                    strCards = strCards.TrimEnd(',');
+                    strBuildStates = strBuildStates.TrimEnd(',');
 
+                    string strHand = "SetPlyrH" + strCards + strBuildStates;
+                    strHand += string.Format("&WonderStage={0},{1}", p.currentStageOfWonder, p.isStageBuildable().ToString());
                     strHand += "&Instructions=Leader Recruitment: choose a leader to play, build a wonder stage with, or discard for 3 coins";
 
                     gmCoordinator.sendMessage(p, strHand);
@@ -1127,26 +1132,46 @@ namespace SevenWonders
                         savedHandWhenPlayingFromDiscardPile = p.hand;   // save the player's hand
                         p.hand = discardPile;                           // the player's hand now points to the discard pile.
 
+                        string strCards = "&Cards=";
+                        string strBuildStates = "&BuildStates=";
+
                         foreach (Card card in discardPile)
                         {
                             // Filter out structures that have already been built in the players' city.
                             if (p.isCardBuildable(card) != Buildable.StructureAlreadyBuilt)
-                                strHand += string.Format("&{0}={1}", card.Id, Buildable.True.ToString());
+                            {
+                                strCards += card.Id + ",";
+                                strBuildStates += Buildable.True + ",";
+                            }
+
+                            strCards = strCards.TrimEnd(',');
+                            strBuildStates = strBuildStates.TrimEnd(',');
                         }
 
                         // The free build for Halikarnassos/Solomon requires the card be put in play.
                         // It cannot be used to build a wonder stage, nor can it be discarded for 3
                         // coins.
-                        strHand += string.Format("&WonderStage{0}={1}&Instructions=Choose a card to play for free from the discard pile&CanDiscard=False", p.currentStageOfWonder, Buildable.InsufficientResources.ToString());
+                        strHand += string.Format("SetPlyrH{0}{1}&WonderStage={2},{3}&Instructions=Choose a card to play for free from the discard pile&CanDiscard=False",
+                            strCards, strBuildStates, p.currentStageOfWonder, Buildable.InsufficientResources.ToString());
                     }
                     else
                     {
+                        string strCards = "&Cards=";
+                        string strBuildStates = "&BuildStates=";
+
                         foreach (Card card in p.hand)
                         {
-                            strHand += string.Format("&{0}={1}", card.Id, p.isCardBuildable(card).ToString());
+                            strCards += card.Id + ",";
+                            strBuildStates += p.isCardBuildable(card) + ",";
                         }
 
-                        strHand += string.Format("&WonderStage{0}={1}", p.currentStageOfWonder, p.isStageBuildable().ToString());
+                        strCards = strCards.TrimEnd(',');
+                        strBuildStates = strBuildStates.TrimEnd(',');
+
+                        strHand += strCards;
+                        strHand += strBuildStates;
+
+                        strHand += string.Format("&WonderStage={0},{1}", p.currentStageOfWonder, p.isStageBuildable().ToString());
 
                         if (gettingBabylonExtraCard)
                         // if (phase == GamePhase.Babylon)
