@@ -546,16 +546,16 @@ namespace SevenWonders
         {
             Player p = player[playerNickname];
 
-            CardId cName = Card.CardNameFromStringName(cardName);
+            CardId cardId = Card.CardNameFromStringName(cardName);
 
             Card c = null;
             if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
             {
-                c = p.draftedLeaders.Find(x => x.Id == cName);
+                c = p.draftedLeaders.Find(x => x.Id == cardId);
             }
             else
             {
-                c = p.hand.Find(x => x.Id == cName);
+                c = p.hand.Find(x => x.Id == cardId);
             }
 
             if (c == null)
@@ -915,7 +915,22 @@ namespace SevenWonders
         {
             Player p = player[nickname];
 
-            discardCardForThreeCoins(p, p.hand.Find(x => x.Id == Card.CardNameFromStringName(name)));
+            CardId cardId = Card.CardNameFromStringName(name);
+
+            Card c = null;
+            if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
+            {
+                c = p.draftedLeaders.Find(x => x.Id == cardId);
+            }
+            else
+            {
+                c = p.hand.Find(x => x.Id == cardId);
+            }
+
+            if (c == null)
+                throw new Exception("Could not find card");
+
+            discardCardForThreeCoins(p, c);
         }
 
         /// <summary>
@@ -925,21 +940,30 @@ namespace SevenWonders
         /// <param name="p"></param>
         public void discardCardForThreeCoins(Player p, Card c)
         {
+            // give 3 coins.
             p.addTransaction(3);
 
             //Find the card with the id number and find its effects
-            p.hand.Remove(c);
-
-            //add the card to the discard pile
-            discardPile.Add(c);
-
-            if (p.hand.Count == 1)
+            if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
             {
-                // discard the unplayed card, unless the player is Babylon (B) and their Power is enabled (the 2nd wonder stage)
-                if (!p.babylonPowerEnabled)
+                p.draftedLeaders.Remove(c);
+                // Nothing else to do for leaders; discarded leaders cannot be put back into play.
+            }
+            else
+            {
+                p.hand.Remove(c);
+
+                //add the card to the discard pile for Halikarnassos or Solomon.
+                discardPile.Add(c);
+
+                if (p.hand.Count == 1)
                 {
-                    discardPile.Add(p.hand.First());
-                    p.hand.Clear();
+                    // discard the unplayed card, unless the player is Babylon (B) and their Power is enabled (the 2nd wonder stage)
+                    if (!p.babylonPowerEnabled)
+                    {
+                        discardPile.Add(p.hand.First());
+                        p.hand.Clear();
+                    }
                 }
             }
         }
@@ -1263,13 +1287,11 @@ namespace SevenWonders
 
             strCommerce += string.Format("&Structure={0}", structureName);
 
-            if (wonderStage != null)
-                strCommerce += "&BuildWonderStage=";
-
             Card card = null;
 
-            if (wonderStage == "True")
+            if (wonderStage != null)
             {
+                strCommerce += "&BuildWonderStage=";
                 card = p.playerBoard.stageCard[p.currentStageOfWonder];
             }
             else

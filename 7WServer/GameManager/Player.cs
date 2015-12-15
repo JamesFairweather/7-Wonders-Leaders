@@ -468,7 +468,8 @@ namespace SevenWonders
                 effect is ScienceWildEffect ||
                 effect is ScienceEffect ||
                 effect is MilitaryEffect ||
-                effect is FreeLeadersEffect)
+                effect is FreeLeadersEffect ||
+                effect is StructureDiscountEffect)
             {
                 // nothing to do; this card will be included in the end of game point total, or
                 // - Military cards are used at the end of each age to resolve conflicts
