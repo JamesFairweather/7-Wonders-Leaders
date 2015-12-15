@@ -88,32 +88,5 @@ namespace SevenWonders
             //return the random card
             return topCard;
         }
-
-        /*
-        /// <summary>
-        /// Return Deck that have all cards in Player's  removed from unusedDeck
-        /// Used by Rome B stage 1
-        /// </summary>
-        /// <param name="usedDeck"></param>
-        /// <param name="unusedDeck"></param>
-        public static Deck removeDuplicate(Deck usedDeck, Deck unusedDeck)
-        {
-            Deck newDeck = unusedDeck;
-
-            for (int i = 0; i < usedDeck.numOfCards(); i++)
-            {
-                for (int j = 0; j < newDeck.numOfCards(); j++)
-                {
-                    if (usedDeck.card[i].id == newDeck.card[j].id)
-                    {
-                        newDeck.card.RemoveAt(j);
-                        break;
-                    }
-                }
-            }
-
-            return newDeck;
-        }
-        */
-        }
     }
+}

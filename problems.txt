@@ -42,8 +42,14 @@ Technical stories:
 - There's a bug with Halikarnassos not counting its B side wonder points properly.  Update 12/12/2015.  I believe I fixed this bug.
   Also check that the UI is updated before the player needs to select his card.
 
-- Remove all these unique effects.  Instead, have a "SpecialEffect" type. If that's set, we have to look at the card name
-  to determine its effect.
+- On a normal turn, there should just one message exchanged: server sends game state to the client:
+	 - what cards were just played by the other players
+	 - what cards are in the player's hand, and their buildable states
+	 - all data affecting commerce - what resources the player has, what resources each neighbor has, the next buildable
+	   wonder stage, and what commercial discount effects are in place.
+	- client sends what card was selected and a list of which resources were used.
+
+- A bunch of special leader effects still need to be implemented.
 
 - The list of players (the datagrid) isn't hooked up at the match-making.
 

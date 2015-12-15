@@ -12,8 +12,6 @@ namespace SevenWonders
 
         public String nickname { get; set; }
 
-        // public String GetNickName() { return nickname; }
-
         public Board playerBoard { get; set; }
 
         // Last Wonder Stage that has been built (add 1 to get the next wonder stage to be built)
@@ -118,9 +116,6 @@ namespace SevenWonders
         }
 
         public int coin { get; private set; }
-
-        //Points and stuff
-        // public int victoryPoint { get; private set; }
 
         public int shield
         {
@@ -296,36 +291,6 @@ namespace SevenWonders
         }
 
         /// <summary>
-        /// Check if Stevie is stored as an action
-        /// Return true if it is then remove it
-        /// Return false if it is not
-        /// </summary>
-        /// <returns></returns>
-        public bool hasStevie()
-        {
-            /*
-            for (int i = 0; i < numOfActions; i++)
-            {
-                //found Stevie
-                if (actions[i] == "@Pay X coins for board, where X is board cost")
-                {
-                    //remove the item and return true
-                    for (int j = i; j < (numOfActions - 1); j++)
-                    {
-                        actions[j] = actions[j + 1];
-                    }
-
-                    numOfActions--;
-
-                    return true;
-                }
-            }
-            */
-
-            return false;
-        }
-
-        /// <summary>
         /// Check if Courtesan's guild is played and remove it if it is
         /// </summary>
         /// <returns></returns>
@@ -353,16 +318,6 @@ namespace SevenWonders
             return false;
         }
 
-        /*
-        /// <summary>
-        /// Stored actions to be executed at the end of the game
-        /// </summary>
-        /// <param name="s"></param>
-        public void storeEndOfGameAction(Effect s)
-        {
-            endOfGameActions.Add(s);
-        }
-        */
         public void executeActionNow(Card card)
         {
             Effect effect = card.effect;
@@ -507,17 +462,8 @@ namespace SevenWonders
 
         //Execute actions
         //change the Player score information based on the actions
-        public void executeAction(GameManager gm)
+        public void executeAction()
         {
-            /*
-            //Esteban and Bilkis can be implemented much easier if it has access to GameManager (LeadersGameManager to be exact)
-            //Regular GameManager is not useful. Must have LeadersGameManager because nothing in the regular game requires reg GM
-            if (gm is LeadersGameManager)
-            {
-                gm = (LeadersGameManager)gm;
-            }
-            */
-
             foreach(int m in coinTransactions)
             {
                 coin += m;
@@ -528,30 +474,9 @@ namespace SevenWonders
             //go through each action and execute the actions stored
             foreach (Effect act in actions)
             {
-                //category $: deduct a given amount of coins
-                // if (actactions[i][0] == '$')
-                /*
-                if (act is CoinEffect)
-                {
-                    // add or subtract coins
-                    coin += ((CoinEffect)act).coins;
-                }
-                */
-                /*
-                else if (act is MilitaryEffect)
-                {
-                    // shield += ((MilitaryEffect)act).nShields;
-                }
-                */
-                //category 1: give one kind of non-science thing
-                // else if (actions[i][0] == '1')
                 if (act is ResourceEffect)
                 {
-                    ResourceEffect e = act as ResourceEffect;
-                    //increase the appropriate field by num
-                    // int num = int.Parse(act[0] + "");
-                    //  int num = e.multiplier;
-                    dag.add(e);
+                    dag.add(act as ResourceEffect);
                 }
                 else if (act is CoinsAndPointsEffect)
                 {
@@ -582,23 +507,6 @@ namespace SevenWonders
                     olympiaPowerAvailable = true;
                     gm.gmCoordinator.sendMessage(this, "EnableFB&Olympia=true");
                 }
-
-                /*
-                //Esteban and Bilkis
-                // else if(actions[i][0] == '8')
-                else if(act is SpecialLeaderEffect)
-                {
-                    if (act.Substring(0) == "Esteban")
-                    {
-                        //enable the Esteban button by sending the Esteban message to the client
-                        gm.gmCoordinator.sendMessage(this, "EE");
-                    }
-                    else if (act.Substring(0) == "Bilkis")
-                    {
-                        hasBilkis = true;
-                    }
-                }
-                */
                 else
                 {
                     //do nothing for now
@@ -631,14 +539,6 @@ namespace SevenWonders
                     sum += (leftNeighbour.conflictTokenOne + leftNeighbour.conflictTokenTwo + leftNeighbour.conflictTokenThree) * cpe.victoryPointsAtEndOfGameMultiplier;
                     sum += (rightNeighbour.conflictTokenOne + rightNeighbour.conflictTokenTwo + rightNeighbour.conflictTokenThree) * cpe.victoryPointsAtEndOfGameMultiplier;
                 }
-
-                /*
-                if (cpe.classConsidered == StructureType.WonderStage)
-                {
-                    sum += leftNeighbour.currentStageOfWonder* cpe.victoryPointsAtEndOfGameMultiplier;
-                    sum += rightNeighbour.currentStageOfWonder * cpe.victoryPointsAtEndOfGameMultiplier;
-                }
-                */
             }
 
             if (cpe.cardsConsidered == CoinsAndPointsEffect.CardsConsidered.PlayerAndNeighbors || cpe.cardsConsidered == CoinsAndPointsEffect.CardsConsidered.Player)
@@ -709,6 +609,13 @@ namespace SevenWonders
             int nGear = playedStructure.Where(x => x.structureType == StructureType.Science && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Gear).Count();
             int nTablet = playedStructure.Where(x => x.structureType == StructureType.Science && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Tablet).Count();
 
+            // if wild cards are in play, we choose the best combination of wilds to get the maximum overall
+            // score, with Aristotle's bonus factored in.  In some cases, Aristotle's effect will mean it's
+            // more beneficial to use the wild card(s) to make more groups rather than like symbols.
+            // For example: 1/2/5+1.  Without Aristotle, the maximum score is 1/2/6 = 48.
+            // But with Aristotle's bonus, it's better to use the wild card to make a 3rd set instead
+            // 1/2/6 = 51 with Aristotle but if you do 2/2/5 you get 53 points because the exta set
+            // is worth 3 bonus points.
             for (int i = 0; i <= nScienceWildCards; ++i)
             {
                 for (int j = 0; j <= nScienceWildCards - i; ++j)
@@ -721,20 +628,6 @@ namespace SevenWonders
                             maxScienceScore = score;
 
                             bestResult = tmpResult;
-
-                            /*
-                            PointsForScience = CalculateScienceGroupScore(result.nCompass, result.nGear, result.nTablet, 7, out result);
-
-                            // if wild cards are in play, we choose the best combination of wilds to get the maximum overall
-                            // score, with Aristotle's bonus factored in.  In some cases, Aristotle's effect will mean it's
-                            // more beneficial to use the wild card(s) to make more groups rather than like symbols.
-                            // For example: 1/2/5+1.  Without Aristotle, the maximum score is 1/2/6 = 48.
-                            // But with Aristotle's bonus, it's better to use the wild card to make a 3rd set instead
-                            // 1/2/6 = 51 with Aristotle but if you do 2/2/5 you get 53 points because the exta set
-                            // is worth 3 bonus points.
-                            if (usingAristotle)
-                                PointsForAristotle = CalculateScienceGroupScore(nCompass + i, nGear + j, nTablet + k, 10) - PointsForScience;
-                            */
                         }
                     }
                 }
@@ -903,7 +796,7 @@ namespace SevenWonders
                 }
                 else if (c.Id == CardId.Shipowners_Guild)
                 {
-                    // Shipowners guild counts 1 point for each Brown, Grey, and Purple card in the players' city.
+                    // Shipowners guild counts 1 point for each RawMaterial, Goods, and Guild structure in the players' city.
                     score.guilds += playedStructure.Where(x => x.structureType == StructureType.RawMaterial || x.structureType == StructureType.Goods || x.structureType == StructureType.Guild).Count();
                 }
             }
@@ -919,147 +812,6 @@ namespace SevenWonders
             if (hasAristotle)
                 score.leaders += scienceScore.nGroups * 3;
 
-#if FALSE
-            foreach (Effect act in endOfGameActions)
-            {
-                if (act is CoinsAndPointsEffect)
-                {
-                    CoinsAndPointsEffect e = act as CoinsAndPointsEffect;
-                }
-                //category 6: special guild cards and leader cards
-                //6_132 or 6_135
-                else if (act is SpecialAbilityEffect)
-                {
-                    /*
-                    //card number 132: Scientist guild
-                    //award a science that gives the most points
-                    if (act.Substring(1) == "132")
-                    {
-                        //try adding each one and see which artifact will give the highest score
-
-                        //try adding bear trap
-                        int sum1 = ((bearTrap + 1) * (bearTrap + 1)) + (sextant * sextant) + (tablet * tablet) + (Math.Min(Math.Min(bearTrap+1, sextant), tablet) * 7);
-                        //try adding sextant
-                        int sum2 = (bearTrap * bearTrap) + ((sextant+1) * (sextant+1)) + (tablet * tablet) + (Math.Min(Math.Min(bearTrap, sextant+1), tablet) * 7);
-                        //try adding tablet
-                        int sum3 = (bearTrap * bearTrap) + (sextant * sextant) + ((tablet+1) * (tablet+1)) + (Math.Min(Math.Min(bearTrap, sextant), (tablet+1)) * 7);
-                        //choose the one that has the highest sum
-                        //if the max is sum1
-                        if (Math.Max(Math.Max(sum1, sum2), sum3) == sum1) bearTrap++;
-                        //if the max is sum2
-                        else if (Math.Max(Math.Max(sum1, sum2), sum3) == sum2) sextant++;
-                        //if the max is sum3
-                        else if (Math.Max(Math.Max(sum1, sum2), sum3) == sum3) tablet++;
-                    }
-
-                    //card number 135
-                    //add 1 victory for each brown card, grey card, purple card played
-                    if (act.Substring(1) == "135")
-                    {
-                        for (int j = 0; j < numOfPlayedCards; j++)
-                        {
-                            if (playedStructure[j].colour == "Brown" || playedStructure[j].colour == "Grey" || playedStructure[j].colour == "Purple")
-                            {
-                                victoryPoint++;
-                            }
-                        }
-
-                    }
-
-                    //card number 302 (Gamer's Guild) or 218 (Midas)
-                    //add 1 victory point for each 3 coins at the end of the game
-                    if (act.Substring(1) == "302" || act.Substring(2) == "218")
-                    {
-                        victoryPoint += (int)(coin / 3);
-                    }
-
-                    //card number 203
-                    //add 3 victory point for each 3 science at the end of the game
-                    //so instead of adding 7 for each set of science, add 10 instead.
-
-                    if (act.Substring(1) == "203")
-                    {
-                        int least = Math.Min(Math.Min(bearTrap, sextant), tablet);
-                        victoryPoint += (least * 3);
-                    }
-
-                    //card number 213 (Justinian)
-                    //add 3 VP for every set of blue, red, and green card
-                    if (act.Substring(1) == "213")
-                    {
-                        int blue = 0, red = 0, green = 0;
-
-                        for (int j = 0; j < numOfPlayedCards; j++)
-                        {
-                            if (playedStructure[j].colour == "Blue") blue++;
-                            else if (playedStructure[j].colour == "Green") green++;
-                            else if (playedStructure[j].colour == "Red") red++;
-                        }
-
-                        int least = Math.Min(Math.Min(blue, red), green);
-                        victoryPoint += (least * 3);
-                    }
-
-                    //card number 224 (Platon)
-                    //add 7 victory point for each set of brown, grey, blue, yellow, green, red, and purple card played
-                    if (act.Substring(1) == "224")
-                    {
-                        //let the 7 numbers be put into an array of integers. Sort these integers. The lowest number will be the least amount
-
-                        int []colours = new int[7];
-                        for(int j = 0; j < 7; j++) colours[j] = 0;
-
-                        for (int j = 0; j < numOfPlayedCards; j++)
-                        {
-                            if (playedStructure[j].colour == "Blue") colours[0]++;
-                            else if (playedStructure[j].colour == "Green") colours[1]++;
-                            else if (playedStructure[j].colour == "Red") colours[2]++;
-                            else if (playedStructure[j].colour == "Brown") colours[3]++;
-                            else if (playedStructure[j].colour == "Grey") colours[4]++;
-                            else if (playedStructure[j].colour == "Yellow") colours[5]++;
-                            else if (playedStructure[j].colour == "Purple") colours[6]++;
-                        }
-
-                        //sort the numbers
-                        Array.Sort(colours);
-
-                        //the lowest number is the first element. That tells how many sets there are.
-                        int least = colours[0];
-
-                        //add multiple of 7 of the least amount.
-                        victoryPoint += (least * 7);
-                    }
-
-                    //card number 200
-                    //Alexander: one extra point per conflict token
-                    if (act.Substring(1) == "200")
-                    {
-                        victoryPoint += (conflictTokenOne + conflictTokenTwo + conflictTokenThree);
-                    }
-
-                    //card number 238
-                    //Louis Armstrong
-                    if (act.Substring(1) == "238")
-                    {
-                        victoryPoint += (7 - (conflictTokenOne + conflictTokenTwo + conflictTokenThree));
-                    }
-                    */
-                }
-                //category 7: end of game board powers
-                else if (act is SpecialAbilityEffect)
-                {
-                    /*
-                    //copy best neighbouring purple card
-                    if (endOfGameActions[i] == "7OB")
-                    {
-                        throw new NotImplementedException();
-                    }
-                    */
-
-                    throw new NotImplementedException();
-                }
-            }
-#endif
             return score;
         }
 
@@ -1100,31 +852,6 @@ namespace SevenWonders
             if (playedStructure.Exists(x => (x.chain[0] == card.strName) || (x.chain[1] == card.strName)))
                 return Buildable.True;
 
-            //if the owner has built card 217: free leader cards
-            //if the owner has Rome A board, then same
-            //return T if the card is white
-#if FALSE
-            if ((playerBoard.freeResource == 'D' || hasIDPlayed(/*217*/"Maecenas")) && card.structureType == StructureType.Leader)
-            {
-                return 'T';
-            }
-
-            //if the owner has Rome B board, then get 2 coin discount
-            //return F otherwise (since you cannot get more coins from initiating commerce; you can only get resources)
-            if (playerBoard.freeResource == 'd' && card.structureType == StructureType.Leader)
-            {
-                if ((card.cost.coin - 2) <= coin) return 'T';
-                else return 'F';
-            }
-
-            //if a neighbour own Rome B board, then get a 1 coin discount
-            else if ((leftNeighbour.playerBoard.freeResource == 'd' || rightNeighbour.playerBoard.freeResource == 'd') && card.structureType == StructureType.Leader)
-            {
-                if ((card.cost.coin - 1) <= coin) return 'T';
-                else return 'F';
-            }
-#endif
-
             //if the owner has built card 228: free guild cards
             //return T if the card is purple
             if (card.structureType == StructureType.Guild && playedStructure.Exists(x => x.Id == CardId.Ramses))
@@ -1140,18 +867,6 @@ namespace SevenWonders
                 // when Leonidas is in play.
                 ++nWildResources;
             }
-            /*
-            //202, 207, 216: Discount on green, blue and red respectively
-            //If a discount applies, determine if it is possible to play the card
-            if ((hasIDPlayed(202) && card.colour == "Green") || 
-                (hasIDPlayed(207) && card.colour == "Blue") ||
-                (hasIDPlayed(216) && card.colour == "Red"))
-            {
-                bool newCostResult = DAG.canAffordOffByOne(dag, cost);
-
-                if (newCostResult == true) return 'T';
-            }
-            */
 
             int coinCost = cost.coin;
 
@@ -1278,41 +993,6 @@ namespace SevenWonders
             return Buildable.InsufficientResources;
         }
 
-        /*
-        /// <summary>
-        /// return the final score
-        /// </summary>
-        /// <returns></returns>
-        public int finalScore()
-        {
-            int score = 0;
-
-            //1. Red: Add the military conflict points
-            score += conflictTokenOne + (conflictTokenTwo * 3) + (conflictTokenThree * 5);
-            score -= lossToken;
-
-            //2. Count the coins. Every 3 coins counts for 1 score at the end
-            score += ((int)(coin / 3));
-
-            //3. Add victory points from blue cards
-            score += victoryPoint;
-
-            //4. Green: Add scientific structures  
-            //add up each artifact
-            //bearTraps
-            score += bearTrap * bearTrap;
-            score += sextant * sextant;
-            score += tablet * tablet;
-
-            //add 7 points for each three of a kind
-            //find the least of the artifact among the three
-            int least = Math.Min(Math.Min(bearTrap, sextant), tablet);
-            score += (least * 7);
-
-            return score;
-        }
-        */
-
 #if FALSE
         public int doHaveEnoughCoinsToCommerce(String c)
         {
@@ -1401,25 +1081,17 @@ namespace SevenWonders
 
             return totalCost;
         }
-
 #endif
 
         /// <summary>
         /// AI Player makes a move
         /// </summary>
-        /// <param name="gm"></param>
-        public void makeMove(GameManager gm)
+        public void makeMove()
         {
             if (AIBehaviour != null)
             {
                 AIBehaviour.makeMove(this, gm);
             }
-            /*
-            else if (LeadersAIBehaviour != null)
-            {
-                LeadersAIBehaviour.makeMove(this, (LeadersGameManager)gm);
-            }
-            */
         }
     }
 }

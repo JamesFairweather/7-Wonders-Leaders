@@ -404,16 +404,13 @@ namespace SevenWonders
 
                 switch (message.Substring(0, 8))
                 {
-                    case "CardPlay":
+                    case "UpdateUI":
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
 
-                        foreach (string s in qcoll.Keys)
+                        Application.Current.Dispatcher.Invoke(new Action(delegate
                         {
-                            Application.Current.Dispatcher.Invoke(new Action(delegate
-                            {
-                                gameUI.updateCardsPlayed(s, qcoll[s]);
-                            }));
-                        }
+                            gameUI.updateCoinsAndCardsPlayed(qcoll);
+                        }));
                         messageHandled = true;
                         break;
 
@@ -538,6 +535,7 @@ namespace SevenWonders
                         messageHandled = true;
                         break;
 
+                        /*
                     case "SetCoins":
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
 
@@ -551,6 +549,7 @@ namespace SevenWonders
                         messageHandled = true;
 
                         break;
+                        */
 
                     case "SetPlyrH":        // Set player hand
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
@@ -572,47 +571,6 @@ namespace SevenWonders
             if (message[0] == '#')
             {
                 updateChatTextBox(message.Substring(1));
-            }
-            //Receives signal from GMCoordinator on whether the game can start or not
-            //S0 means game can start
-            //S1 means game cannot (because of insufficient players)
-            else if (message[0] == 'S')
-            {
-                // S[0|n] message is no longer used.
-                throw new Exception();
-                /*
-                //Handle when game cannot start
-                if (message[1] == '0')
-                {
-                    //re-enable the ready button
-                    Application.Current.Dispatcher.Invoke(new Action(delegate
-                    {
-                        tableUI.readyButton.IsEnabled = true;
-                    }));
-                }
-                //game is starting
-                else
-                {
-                    //tell the server UI initialisation is done
-                    // sendToHost("r"); // JDF - moved to another location until after the gameUI is created.
-
-                    // find out the number of players.
-                    string strNumPlayers = message.Substring(1);
-
-                    numPlayers = int.Parse(strNumPlayers);
-
-                    //close the TableUI
-                    Application.Current.Dispatcher.Invoke(new Action(delegate
-                    {
-                        tableUI.Close();
-                    }));
-                }
-                */
-            }
-            //update the current stage of wonder information
-            else if (message[0] == 's')
-            {
-                // updateCurrentStageLabelAndStartTimer(message);
             }
             //indicate to client to start timer
             else if (message[0] == 't')
@@ -687,15 +645,6 @@ namespace SevenWonders
                 // recieved a message from the server that the client cannot handle.
                 throw new Exception();
             }
-        }
-
-        /// <summary>
-        /// Return back if the current turn is the last turn of the age
-        /// </summary>
-        public bool currentTurnIsLastTurnOfAge()
-        {
-            if (currentTurn > 4) return true;
-            else return false;
         }
 
         public Card FindCard(string name)

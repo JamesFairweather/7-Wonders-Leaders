@@ -354,57 +354,6 @@ namespace SevenWonders
                         }
                     }
                 }
-
-                /////////////////////////////////////////////////////////////////////////////////
-                //Leaders only
-
-                //recruit the leader during age 0
-                /*
-                else if (message[0] == 'l')
-                {
-                    //id of the selected Leader card
-                    int id = int.Parse(message.Substring(1));
-
-                    gameManager.recruitLeader(nickname, id);
-                }
-                //someone uses Esteban power
-                else if (message == "Esteban")
-                {
-                    //if user attempts to use Esteban power during recruitment turn, then re-enable their button, because Esteban power can't be used
-                    if (gameManager.currentTurn == 0)
-                    {
-                        sendMessage(gameManager.player[nickname], "EE");
-                    }
-                    //otherwise, toggle the Esteban variable in the gameManager
-                    else
-                    {
-                        gameManager.esteban = true;
-                    }
-                }
-
-                //bilkis power is used
-                else if (message[0] == 'k')
-                {
-                    //Bilkis power format
-                    //(0 is nothing, 1 is ore, 2 is stone, 3 is glass, 4 is papyrus, 5 is loom, 6 is wood, 7 is brick
-
-                    gameManager.bilkisPower(nickname, (byte)(int.Parse(message.Substring(1))));
-                }
-
-                //Rome power is used to play a Leader for free
-                else if (message[0] == 'M')
-                {
-                    gameManager.playLeaderForFreeWithRome(nickname, message.Substring(1));
-                    // gameManager.updatePlayedCardPanel(nickname);
-                }
-
-                //Courtesan's guild
-                else if (message[0] == 'c')
-                {
-                    gameManager.playCourtesansGuild(nickname, message.Substring(1));
-                    // gameManager.updatePlayedCardPanel(nickname);
-                }
-                */
                 else
                 {
                     // shouldn't get here.
