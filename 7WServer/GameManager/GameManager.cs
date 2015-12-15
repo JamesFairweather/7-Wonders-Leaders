@@ -154,7 +154,7 @@ namespace SevenWonders
         /// Creating a vanilla AI controlled Player class
         /// </summary>
         /// <param name="name"></param>
-        protected virtual Player createAI(String name, char strategy)
+        protected Player createAI(String name, char strategy)
         {
             Player thisAI = new Player(name, true, this);
             switch (strategy)
@@ -183,7 +183,7 @@ namespace SevenWonders
 
 
 
-        public virtual void sendBoardNames()
+        public void sendBoardNames()
         {
             string strMsg = string.Empty;
 
@@ -196,7 +196,7 @@ namespace SevenWonders
             {
                 gmCoordinator.sendMessage(p, "SetBoard" + strMsg);
 
-                p.executeAction(this);
+                p.executeAction();
             }
         }
 
@@ -207,7 +207,7 @@ namespace SevenWonders
         /// </summary>
         /// <param name="numOfPlayers + numOfAI"></param>
         /// 
-        public virtual void beginningOfSessionActions()
+        public void beginningOfSessionActions()
         {
             //distribute a random board and 3 coins to all and give the player their free resource
             //send the board display at this point
@@ -519,8 +519,11 @@ namespace SevenWonders
         /// <returns></returns>
         protected Board popRandomBoard()
         {
-            // int index = (new Random()).Next(0, board.Count);
-            int index = 0;
+            int index = (new Random()).Next(0, board.Count);
+            index = 9;
+
+            if ( gmCoordinator.leadersEnabled )
+                index = 15;
 
             KeyValuePair<Board.Wonder, Board> randomBoard = board.ElementAt(index);
 
@@ -546,16 +549,16 @@ namespace SevenWonders
         {
             Player p = player[playerNickname];
 
-            CardId cName = Card.CardNameFromStringName(cardName);
+            CardId cardId = Card.CardNameFromStringName(cardName);
 
             Card c = null;
             if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
             {
-                c = p.draftedLeaders.Find(x => x.Id == cName);
+                c = p.draftedLeaders.Find(x => x.Id == cardId);
             }
             else
             {
-                c = p.hand.Find(x => x.Id == cName);
+                c = p.hand.Find(x => x.Id == cardId);
             }
 
             if (c == null)
@@ -573,7 +576,7 @@ namespace SevenWonders
 
             bool usedBilkis = strUsedBilkis != null && strUsedBilkis == "True";
 
-            buildStructureFromHand(p, c, strWonderStage == "True", freeBuild, nLeftCoins, nRightCoins, usedBilkis);
+            buildStructureFromHand(p, c, strWonderStage != null, freeBuild, nLeftCoins, nRightCoins, usedBilkis);
         }
 
         /// <summary>
@@ -744,178 +747,26 @@ namespace SevenWonders
             */
         }
 
-#if FALSE
-        /// <summary>
-        /// Player finishes conducting commerce to pay for a card
-        /// </summary>
-        /// <param name="nickname"></param>
-        /// <param name="commerceInformation"></param>
-        public void buildStructureFromCommerce(string nickname, string structureName, int leftcoins, int rightcoins)//string commerceInformation)
-        {
-            Player p = player[nickname];
-
-            /*
-            CommerceClientToServerResponse response = (CommerceClientToServerResponse)Marshaller.StringToObject(commerceInformation);
-
-            string structureName = response.structureName;
-            int leftcoins = response.leftCoins;
-            int rightcoins = response.rightCoins;
-            */
-
-            //Find the card with the id number
-            Card c = p.hand.Find(x => x.name == structureName);
-
-            if (c == null)
-                throw new Exception("Unexpected card name");
-
-            p.hand.Remove(c);
-
-            //add the card to played card structure
-            p.addPlayedCardStructure(c);
-            //store the card's action
-            p.storeAction(c.effect);
-
-            //charge the player the appropriate amount of coins
-            int commerceCost = leftcoins + rightcoins;
-
-            //store the deduction
-            // p.storeAction("$" + commerceCost);
-            p.storeAction(new CostEffect(commerceCost));
-
-            //give the coins that neigbours earned from commerce
-            // p.leftNeighbour.storeAction("1" + leftcoins + "$");
-            // p.rightNeighbour.storeAction("1" + rightcoins + "$");
-            p.leftNeighbour.storeAction(new SimpleEffect(leftcoins, '$'));
-            p.rightNeighbour.storeAction(new SimpleEffect(rightcoins, '$'));
-
-
-            //determine if the player should get 2 coins for having those leaders (get 2 coins for playing a yellow and playing a pre-req
-            giveCoinFromLeadersOnBuild(p, c);
-
-            //Leaders: if Player has card 209 (gain 1 coin for using commerce per neighbouring player)
-            //then gain 1 coin
-            /*
-            if (this is LeadersGameManager)
-            {
-                if (p.hasIDPlayed(209))
-                {
-                    if (leftcoins != 0) p.storeAction("11$");
-                    if (rightcoins != 0) p.storeAction("11$");
-                }
-            }
-            */
-        }
-
-        /// <summary>
-        /// Player finishes conducting commerce to pay for a stage of wonder
-        /// </summary>
-        /// <param name="nickname"></param>
-        /// <param name="information"></param>
-        public virtual void buildStageOfWonderFromCommerce(string nickname, string structureName, int leftcoins, int rightcoins)
-        {
-            Player p = player[nickname];
-
-            /*
-            CommerceClientToServerResponse response = (CommerceClientToServerResponse)Marshaller.StringToObject(information);
-
-            int leftcoins = response.leftCoins;
-            int rightcoins = response.rightCoins;
-            string structureName = response.structureName;
-            */
-
-            //build the stage of wonder
-            buildStageOfWonder(structureName, nickname);
-
-            //charge the player the appropriate amount of coins
-            int commerceCost = leftcoins + rightcoins;
-
-            //store the deduction
-            // p.storeAction("$" + commerceCost);
-            p.storeAction(new CostEffect(commerceCost));
-
-            //give the coins that neigbours earned from commerce
-            // p.leftNeighbour.storeAction("1" + leftcoins + "$");
-            // p.rightNeighbour.storeAction("1" + rightcoins + "$");
-            p.leftNeighbour.storeAction(new SimpleEffect(leftcoins, '$'));
-            p.rightNeighbour.storeAction(new SimpleEffect(rightcoins, '$'));
-
-            //Leaders: if Player has card 209 (gain 1 coin for using commerce per neighbouring player)
-            //then gain 1 coin
-            /*
-            if (this is LeadersGameManager)
-            {
-                if (p.hasIDPlayed(209))
-                {
-                    if (leftcoins != 0) p.storeAction("11$");
-                    if (rightcoins != 0) p.storeAction("11$");
-                }
-            }
-            */
-        }
-
-        /// <summary>
-        /// build a structure from a card in discard pile, given the Card id number and the Player
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="p"></param>
-        public void buildStructureFromDiscardPile(string name, string playerNickname)
-        {
-            //Find the Player object given the playerNickname
-            Player p = player[playerNickname];
-
-            //if the structure costed money, reimburse the money
-            //check if the Card costs money
-            int costInCoins = 0;
-
-            throw new NotImplementedException();
-
-            for (int i = 0; i < discardPile.Count; i++)
-            {
-                //found the card
-                if (discardPile[i].name == name)
-                {
-                    // I think the loop below shoudl be replaced with:
-                    costInCoins = discardPile[i].cost.coin;
-
-                    // TODO: figure this out.  Not really sure what they were doing before.
-                    throw new NotImplementedException();
-
-                    /*
-                    //count how many $ signs in the cost. Each $ means 1 coin cost
-                    for (int j = 0; j < discardPile[i].cost.Length; j++)
-                    {
-                        if (discardPile[i].cost[j] == '$')
-                        {
-                            costInCoins++;
-                        }
-                    }
-                    */
-
-                    break;
-                }
-            }
-
-            //store the reimbursement
-            p.storeAction(new CoinEffect(costInCoins));
-
-            //Find the card with the id number
-            Card c = discardPile.Find(x => x.name == name);
-            discardPile.Remove(c);
-
-            //add the card to played card structure
-            p.addPlayedCardStructure(c);
-            //store the card's action
-            p.storeAction(c.effect);
-
-            //determine if the player should get 2 coins for having those leaders (get 2 coins for playing a yellow and playing a pre-req
-            giveCoinFromLeadersOnBuild(p, c);
-        }
-#endif
         public void discardCardForThreeCoins(string nickname, string name)
         {
             Player p = player[nickname];
 
-            discardCardForThreeCoins(p, p.hand.Find(x => x.Id == Card.CardNameFromStringName(name)));
+            CardId cardId = Card.CardNameFromStringName(name);
+
+            Card c = null;
+            if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
+            {
+                c = p.draftedLeaders.Find(x => x.Id == cardId);
+            }
+            else
+            {
+                c = p.hand.Find(x => x.Id == cardId);
+            }
+
+            if (c == null)
+                throw new Exception("Could not find card");
+
+            discardCardForThreeCoins(p, c);
         }
 
         /// <summary>
@@ -925,21 +776,30 @@ namespace SevenWonders
         /// <param name="p"></param>
         public void discardCardForThreeCoins(Player p, Card c)
         {
+            // give 3 coins.
             p.addTransaction(3);
 
             //Find the card with the id number and find its effects
-            p.hand.Remove(c);
-
-            //add the card to the discard pile
-            discardPile.Add(c);
-
-            if (p.hand.Count == 1)
+            if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
             {
-                // discard the unplayed card, unless the player is Babylon (B) and their Power is enabled (the 2nd wonder stage)
-                if (!p.babylonPowerEnabled)
+                p.draftedLeaders.Remove(c);
+                // Nothing else to do for leaders; discarded leaders cannot be put back into play.
+            }
+            else
+            {
+                p.hand.Remove(c);
+
+                //add the card to the discard pile for Halikarnassos or Solomon.
+                discardPile.Add(c);
+
+                if (p.hand.Count == 1)
                 {
-                    discardPile.Add(p.hand.First());
-                    p.hand.Clear();
+                    // discard the unplayed card, unless the player is Babylon (B) and their Power is enabled (the 2nd wonder stage)
+                    if (!p.babylonPowerEnabled)
+                    {
+                        discardPile.Add(p.hand.First());
+                        p.hand.Clear();
+                    }
                 }
             }
         }
@@ -997,7 +857,7 @@ namespace SevenWonders
             //execute the Actions for each players
             foreach (Player p in player.Values)
             {
-                p.executeAction(this);
+                p.executeAction();
             }
         }
 
@@ -1005,10 +865,7 @@ namespace SevenWonders
         {
             foreach (Player p in player.Values)
             {
-                if (p.isAI)
-                {
-                    p.makeMove(this);
-                }
+                if (p.isAI) p.makeMove();
             }
         }
 
@@ -1016,13 +873,16 @@ namespace SevenWonders
         /// Send the main display information for all players
         /// This is called at the beginning of the game and after each turn
         /// </summary>
-        public virtual void updateAllGameUI()
+        public void updateAllGameUI()
         {
-            string strCardsPlayed = "CardPlay";
-            string strUpdateCoinsMessage = "SetCoins";
+            string strPlayerNames = "&Names=";
+            string strCoins = "&Coins=";
+            string strCardNames = "&CardNames=";
 
             foreach (Player p in player.Values)
             {
+                strPlayerNames += p.nickname + ",";
+
                 if (p.bUIRequiresUpdating)
                 {
                     // TODO: update this to send built Wonder stage updates as well as the cards played panel.
@@ -1030,42 +890,28 @@ namespace SevenWonders
 
                     if (card.structureType == StructureType.WonderStage)
                     {
-                        strCardsPlayed += string.Format("&{0}=WonderStage{1}", p.nickname, card.wonderStage);
+                        strCardNames += string.Format("WonderStage{0},", card.wonderStage);
                     }
                     else
                     {
-                        strCardsPlayed += string.Format("&{0}={1}", p.nickname, card.Id);
+                        strCardNames += card.Id + ",";
                     }
                     p.bUIRequiresUpdating = false;
                 }
                 else
                 {
-                    strCardsPlayed += string.Format("&{0}={1}", p.nickname, "Discarded");
+                    strCardNames += "Discarded,";
                 }
 
-                strUpdateCoinsMessage += string.Format("&{0}={1}", p.nickname, p.coin);
+                strCoins += p.coin + ",";
             }
+
+            string strCardsPlayed = "UpdateUI" + strPlayerNames.TrimEnd(',') + strCoins.TrimEnd(',') + strCardNames.TrimEnd(',');
 
             foreach (Player p in player.Values)
             {
-                //Update the Player Bar Panel
-                //send the playerBarPanel information
-                // Replaced with "SetCoins" message
-                // gmCoordinator.sendMessage(p, "B" + Marshaller.ObjectToString(new PlayerBarInformation(player)));
-                //send the current stage of wonder information and tell it to start up the timer
-                // gmCoordinator.sendMessage(p, "s" + p.currentStageOfWonder);
-
-                /*
-                //if player has Bilkis AND has at least 1 coin, then send the message to enable Bilkis button
-                if (p.hasBilkis && p.coin > 0)
-                {
-                    //EB = Enable Bilkis
-                    gmCoordinator.sendMessage(p, "EB");
-                }
-
-                //send current turn information
-                gmCoordinator.sendMessage(p, "T" + currentTurn);
-                */
+                // send current turn information
+                // gmCoordinator.sendMessage(p, "T" + currentTurn);
 
                 if (phase == GamePhase.LeaderDraft)
                 {
@@ -1088,19 +934,23 @@ namespace SevenWonders
                         strLeaderIcons += string.Format("&{0}=", c.Id);
                     }
 
-                    gmCoordinator.sendMessage(p, strLeaderIcons);
                     gmCoordinator.sendMessage(p, strCardsPlayed);
-                    gmCoordinator.sendMessage(p, strUpdateCoinsMessage);
+                    gmCoordinator.sendMessage(p, strLeaderIcons);
 
-                    string strHand = "SetPlyrH";
+                    string strCards = "&Cards=";
+                    string strBuildStates = "&BuildStates=";
 
                     foreach (Card card in p.draftedLeaders)
                     {
-                        strHand += string.Format("&{0}={1}", card.Id, p.isCardBuildable(card).ToString());
+                        strCards += card.Id + ",";
+                        strBuildStates += p.isCardBuildable(card) + ",";
                     }
 
-                    strHand += string.Format("&WonderStage{0}={1}", p.currentStageOfWonder, p.isStageBuildable().ToString());
+                    strCards = strCards.TrimEnd(',');
+                    strBuildStates = strBuildStates.TrimEnd(',');
 
+                    string strHand = "SetPlyrH" + strCards + strBuildStates;
+                    strHand += string.Format("&WonderStage={0},{1}", p.currentStageOfWonder, p.isStageBuildable().ToString());
                     strHand += "&Instructions=Leader Recruitment: choose a leader to play, build a wonder stage with, or discard for 3 coins";
 
                     gmCoordinator.sendMessage(p, strHand);
@@ -1108,7 +958,6 @@ namespace SevenWonders
                 else
                 {
                     gmCoordinator.sendMessage(p, strCardsPlayed);
-                    gmCoordinator.sendMessage(p, strUpdateCoinsMessage);
 
                     // Check if we're in a special state - extra turn for Babylon (B)
                     if (gettingBabylonExtraCard && !p.babylonPowerEnabled)
@@ -1127,26 +976,44 @@ namespace SevenWonders
                         savedHandWhenPlayingFromDiscardPile = p.hand;   // save the player's hand
                         p.hand = discardPile;                           // the player's hand now points to the discard pile.
 
+                        string strCards = "&Cards=";
+                        string strBuildStates = "&BuildStates=";
+
                         foreach (Card card in discardPile)
                         {
                             // Filter out structures that have already been built in the players' city.
                             if (p.isCardBuildable(card) != Buildable.StructureAlreadyBuilt)
-                                strHand += string.Format("&{0}={1}", card.Id, Buildable.True.ToString());
+                            {
+                                strCards += card.Id + ",";
+                                strBuildStates += Buildable.True + ",";
+                            }
                         }
+
+                        strBuildStates = strBuildStates.TrimEnd(',');
 
                         // The free build for Halikarnassos/Solomon requires the card be put in play.
                         // It cannot be used to build a wonder stage, nor can it be discarded for 3
                         // coins.
-                        strHand += string.Format("&WonderStage{0}={1}&Instructions=Choose a card to play for free from the discard pile&CanDiscard=False", p.currentStageOfWonder, Buildable.InsufficientResources.ToString());
+                        strHand += strCards.TrimEnd(',');
+                        strHand += strBuildStates.TrimEnd(',');
+                        strHand += string.Format("&WonderStage={0},{1}", p.currentStageOfWonder, p.isStageBuildable());
+                        strHand += "&Instructions=Choose a card to play for free from the discard pile&CanDiscard=False";
                     }
                     else
                     {
+                        string strCards = "&Cards=";
+                        string strBuildStates = "&BuildStates=";
+
                         foreach (Card card in p.hand)
                         {
-                            strHand += string.Format("&{0}={1}", card.Id, p.isCardBuildable(card).ToString());
+                            strCards += card.Id + ",";
+                            strBuildStates += p.isCardBuildable(card) + ",";
                         }
 
-                        strHand += string.Format("&WonderStage{0}={1}", p.currentStageOfWonder, p.isStageBuildable().ToString());
+                        strHand += strCards.TrimEnd(',');
+                        strHand += strBuildStates.TrimEnd(',');
+
+                        strHand += string.Format("&WonderStage={0},{1}", p.currentStageOfWonder, p.isStageBuildable());
 
                         if (gettingBabylonExtraCard)
                         // if (phase == GamePhase.Babylon)
@@ -1233,15 +1100,16 @@ namespace SevenWonders
             strCommerce += string.Format("&resourceDiscount={0}", p.rawMaterialsDiscount.ToString());
             strCommerce += string.Format("&goodsDiscount={0}", p.goodsDiscount.ToString());
 
-            if (wonderStage == "True")
+            if (wonderStage != null)
                 strCommerce += string.Format("&wonderCard={0}", Card.CardNameFromStringName(p.playerBoard.name, p.currentStageOfWonder+1));
 
-            strCommerce += string.Format("&Structure={0}&WonderStage={1}", structureName, wonderStage);
+            strCommerce += string.Format("&Structure={0}", structureName);
 
             Card card = null;
 
-            if (wonderStage == "True")
+            if (wonderStage != null)
             {
+                strCommerce += "&BuildWonderStage=";
                 card = p.playerBoard.stageCard[p.currentStageOfWonder];
             }
             else
@@ -1273,7 +1141,7 @@ namespace SevenWonders
          * Increment the amount of players that have taken their turn
          * If it is equal to the number of players, then go to the next turn
          */
-        public virtual void turnTaken(String nickname)
+        public void turnTaken(String nickname)
         {
             Player p = player[nickname];
 
@@ -1387,34 +1255,5 @@ namespace SevenWonders
                 updateAllGameUI();
             }
         }
-
-        /*
-        /// <summary>
-        /// A "virtual" function that is of no use to GameManager, and is meant for Leaders to implement
-        /// Added here so that GMCoordinator is able to call the Leader's version of it.
-        /// Program won't compile without the base class having this.
-        /// </summary>
-        /// <param name="nickname"></param>
-        /// <param name="id"></param>
-        public virtual void recruitLeader(String nickname, int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void bilkisPower(String nickname, byte resource)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void playLeaderForFreeWithRome(string nickname, string message)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void playCourtesansGuild(string nickname, string message)
-        {
-            throw new NotImplementedException();
-        }
-        */
     }
 }

@@ -145,24 +145,6 @@ namespace SevenWonders
         // Receives Strings from Coordinator
         // to update various UI information
 
-        /// <summary>
-        /// Display the Player Bar Panel information, given the String from Coordinator
-        /// </summary>
-        /// <param name="playerBarPanelInformation"></param>
-        public void showPlayerBarPanel(string playerName, string strCoins)
-        {
-            TextBlock tb = new TextBlock()
-            {
-                Text = "x " + strCoins,
-                TextAlignment = TextAlignment.Center,
-                TextWrapping = TextWrapping.Wrap,
-                FontFamily = new FontFamily("Lucida Handwriting"),
-                FontSize = 18,
-                Foreground = new SolidColorBrush(Colors.White),
-            };
-
-            playerState[playerName].state.CoinsLabel.Content = tb;
-        }
 
         public void updateLeaderIcons(NameValueCollection leaderNames)
         {
@@ -194,7 +176,7 @@ namespace SevenWonders
         /// display the Cards in Player's hands and the available actions
         /// </summary>
         /// <param name="information"></param>
-        public void showHandPanel(IList<KeyValuePair<string, string>> cardsAndStates/*String information*/)
+        public void showHandPanel(NameValueCollection qscoll)
         {
             //the player is in a new turn now because his UI are still updating.
             //Therefore set playerPlayedHisturn to false
@@ -203,36 +185,35 @@ namespace SevenWonders
 
             hand.Clear();
 
-            foreach (KeyValuePair<string, string> kvp in cardsAndStates)
+            string[] strCards = qscoll["Cards"].Split(',');
+            string[] strBuildStates = qscoll["BuildStates"].Split(',');
+
+            for (int i = 0; i < strCards.Length; ++i)
             {
-                switch (kvp.Key)
+                if (strCards[i] != string.Empty)
                 {
-                    case "CanDiscard":
-                        canDiscardStructure = kvp.Value == "True";
-                        break;
-
-                    case "Instructions":
-                        lblPlayMessage.Content = new TextBlock()
-                        {
-                            Text = kvp.Value,
-                            TextWrapping = TextWrapping.Wrap,
-                            FontSize = 14,
-                        };
-                        break;
-
-                    default:
-                        // Any other parameters are card names
-                        if (kvp.Key.StartsWith("WonderStage"))
-                        {
-                            stageBuildable = (Buildable)Enum.Parse(typeof(Buildable), kvp.Value);
-                        }
-                        else
-                        {
-                            hand.Add(new KeyValuePair<Card, Buildable>(coordinator.FindCard(kvp.Key), (Buildable)Enum.Parse(typeof(Buildable), kvp.Value)));
-                        }
-                    break;
+                    // can get an empty string after last card in the age was built.
+                    hand.Add(new KeyValuePair<Card, Buildable>(coordinator.FindCard(strCards[i]), (Buildable)Enum.Parse(typeof(Buildable), strBuildStates[i])));
                 }
             }
+
+            string strWonderStage = qscoll["WonderStage"];
+            if (strWonderStage != null)
+            {
+                stageBuildable = (Buildable)Enum.Parse(typeof(Buildable), strWonderStage.Substring(2));
+            }
+
+            if (qscoll["Instructions"] != null)
+            {
+                lblPlayMessage.Content = new TextBlock()
+                {
+                    Text = qscoll["Instructions"],
+                    TextWrapping = TextWrapping.Wrap,
+                    FontSize = 14,
+                };
+            }
+
+            canDiscardStructure = qscoll["CanDiscard"] == null || (qscoll["CanDiscard"] == "True");
 
             handPanel.Items.Clear();
 
@@ -387,7 +368,7 @@ namespace SevenWonders
                 case Buildable.StructureAlreadyBuilt:
                     btnBuildStructure.Content = new TextBlock()
                     {
-                        Text = string.Format("You have already built the {0}", card.Id),
+                        Text = string.Format("You have already built the {0}", card.strName),
                         TextAlignment = TextAlignment.Center,
                         TextWrapping = TextWrapping.Wrap
                     };
@@ -465,7 +446,7 @@ namespace SevenWonders
             btnBuildStructureForFree_isEnabled = false;
             playerPlayedHisTurn = true;
             // bilkisButton.IsEnabled = false;
-            coordinator.sendToHost(string.Format("BldStrct&WonderStage=False&FreeBuild=True&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
+            coordinator.sendToHost(string.Format("BldStrct&FreeBuild=True&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
             coordinator.endTurn();
 
         }
@@ -480,12 +461,12 @@ namespace SevenWonders
                 ((Button)sender).IsEnabled = false;
                 playerPlayedHisTurn = true;
                 // bilkisButton.IsEnabled = false;
-                coordinator.sendToHost(string.Format("BldStrct&WonderStage=False&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
+                coordinator.sendToHost(string.Format("BldStrct&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
                 coordinator.endTurn();
             }
             else
             {
-                coordinator.sendToHost("SendComm&WonderStage=False&Structure=" + hand[handPanel.SelectedIndex].Key.Id);     // the server's response will open the Commerce Dialog box
+                coordinator.sendToHost("SendComm&Structure=" + hand[handPanel.SelectedIndex].Key.Id);     // the server's response will open the Commerce Dialog box
             }
 
             if (hand[handPanel.SelectedIndex].Key.structureType == StructureType.Leader)
@@ -513,12 +494,12 @@ namespace SevenWonders
                 ((Button)sender).IsEnabled = false;
                 playerPlayedHisTurn = true;
                 // bilkisButton.IsEnabled = false;
-                coordinator.sendToHost(string.Format("BldStrct&WonderStage=True&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
+                coordinator.sendToHost(string.Format("BldStrct&BuildWonderStage=&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
                 coordinator.endTurn();
             }
             else
             {
-                coordinator.sendToHost("SendComm&WonderStage=True&Structure=" + hand[handPanel.SelectedIndex].Key.Id);     // the server's response will open the Commerce Dialog box
+                coordinator.sendToHost("SendComm&BuildWonderStage=&Structure=" + hand[handPanel.SelectedIndex].Key.Id);     // the server's response will open the Commerce Dialog box
             }
 
             if (hand[handPanel.SelectedIndex].Key.structureType == StructureType.Leader)
@@ -601,64 +582,88 @@ namespace SevenWonders
         /// </summary>
         /// <param name="player">Player ID (0..7)</param>
         /// <param name="cardName">Name of the card</param>
-        public void updateCardsPlayed(string playerName, string cardName)
+        public void updateCoinsAndCardsPlayed(NameValueCollection qscoll)
         {
-            // some of these functions should be in the PlayerState class.
-            if (cardName.Length == 12 && cardName.Substring(0, 11) == "WonderStage")
-            {
-                int stage = int.Parse(cardName.Substring(11));
+            string[] playerNames = qscoll["Names"].Split(',');
+            string[] coins = qscoll["Coins"].Split(',');
+            string[] cardNames = qscoll["CardNames"].Split(',');
 
-                Label l = playerState[playerName].state.WonderStage.Children[stage - 1] as Label;
-
-                l.Content = string.Format("Stage {0}", stage);
-                l.Background = new SolidColorBrush(Colors.Yellow);
-            }
-            else if (cardName == "Discarded")
+            for (int i = 0; i < playerNames.Length; ++i)
             {
-                if (playerState[playerName].lastCardPlayed != null)
+                string strCoins = coins[i];
+
+                // some of these functions should be in the PlayerState class.
+                TextBlock tb = new TextBlock()
                 {
-                    playerState[playerName].lastCardPlayed.Effect = null;
-                    playerState[playerName].lastCardPlayed = null;
+                    Text = "x " + strCoins,
+                    TextAlignment = TextAlignment.Center,
+                    TextWrapping = TextWrapping.Wrap,
+                    FontFamily = new FontFamily("Lucida Handwriting"),
+                    FontSize = 18,
+                    Foreground = new SolidColorBrush(Colors.White),
+                };
+
+                string playerName = playerNames[i];
+                string cardName = cardNames[i];
+
+                playerState[playerName].state.CoinsLabel.Content = tb;
+
+                if (cardName.Length == 12 && cardName.Substring(0, 11) == "WonderStage")
+                {
+                    int stage = int.Parse(cardName.Substring(11));
+
+                    Label l = playerState[playerName].state.WonderStage.Children[stage - 1] as Label;
+
+                    l.Content = string.Format("Stage {0}", stage);
+                    l.Background = new SolidColorBrush(Colors.Yellow);
                 }
-            }
-            else
-            {
-                Card lastPlayedCard = coordinator.FindCard(cardName);
-
-                StructureType colour = lastPlayedCard.structureType;
-
-                if (playerState[playerName].lastCardPlayed != null)
-                    playerState[playerName].lastCardPlayed.Effect = null;
-
-                // Create a halo around the last card each player played to make it obvious.
-                DropShadowEffect be = new DropShadowEffect();
-                be.ShadowDepth = 0;
-                be.BlurRadius = 25;
-                be.Color = Colors.Blue;
-
-                BitmapImage bmi = new BitmapImage();
-                bmi.BeginInit();
-                bmi.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/Icons/" + lastPlayedCard.iconName + ".png");
-                bmi.EndInit();
-                Image iconImage = new Image();
-                iconImage.Source = bmi;
-                iconImage.Height = ICON_HEIGHT;                 // limit the height of each card icon to 30 pixels.
-                string strToolTip = string.Format("{0}: {1}", lastPlayedCard.strName, lastPlayedCard.description);
-                if (lastPlayedCard.chain[0] != string.Empty)
+                else if (cardName == "Discarded")
                 {
-                    strToolTip += "  Chains to: " + lastPlayedCard.chain[0];
-                    if (lastPlayedCard.chain[1] != string.Empty)
+                    if (playerState[playerName].lastCardPlayed != null)
                     {
-                        strToolTip += ", " + lastPlayedCard.chain[1];
+                        playerState[playerName].lastCardPlayed.Effect = null;
+                        playerState[playerName].lastCardPlayed = null;
                     }
                 }
+                else
+                {
+                    Card lastPlayedCard = coordinator.FindCard(cardName);
 
-                iconImage.ToolTip = strToolTip;
-                iconImage.Margin = new Thickness(2);   // keep a 1-pixel margin around each card icon.
-                iconImage.Effect = be;
+                    StructureType colour = lastPlayedCard.structureType;
 
-                playerState[playerName].lastCardPlayed = iconImage;
-                playerState[playerName].structuresBuilt[lastPlayedCard.structureType].Children.Add(iconImage);
+                    if (playerState[playerName].lastCardPlayed != null)
+                        playerState[playerName].lastCardPlayed.Effect = null;
+
+                    // Create a halo around the last card each player played to make it obvious.
+                    DropShadowEffect be = new DropShadowEffect();
+                    be.ShadowDepth = 0;
+                    be.BlurRadius = 25;
+                    be.Color = Colors.Blue;
+
+                    BitmapImage bmi = new BitmapImage();
+                    bmi.BeginInit();
+                    bmi.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/Icons/" + lastPlayedCard.iconName + ".png");
+                    bmi.EndInit();
+                    Image iconImage = new Image();
+                    iconImage.Source = bmi;
+                    iconImage.Height = ICON_HEIGHT;                 // limit the height of each card icon to 30 pixels.
+                    string strToolTip = string.Format("{0}: {1}", lastPlayedCard.strName, lastPlayedCard.description);
+                    if (lastPlayedCard.chain[0] != string.Empty)
+                    {
+                        strToolTip += "  Chains to: " + lastPlayedCard.chain[0];
+                        if (lastPlayedCard.chain[1] != string.Empty)
+                        {
+                            strToolTip += ", " + lastPlayedCard.chain[1];
+                        }
+                    }
+
+                    iconImage.ToolTip = strToolTip;
+                    iconImage.Margin = new Thickness(2);   // keep a 1-pixel margin around each card icon.
+                    iconImage.Effect = be;
+
+                    playerState[playerName].lastCardPlayed = iconImage;
+                    playerState[playerName].structuresBuilt[lastPlayedCard.structureType].Children.Add(iconImage);
+                }
             }
         }
 
@@ -770,116 +775,6 @@ namespace SevenWonders
             {
                 coordinator.quit();
             }
-        }
-
-        public void showHandPanelLeadersPhase(string information)
-        {
-            /*
-            //the player is in a new turn now because his UI are still updating.
-            //Therefore set playerPlayedHisturn to false
-            playerPlayedHisTurn = false;
-
-            //convert the String to an HandPanelInformation object
-            RecruitmentPhaseInformation handPanelInformation = (RecruitmentPhaseInformation)Marshaller.StringToObject(information);
-
-            //Update the Age label
-            //since this method is only used in Age 0, it shall say Leaders phase
-            //Age 0 is handled in showHandLeadersPhase(String information)
-
-            // currentAge.Content = "Leaders Phase";
-
-
-            //get the number of cards
-            int numberOfCards = handPanelInformation.ids.Length;
-
-            //create the appropriate image source files
-            BitmapImage[] cardImageSource = new BitmapImage[numberOfCards];
-            for (int i = 0; i < numberOfCards; i++)
-            {
-                cardImageSource[i] = new BitmapImage();
-                cardImageSource[i].BeginInit();
-                //Item1 of the id_buildable array of Tuples represents the id image
-                cardImageSource[i].UriSource = new Uri(currentPath + @"\Resources\Images\cards\" + handPanelInformation.ids[i] + ".jpg");
-                cardImageSource[i].EndInit();
-            }
-
-            //Card Images
-            //create the appropriate amount of Images
-            //add them to the Card panel
-            handPanel.Children.Clear();
-            Image[] card = new Image[numberOfCards];
-            for (int i = 0; i < numberOfCards; i++)
-            {
-                card[i] = new Image();
-                card[i].Source = cardImageSource[i];
-                card[i].Width = CARD_WIDTH;
-                card[i].Height = CARD_HEIGHT;
-                handPanel.Children.Add(card[i]);
-            }
-
-
-            //Names of the buttons. (These buttons will all say "Recruit")
-            //Contents (the word that will be shown in the UI) of the buttons. (All will say "Recruit")
-            String[] names = new String[numberOfCards];
-            String[] contents = new String[numberOfCards];
-
-            for (int i = 0; i < numberOfCards; i++)
-            {
-                names[i] = "Recruit";
-                contents[i] = "Recruit";
-            }
-            */
-            //add the appropriate buttons
-            //actionBuildPanel.Children.Clear();
-            //actionStagePanel.Children.Clear();
-            //actionDiscardPanel.Children.Clear();
-
-            //Build structure button will say "Recruit" instead for this phase
-            //other ones will not say anything
-            /*
-            buildStructureButton = new Button[numberOfCards];
-
-            //display the action Buttons
-            for (int i = 0; i < numberOfCards; i++)
-            {
-                buildStructureButton[i] = new Button();
-                buildStructureButton[i].Content = contents[i];
-                buildStructureButton[i].Width = CARD_WIDTH;
-                buildStructureButton[i].Height = ICON_WIDTH;
-                buildStructureButton[i].Name = names[i] + "_" + handPanelInformation.ids[i];
-                buildStructureButton[i].IsEnabled = true;
-                buildStructureButton[i].Click += cardActionButtonPressed;
-               // actionBuildPanel.Children.Add(buildStructureButton[i]);
-            }
-            */
-        }
-
-        /// <summary>
-        /// Player clicks the Esteban Button
-        /// Freeze the passing of next turn.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void estebanButton_Click(object sender, RoutedEventArgs e)
-        {
-            //tell server to toggle esteban on
-            coordinator.sendToHost("Esteban");
-
-            coordinator.sendToHost("#" + coordinator.nickname + " uses Esteban to freeze the next turn!");
-
-            //disable Esteban button now
-            // estebanButton.IsEnabled = false;
-        }
-
-        /// <summary>
-        /// Player clicks the Bilkis Button
-        /// Should bring up the Bilkis interface
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void bilkisButton_Click(object sender, RoutedEventArgs e)
-        {
-            coordinator.bilkisUIActivate();
         }
     }
 }

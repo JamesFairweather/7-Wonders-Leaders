@@ -393,6 +393,7 @@ namespace SevenWonders
         };
     };
 
+    /*
     public class CoinEffect : Effect
     {
         public int coins;
@@ -402,6 +403,7 @@ namespace SevenWonders
             this.coins = coins;
         }
     }
+    */
 
     public class MilitaryEffect : Effect
     {

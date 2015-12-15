@@ -40,8 +40,6 @@ namespace SevenWonders
         //number of stages
         public int numOfStages { get; private set; }
 
-        // public Effect freeResource { get; private set; }
-
         // starting resource or effect
         public Card startingResourceCard { get; private set; }
 
