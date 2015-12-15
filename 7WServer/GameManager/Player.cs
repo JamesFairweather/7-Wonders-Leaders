@@ -133,14 +133,11 @@ namespace SevenWonders
                     n += ((MilitaryEffect)c.effect).nShields;
                 }
 
-                Card card = playedStructure.Find(x => x.effect is Rhodos_B_Stage1Effect);
-
-                if (card != null)
+                // Add Rhodos B Wonder Board military effects
+                if (playedStructure.Exists(x => x.Id == CardId.Rhodos_B_s1))
                     n += 1;
 
-                card = playedStructure.Find(x => x.effect is Rhodos_B_Stage2Effect);
-
-                if (card != null)
+                if (playedStructure.Exists(x => x.Id == CardId.Rhodos_B_s2))
                     n += 1;
 
                 return n;
@@ -179,6 +176,8 @@ namespace SevenWonders
 
         //stored actions for the turn
         private List<Effect> actions = new List<Effect>();
+
+        private List<int> coinTransactions = new List<int>();
 
         // Many leaders and cities cards have enduring effects.  The list above is just for effects
         // on this turn.  Actually, I think it's mostly for money exchanges.  If I don't have an
@@ -244,21 +243,26 @@ namespace SevenWonders
         /// Stored actions to be executed at the end of each turn
         /// </summary>
         /// <param name="s"></param>
-        public void storeAction(Effect e)
+        public void storeCardEffect(Card c)
         {
-            if (e is CoinEffect || e is ResourceEffect || e is CoinsAndPointsEffect || e is PlayACardForFreeOncePerAgeEffect)
+            if (c.effect is CoinEffect || c.effect is ResourceEffect || c.effect is CoinsAndPointsEffect || c.effect is PlayACardForFreeOncePerAgeEffect)
             {
                 // the effects of these cards do not come into play until the next turn.
                 // put them on the actions queue to be run after all players have turned
                 // in their card.  Any actions that require UI updates must go on here
                 // (e.g. enabling the Olympia button)
-                actions.Add(e);
+                actions.Add(c.effect);
             }
             else
             {
                 // other actions 
-                executeActionNow(e);
+                executeActionNow(c);
             }
+        }
+
+        public void addTransaction(int coins)
+        {
+            coinTransactions.Add(coins);
         }
 
         /// <summary>
@@ -359,11 +363,64 @@ namespace SevenWonders
             endOfGameActions.Add(s);
         }
         */
-        public void executeActionNow(Effect effect)
+        public void executeActionNow(Card card)
         {
+            Effect effect = card.effect;
+
             // I think the only effects that really need to be dealt with NOW are those
             // that affect game state (e.g. Babylon B, Play a discarded card.)
-            if (effect is CommercialDiscountEffect)
+            if (effect == null)
+            {
+                switch(card.Id)
+                {
+                    case CardId.Halikarnassos_B_s1:
+                    case CardId.Halikarnassos_B_s2:
+                        playCardFromDiscardPile = true;
+                        break;
+
+                    case CardId.Rhodos_B_s1:
+                        // Add the 3 coins immediately.  The 3 victory points will be included in total for wonders
+                        // The Military will also need to be included in the shield calculation.
+                        addTransaction(3);
+                        break;
+
+                    case CardId.Rhodos_B_s2:
+                        addTransaction(4);
+                        break;
+
+                    case CardId.Roma_B_s1:
+                        // Roma (B) stage 1: draw 4 more leaders from the pile of unused leaders
+                        // to add to the players list of recruitable leaders
+                        {
+                            for (int i = 0; i < 4; i++)
+                            {
+                                Card c = gm.deckList[0].GetTopCard();
+                                draftedLeaders.Add(c);
+                            }
+
+                            string strMsg = "LeadrIcn";
+
+                            foreach (Card c in draftedLeaders)
+                            {
+                                strMsg += string.Format("&{0}=", c.Id);
+                            }
+
+                            gm.gmCoordinator.sendMessage(this, strMsg);
+
+                            addTransaction(5);
+                        }
+                        break;
+
+                    case CardId.Roma_B_s2:
+                    case CardId.Roma_B_s3:
+                        draftingExtraLeader = true;
+
+                        // TODO: can I do this instead of considering the points effect separately at the end of the game?
+                        // effect = new CoinsAndPointsEffect(CoinsAndPointsEffect.CardsConsidered.None, StructureType.Constant, 0, 3);
+                        break;
+                }
+            }
+            else if (effect is CommercialDiscountEffect)
             {
                 CommercialDiscountEffect cde = effect as CommercialDiscountEffect;
 
@@ -399,48 +456,17 @@ namespace SevenWonders
                         break;
                 }
             }
-            else if (effect is PlayDiscardedCardForFreeEffect || effect is PlayDiscardedCardForFree_1VPEffect || effect is PlayDiscardedCardForFree_2VPEffect)
+            else if (effect is PlayDiscardedCardForFreeEffect)
             {
                 playCardFromDiscardPile = true;
-            }
-            else if (effect is Rhodos_B_Stage1Effect)
-            {
-                // Add the 3 coins immediately.  The 3 victory points will be included in total for wonders
-                // The Military will also need to be included in the shield calculation.
-                storeAction(new CoinEffect(3));
-            }
-            else if (effect is Rhodos_B_Stage2Effect)
-            {
-                storeAction(new CoinEffect(4));
             }
             else if (effect is PlayACardForFreeOncePerAgeEffect)
             {
                 throw new Exception("This ability needs to be dealt with on the end-of-turn action queue.");
             }
-            else if (effect is DraftFourNewLeaders_5CoinsEffect)
+            else
             {
-                // Roma (B) stage 1: draw 4 more leaders from the pile of unused leaders
-                // to add to the players list of recruitable leaders
-                for (int i = 0; i < 4; i++)
-                {
-                    Card c = gm.deckList[0].GetTopCard();
-                    draftedLeaders.Add(c);
-                }
-
-                string strMsg = "LeadrIcn";
-
-                foreach (Card c in draftedLeaders)
-                {
-                    strMsg += string.Format("&{0}=", c.name);
-                }
-
-                gm.gmCoordinator.sendMessage(this, strMsg);
-
-                storeAction(new CoinEffect(5));
-            }
-            else if (effect is PlayALeader_3VPEffect)
-            {
-                draftingExtraLeader = true;
+                throw new Exception("Unimplemented effect type");
             }
             // any other effects do not require immediate action, they will be dealt with at the end of the turn,
             // end of the age, or the end of the game.
@@ -750,93 +776,100 @@ namespace SevenWonders
             // if (nScienceWildCards != 0)
             //    Console.WriteLine("  {0} science wild card effect(s)", nScienceWildCards);
 
-            bool hasAristotle = playedStructure.Exists(x => x.name == CardName.Aristotle);
+            bool hasAristotle = playedStructure.Exists(x => x.Id == CardId.Aristotle);
             ScienceScore scienceScore = FindBestScienceWildcard(nScienceWildCards, hasAristotle ? 10 : 7);
 
             foreach (Card c in playedStructure.Where(x => x.structureType == StructureType.WonderStage))
             {
-                if (c.effect is CoinsAndPointsEffect)
+                if (c.effect == null)
+                {
+                    switch (c.Id)
+                    {
+                        case CardId.Halikarnassos_B_s1:
+                            score.wonders += 2;
+                            break;
+
+                        case CardId.Halikarnassos_B_s2:
+                            score.wonders += 1;
+                            break;
+
+                        case CardId.Olympia_B_s3:
+                            {
+                                // Olympia B 3rd stage.  Check each guild card built by neighboring cities
+                                // and pick the one that yields the most number of points to copy.
+                                int maxPoints = 0;
+                                CardId copiedGuild = CardId.Lumber_Yard;    // needs to be initialized to avoid compiler error.
+                                ScienceScore tmpScienceScore = scienceScore;
+
+                                IEnumerable<Card> neighborsGuilds = leftNeighbour.playedStructure.Where(x => x.structureType == StructureType.Guild).Concat(
+                                    rightNeighbour.playedStructure.Where(x => x.structureType == StructureType.Guild));
+
+                                foreach (Card card in neighborsGuilds)
+                                {
+                                    int pointsForThisGuild = 0;
+
+                                    if (card.effect is CoinsAndPointsEffect)
+                                    {
+                                        pointsForThisGuild = CountVictoryPoints(card.effect as CoinsAndPointsEffect);
+                                    }
+                                    else if (card.Id == CardId.Shipowners_Guild)
+                                    {
+                                        pointsForThisGuild = playedStructure.Where(x => x.structureType == StructureType.RawMaterial || x.structureType == StructureType.Goods || x.structureType == StructureType.Guild).Count();
+                                    }
+                                    else if (card.effect is ScienceWildEffect)
+                                    {
+                                        tmpScienceScore = FindBestScienceWildcard(nScienceWildCards + 1, hasAristotle ? 10 : 7);
+                                        pointsForThisGuild = tmpScienceScore.TotalPoints - scienceScore.TotalPoints;
+                                    }
+
+                                    if (pointsForThisGuild > maxPoints)
+                                    {
+                                        maxPoints = pointsForThisGuild;
+                                        copiedGuild = card.Id;
+                                    }
+                                }
+
+                                if (copiedGuild == CardId.Scientists_Guild)
+                                {
+                                    // If the copied guild is the Scientist's Guild, update the overall 
+                                    // This gets really messy because we're trying for the overall maximum score while breaking out
+                                    // which parts of that score came from different components.  What needs to happen is for the returned
+                                    // science score 
+                                    scienceScore = tmpScienceScore;
+                                }
+
+                                /*
+                                if (maxPoints != 0)
+                                {
+                                    Console.WriteLine("Olympia B's 3rd wonder has a maximum value of {0} points.  Guild copied: {1}", maxPoints, copiedGuild);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Neither of Olympia's neighbors built any guilds that were worth any value to Olympia.  0 points scored for this wonder stage.");
+                                }
+                                */
+
+                                score.wonders += maxPoints;
+                            }
+                            break;
+
+                        case CardId.Rhodos_B_s1:
+                            score.wonders += 3;
+                            break;
+
+                        case CardId.Rhodos_B_s2:
+                            score.wonders += 4;
+                            break;
+
+                        case CardId.Roma_B_s2:
+                        case CardId.Roma_B_s3:
+                            score.wonders += 3;
+                            break;
+                    }
+                }
+                else if (c.effect is CoinsAndPointsEffect)
                 {
                     score.wonders += CountVictoryPoints(c.effect as CoinsAndPointsEffect);
-                }
-                else if (c.effect is PlayDiscardedCardForFree_2VPEffect)
-                {
-                    score.wonders += 2;
-                }
-                else if (c.effect is PlayDiscardedCardForFree_1VPEffect)
-                {
-                    score.wonders += 1;
-                }
-                else if (c.effect is CopyGuildFromNeighborEffect)
-                {
-                    // Olympia B 3rd stage.  Check each guild card built by neighboring cities
-                    // and pick the one that yields the most number of points to copy.
-                    int maxPoints = 0;
-                    CardName copiedGuild = CardName.Lumber_Yard;    // needs to be initialized to avoid compiler error.
-                    ScienceScore tmpScienceScore = scienceScore;
-
-                    IEnumerable<Card> neighborsGuilds = leftNeighbour.playedStructure.Where(x => x.structureType == StructureType.Guild).Concat(
-                        rightNeighbour.playedStructure.Where(x => x.structureType == StructureType.Guild));
-
-                    foreach (Card card in neighborsGuilds)
-                    {
-                        int pointsForThisGuild = 0;
-
-                        if (card.effect is CoinsAndPointsEffect)
-                        {
-                            pointsForThisGuild = CountVictoryPoints(card.effect as CoinsAndPointsEffect);
-                        }
-                        else if (card.effect is ShipOwnersGuildEffect)
-                        {
-                            pointsForThisGuild = playedStructure.Where(x => x.structureType == StructureType.RawMaterial || x.structureType == StructureType.Goods || x.structureType == StructureType.Guild).Count();
-                        }
-                        else if (card.effect is ScienceWildEffect)
-                        {
-                            tmpScienceScore = FindBestScienceWildcard(nScienceWildCards + 1, hasAristotle ? 10 : 7);
-                            pointsForThisGuild = tmpScienceScore.TotalPoints - scienceScore.TotalPoints;
-                        }
-
-                        if (pointsForThisGuild > maxPoints)
-                        {
-                            maxPoints = pointsForThisGuild;
-                            copiedGuild = card.name;
-                        }
-                    }
-
-                    if (copiedGuild == CardName.Scientists_Guild)
-                    {
-                        // If the copied guild is the Scientist's Guild, update the overall 
-                        // This gets really messy because we're trying for the overall maximum score while breaking out
-                        // which parts of that score came from different components.  What needs to happen is for the returned
-                        // science score 
-                        scienceScore = tmpScienceScore;
-                    }
-
-                    /*
-                    if (maxPoints != 0)
-                    {
-                        Console.WriteLine("Olympia B's 3rd wonder has a maximum value of {0} points.  Guild copied: {1}", maxPoints, copiedGuild);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Neither of Olympia's neighbors built any guilds that were worth any value to Olympia.  0 points scored for this wonder stage.");
-                    }
-                    */
-
-                    score.wonders += maxPoints;
-                }
-                else if (c.effect is Rhodos_B_Stage1Effect)
-                {
-                    score.wonders += 3;
-                }
-                else if (c.effect is Rhodos_B_Stage2Effect)
-                {
-                    score.wonders += 4;
-                }
-                else if (c.effect is PlayALeader_3VPEffect)
-                {
-                    // Roma (B) stages 2 & 3 are worth 3 points each.
-                    score.wonders += 3;
                 }
             }
 
@@ -853,7 +886,7 @@ namespace SevenWonders
                     // most guilds fall into this category: they count points based on something the neighboring cities.
                     score.guilds += CountVictoryPoints(c.effect as CoinsAndPointsEffect);
                 }
-                else if (c.effect is ShipOwnersGuildEffect)
+                else if (c.Id == CardId.Shipowners_Guild)
                 {
                     // Shipowners guild counts 1 point for each Brown, Grey, and Purple card in the players' city.
                     score.guilds += playedStructure.Where(x => x.structureType == StructureType.RawMaterial || x.structureType == StructureType.Goods || x.structureType == StructureType.Guild).Count();
@@ -1037,7 +1070,7 @@ namespace SevenWonders
             Cost cost = card.cost;
 
             //if the player already owns a copy of the card, Return F immediatley
-            if (playedStructure.Exists(x => x.name == card.name))
+            if (playedStructure.Contains(card))
                 return Buildable.StructureAlreadyBuilt;
 
             //if the cost is !, that means its free. Return T immediately
@@ -1048,7 +1081,7 @@ namespace SevenWonders
             }
 
             //if the player owns the prerequiste, Return T immediately
-            if (playedStructure.Exists(x => (x.chain[0] == card.nameAsStr) || (x.chain[1] == card.nameAsStr)))
+            if (playedStructure.Exists(x => (x.chain[0] == card.strName) || (x.chain[1] == card.strName)))
                 return Buildable.True;
 
             //if the owner has built card 217: free leader cards
@@ -1078,7 +1111,7 @@ namespace SevenWonders
 
             //if the owner has built card 228: free guild cards
             //return T if the card is purple
-            if (card.structureType == StructureType.Guild && playedStructure.Exists(x => x.name == CardName.Ramses))
+            if (card.structureType == StructureType.Guild && playedStructure.Exists(x => x.Id == CardId.Ramses))
             {
                 return Buildable.True;
             }
@@ -1108,7 +1141,7 @@ namespace SevenWonders
 
             if (card.structureType == StructureType.Leader)
             {
-                if (playerBoard.name == "Roma (A)" || playedStructure.Exists(x => x.name == CardName.Maecenas))
+                if (playerBoard.name == "Roma (A)" || playedStructure.Exists(x => x.Id == CardId.Maecenas))
                 {
                     coinCost = 0;
                 }
@@ -1183,7 +1216,7 @@ namespace SevenWonders
             //combine the left, centre, and right DAG
             ResourceManager combinedDAG = ResourceManager.addThreeDAGs(leftNeighbour.dag, dag, rightNeighbour.dag);
 
-            if (playedStructure.Exists(x => x.name == CardName.Bilkis))
+            if (playedStructure.Exists(x => x.Id == CardId.Bilkis))
             {
                 combinedDAG.add(new ResourceEffect(false, "WSBOCGP"));
             }

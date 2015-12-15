@@ -182,8 +182,8 @@ namespace SevenWonders
                 img.Height = ICON_HEIGHT;
 
                 img.ToolTip = string.Format("{0} - cost: {1} coin{2}.  {3}",
-                    leaderCard.name, leaderCard.cost.coin, leaderCard.cost.coin >= 2 ? "(s)" : string.Empty, leaderCard.description);
-                img.Name = leaderCard.nameAsStr;
+                    leaderCard.Id, leaderCard.cost.coin, leaderCard.cost.coin >= 2 ? "(s)" : string.Empty, leaderCard.description);
+                img.Name = leaderCard.strName;
                 img.Margin = new Thickness(2);
 
                 lbLeaderIcons.Children.Add(img);
@@ -241,7 +241,7 @@ namespace SevenWonders
                 BitmapImage bmpImg = new BitmapImage();
                 bmpImg.BeginInit();
                 //Item1 of the id_buildable array of Tuples represents the id image
-                bmpImg.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/cards/" + kvp.Key.name + ".jpg");
+                bmpImg.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/cards/" + kvp.Key.Id + ".jpg");
                 bmpImg.EndInit();
 
                 Image img = new Image();
@@ -323,7 +323,7 @@ namespace SevenWonders
                 {
                     btnBuildStructureForFree.Content = new TextBlock()
                     {
-                        Text = string.Format("You have already built the {0}", hand[handPanel.SelectedIndex].Key.nameAsStr),
+                        Text = string.Format("You have already built the {0}", hand[handPanel.SelectedIndex].Key.strName),
                         TextAlignment = TextAlignment.Center,
                         TextWrapping = TextWrapping.Wrap
                     };
@@ -347,7 +347,7 @@ namespace SevenWonders
                 case Buildable.True:
                     btnBuildStructure.Content = new TextBlock()
                     {
-                        Text = string.Format(card.isLeader ? "Recruit {0}" : "Build the {0}", card.nameAsStr),
+                        Text = string.Format(card.isLeader ? "Recruit {0}" : "Build the {0}", card.strName),
                         TextAlignment = TextAlignment.Center,
                         TextWrapping = TextWrapping.Wrap
                     };
@@ -357,7 +357,7 @@ namespace SevenWonders
                 case Buildable.CommerceRequired:
                     btnBuildStructure.Content = new TextBlock()
                     {
-                        Text = string.Format("Build the {0} (commerce required)", card.nameAsStr),
+                        Text = string.Format("Build the {0} (commerce required)", card.strName),
                         TextAlignment = TextAlignment.Center,
                         TextWrapping = TextWrapping.Wrap
                     };
@@ -367,7 +367,7 @@ namespace SevenWonders
                 case Buildable.InsufficientResources:
                     btnBuildStructure.Content = new TextBlock()
                     {
-                        Text = string.Format("You do not have enough resources to build the {0}", card.nameAsStr),
+                        Text = string.Format("You do not have enough resources to build the {0}", card.strName),
                         TextAlignment = TextAlignment.Center,
                         TextWrapping = TextWrapping.Wrap
                     };
@@ -377,7 +377,7 @@ namespace SevenWonders
                 case Buildable.InsufficientCoins:
                     btnBuildStructure.Content = new TextBlock()
                     {
-                        Text = string.Format(card.isLeader ? "You do not have enough coins to recruit {0}" : "You don't have enough coins to buy the {0}", card.nameAsStr),
+                        Text = string.Format(card.isLeader ? "You do not have enough coins to recruit {0}" : "You don't have enough coins to buy the {0}", card.strName),
                         TextAlignment = TextAlignment.Center,
                         TextWrapping = TextWrapping.Wrap
                     };
@@ -387,7 +387,7 @@ namespace SevenWonders
                 case Buildable.StructureAlreadyBuilt:
                     btnBuildStructure.Content = new TextBlock()
                     {
-                        Text = string.Format("You have already built the {0}", card.name),
+                        Text = string.Format("You have already built the {0}", card.Id),
                         TextAlignment = TextAlignment.Center,
                         TextWrapping = TextWrapping.Wrap
                     };
@@ -404,7 +404,7 @@ namespace SevenWonders
                     //                    btnBuildWonderStage.Content = new TextBlock() { new Run(string.Format("Build a wonder stage with the {0}", hand[handPanel.SelectedIndex].Key)));
                     btnBuildWonderStage.Content = new TextBlock()
                     {
-                        Text = string.Format(card.isLeader ? "Use {0} to build a wonder stage" : "Build a wonder stage with the {0}", card.nameAsStr),
+                        Text = string.Format(card.isLeader ? "Use {0} to build a wonder stage" : "Build a wonder stage with the {0}", card.strName),
                         TextAlignment = TextAlignment.Center,
                         TextWrapping = TextWrapping.Wrap
                     };
@@ -413,7 +413,7 @@ namespace SevenWonders
 
                 case Buildable.CommerceRequired:
                     btnBuildWonderStage.Content = new TextBlock() {
-                        Text = string.Format(card.isLeader ? "Use {0} to build a wonder stage (commerce required)" : "Build a wonder stage with the {0} (commerce required)", card.nameAsStr),
+                        Text = string.Format(card.isLeader ? "Use {0} to build a wonder stage (commerce required)" : "Build a wonder stage with the {0} (commerce required)", card.strName),
                         TextAlignment = TextAlignment.Center,
                         TextWrapping = TextWrapping.Wrap
                     };
@@ -445,7 +445,7 @@ namespace SevenWonders
             btnDiscardStructure.IsEnabled = true;
             btnDiscardStructure.Content = new TextBlock()
             {
-                Text = string.Format(card.isLeader ? "Discard {0} for 3 coins" : "Discard the {0} for 3 coins", card.nameAsStr),
+                Text = string.Format(card.isLeader ? "Discard {0} for 3 coins" : "Discard the {0} for 3 coins", card.strName),
                 TextAlignment = TextAlignment.Center,
                 TextWrapping = TextWrapping.Wrap
             };
@@ -465,7 +465,7 @@ namespace SevenWonders
             btnBuildStructureForFree_isEnabled = false;
             playerPlayedHisTurn = true;
             // bilkisButton.IsEnabled = false;
-            coordinator.sendToHost(string.Format("BldStrct&WonderStage=False&FreeBuild=True&Structure={0}", hand[handPanel.SelectedIndex].Key.name));
+            coordinator.sendToHost(string.Format("BldStrct&WonderStage=False&FreeBuild=True&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
             coordinator.endTurn();
 
         }
@@ -480,12 +480,12 @@ namespace SevenWonders
                 ((Button)sender).IsEnabled = false;
                 playerPlayedHisTurn = true;
                 // bilkisButton.IsEnabled = false;
-                coordinator.sendToHost(string.Format("BldStrct&WonderStage=False&Structure={0}", hand[handPanel.SelectedIndex].Key.name));
+                coordinator.sendToHost(string.Format("BldStrct&WonderStage=False&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
                 coordinator.endTurn();
             }
             else
             {
-                coordinator.sendToHost("SendComm&WonderStage=False&Structure=" + hand[handPanel.SelectedIndex].Key.name);     // the server's response will open the Commerce Dialog box
+                coordinator.sendToHost("SendComm&WonderStage=False&Structure=" + hand[handPanel.SelectedIndex].Key.Id);     // the server's response will open the Commerce Dialog box
             }
 
             if (hand[handPanel.SelectedIndex].Key.structureType == StructureType.Leader)
@@ -494,7 +494,7 @@ namespace SevenWonders
                 foreach (Object obj in lbLeaderIcons.Children)
                 {
                     Image img = obj as Image;
-                    if (img.Name == hand[handPanel.SelectedIndex].Key.nameAsStr)
+                    if (img.Name == hand[handPanel.SelectedIndex].Key.strName)
                     {
                         lbLeaderIcons.Children.Remove(img);
                         break;
@@ -513,12 +513,12 @@ namespace SevenWonders
                 ((Button)sender).IsEnabled = false;
                 playerPlayedHisTurn = true;
                 // bilkisButton.IsEnabled = false;
-                coordinator.sendToHost(string.Format("BldStrct&WonderStage=True&Structure={0}", hand[handPanel.SelectedIndex].Key.name));
+                coordinator.sendToHost(string.Format("BldStrct&WonderStage=True&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
                 coordinator.endTurn();
             }
             else
             {
-                coordinator.sendToHost("SendComm&WonderStage=True&Structure=" + hand[handPanel.SelectedIndex].Key.name);     // the server's response will open the Commerce Dialog box
+                coordinator.sendToHost("SendComm&WonderStage=True&Structure=" + hand[handPanel.SelectedIndex].Key.Id);     // the server's response will open the Commerce Dialog box
             }
 
             if (hand[handPanel.SelectedIndex].Key.structureType == StructureType.Leader)
@@ -527,7 +527,7 @@ namespace SevenWonders
                 foreach (Object obj in lbLeaderIcons.Children)
                 {
                     Image img = obj as Image;
-                    if (img.Name == hand[handPanel.SelectedIndex].Key.nameAsStr)
+                    if (img.Name == hand[handPanel.SelectedIndex].Key.strName)
                     {
                         lbLeaderIcons.Children.Remove(img);
                         break;
@@ -544,7 +544,7 @@ namespace SevenWonders
             ((Button)sender).IsEnabled = false;
             playerPlayedHisTurn = true;
             // bilkisButton.IsEnabled = false;
-            coordinator.sendToHost(string.Format("Discards&Structure={0}", hand[handPanel.SelectedIndex].Key.name));
+            coordinator.sendToHost(string.Format("Discards&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
             coordinator.endTurn();
 
             if (hand[handPanel.SelectedIndex].Key.structureType == StructureType.Leader)
@@ -553,7 +553,7 @@ namespace SevenWonders
                 foreach (Object obj in lbLeaderIcons.Children)
                 {
                     Image img = obj as Image;
-                    if (img.Name == hand[handPanel.SelectedIndex].Key.nameAsStr)
+                    if (img.Name == hand[handPanel.SelectedIndex].Key.strName)
                     {
                         lbLeaderIcons.Children.Remove(img);
                         break;
@@ -643,7 +643,7 @@ namespace SevenWonders
                 Image iconImage = new Image();
                 iconImage.Source = bmi;
                 iconImage.Height = ICON_HEIGHT;                 // limit the height of each card icon to 30 pixels.
-                string strToolTip = string.Format("{0}: {1}", lastPlayedCard.nameAsStr, lastPlayedCard.description);
+                string strToolTip = string.Format("{0}: {1}", lastPlayedCard.strName, lastPlayedCard.description);
                 if (lastPlayedCard.chain[0] != string.Empty)
                 {
                     strToolTip += "  Chains to: " + lastPlayedCard.chain[0];

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SevenWonders
 {
-    public enum CardName
+    public enum CardId
     {
         Lumber_Yard,
         Stone_Pit,
@@ -82,50 +82,66 @@ namespace SevenWonders
         Scientists_Guild,
         Magistrates_Guild,
         Builders_Guild,
+        Alexandria_A_Board,
         Alexandria_A_s1,
         Alexandria_A_s2,
         Alexandria_A_s3,
+        Alexandria_B_Board,
         Alexandria_B_s1,
         Alexandria_B_s2,
         Alexandria_B_s3,
+        Babylon_A_Board,
         Babylon_A_s1,
         Babylon_A_s2,
         Babylon_A_s3,
+        Babylon_B_Board,
         Babylon_B_s1,
         Babylon_B_s2,
         Babylon_B_s3,
+        Ephesos_A_Board,
         Ephesos_A_s1,
         Ephesos_A_s2,
         Ephesos_A_s3,
+        Ephesos_B_Board,
         Ephesos_B_s1,
         Ephesos_B_s2,
         Ephesos_B_s3,
+        Giza_A_Board,
         Giza_A_s1,
         Giza_A_s2,
         Giza_A_s3,
+        Giza_B_Board,
         Giza_B_s1,
         Giza_B_s2,
         Giza_B_s3,
         Giza_B_s4,
+        Halikarnassos_A_Board,
         Halikarnassos_A_s1,
         Halikarnassos_A_s2,
         Halikarnassos_A_s3,
+        Halikarnassos_B_Board,
         Halikarnassos_B_s1,
         Halikarnassos_B_s2,
         Halikarnassos_B_s3,
+        Olympia_A_Board,
         Olympia_A_s1,
         Olympia_A_s2,
         Olympia_A_s3,
+        Olympia_B_Board,
         Olympia_B_s1,
         Olympia_B_s2,
         Olympia_B_s3,
+        Rhodos_A_Board,
         Rhodos_A_s1,
         Rhodos_A_s2,
         Rhodos_A_s3,
+        Rhodos_B_Board,
         Rhodos_B_s1,
         Rhodos_B_s2,
+        Roma_A_Board,
         Roma_A_s1,
         Roma_A_s2,
+        Roma_B_Board,
         Roma_B_s1,
         Roma_B_s2,
         Roma_B_s3,
@@ -328,24 +344,25 @@ namespace SevenWonders
             CoinsPoints,        // All civilian, most guilds, all age 3 commerce, Vineyard, Bazar, most wonder stages
 
             // These cards don't fit into one of the above categories
-            ShipOwnersGuild,                // ShipOwners Guild
+            //ShipOwnersGuild,                // ShipOwners Guild
             ScienceWild,                    // Science wild card
 
             // Special wonder stages
-            PlayLastCardInAge,              // Babylon (B) 2nd stage
+            // PlayLastCardInAge,              // Babylon (B) 2nd stage
             PlayDiscardedCardForFree,       // Halikarnassos (A) 2nd stage
-            PlayDiscardedCardForFree_1VP,   // Halikarnassos (B) 2nd stage
-            PlayDiscardedCardForFree_2VP,   // Halikarnassos (B) 1st stage
+            //PlayDiscardedCardForFree_1VP,   // Halikarnassos (B) 2nd stage
+            //PlayDiscardedCardForFree_2VP,   // Halikarnassos (B) 1st stage
             PlayACardForFreeOncePerAge,     // Olympia (A) 2nd stage
-            CopyGuildFromNeighbor,          // Olympia (B) 3rd stage
-            Rhodos_B_Stage1,                // Rhodos (B) 1st stage
-            Rhodos_B_Stage2,                // Rhodos (B) 2nd stage
+            //CopyGuildFromNeighbor,          // Olympia (B) 3rd stage
+            //Rhodos_B_Stage1,                // Rhodos (B) 1st stage
+            //Rhodos_B_Stage2,                // Rhodos (B) 2nd stage
 
             // From the Leaders expansion pack
             FreeLeaders,                    // Roma (A) board effect, Maecenas effect
-            DraftFourNewLeaders_5Coins,
-            PlayALeader_3VP,
+            // DraftFourNewLeaders_5Coins,
+            // PlayALeader_3VP,
             StructureDiscount,
+            /*
             Aristotle,
             Bilkis,
             Hatshepsut,
@@ -355,23 +372,24 @@ namespace SevenWonders
             Tomyris,
             Vitruvius,
             Courtesan,
+            */
 
             // From the Cities expansion pack
             CopyScienceSymbolFromNeighbor,
             CoinsLossPoints,
             Diplomacy,
-            Gambling_Den,
-            Clandestine_Dock_West,
-            Clandestine_Dock_East,
-            Secret_Warehouse,
-            Gambling_House,
-            Black_Market,
+            // Gambling_Den,
+            //Clandestine_Dock_West,
+            //Clandestine_Dock_East,
+            //Secret_Warehouse,
+            //Gambling_House,
+            //Black_Market,
             CoinsLossPerMilitaryPoints,
-            Architect_Cabinet,
-            Builders_Union,
-            Bernice,
-            PlayABlackCardForFreeOncePerAge,
-            Semiramis,
+            //Architect_Cabinet,
+            //Builders_Union,
+            //Bernice,
+            //PlayABlackCardForFreeOncePerAge,
+            //Semiramis,
         };
     };
 
@@ -490,63 +508,63 @@ namespace SevenWonders
         }
     };
 
-    public class ShipOwnersGuildEffect : Effect
-    {
-    }
+    //public class ShipOwnersGuildEffect : Effect
+   // {
+   // }
 
     public class ScienceWildEffect : Effect
     {
     }
 
-    public class PlayLastCardInAgeEffect : Effect
-    {
-    }
+    //public class PlayLastCardInAgeEffect : Effect
+   // {
+   // }
 
     public class PlayDiscardedCardForFreeEffect : Effect
     {
     }
 
-    public class PlayDiscardedCardForFree_1VPEffect : Effect
-    {
-    }
+    //public class PlayDiscardedCardForFree_1VPEffect : Effect
+    //{
+    //}
 
-    public class PlayDiscardedCardForFree_2VPEffect : Effect
-    {
-    }
+    //public class PlayDiscardedCardForFree_2VPEffect : Effect
+    //{
+    //}
 
     public class PlayACardForFreeOncePerAgeEffect : Effect
     {
     }
 
-    public class CopyGuildFromNeighborEffect : Effect
-    {
-    }
+    //public class CopyGuildFromNeighborEffect : Effect
+    //{
+    //}
 
-    public class Rhodos_B_Stage1Effect : Effect
-    {
-    }
+    //public class Rhodos_B_Stage1Effect : Effect
+    //{
+    //}
 
-    public class Rhodos_B_Stage2Effect : Effect
-    {
-    }
+    //public class Rhodos_B_Stage2Effect : Effect
+    //{
+    //}
 
     public class FreeLeadersEffect : Effect
     {
         // Roma (A) board effect, Maecenas
     }
 
-    public class RomaBBoardEffect : Effect
-    {
+    //public class RomaBBoardEffect : Effect
+    //{
         // Roma (B) board effect (leaders cost is reduced by 2 for the player, and 1 for the players' neighbors.
-    }
+    //}
 
-    public class DraftFourNewLeaders_5CoinsEffect : Effect
-    {
-    }
+    //public class DraftFourNewLeaders_5CoinsEffect : Effect
+    //{
+    //}
 
-    public class PlayALeader_3VPEffect : Effect
-    {
-    }
+    //public class PlayALeader_3VPEffect : Effect
+   // {
+    //}
 
     public class StructureDiscountEffect : Effect
     {
@@ -558,6 +576,7 @@ namespace SevenWonders
         }
     }
 
+    /*
     public class AristotleEffect : Effect
     {
     }
@@ -593,6 +612,7 @@ namespace SevenWonders
     public class CourtesanEffect : Effect
     {
     }
+    */
 
     // From the Cities expansion pack
     public class CopyScienceSymbolFromNeighborEffect : Effect
@@ -607,6 +627,7 @@ namespace SevenWonders
     {
     }
 
+    /*
     public class Gambling_DenEffect : Effect
     {
     }
@@ -630,11 +651,13 @@ namespace SevenWonders
     public class Black_MarketEffect : Effect
     {
     }
+    */
 
     public class CoinsLossPerMilitaryPointsEffect : Effect
     {
     }
 
+    /*
     public class Architect_CabinetEffect : Effect
     {
     }
@@ -654,16 +677,15 @@ namespace SevenWonders
     public class SemiramisEffect : Effect
     {
     }
+    */
 
     public class Card
     {
         public ExpansionSet expansion;
 
-        // Name Age Type Description Icon	3 players	4 players	5 players	6 players	7 players Cost(coins)    Cost(wood) Cost(stone)    Cost(clay) Cost(ore)  Cost(cloth)    Cost(glass)    Cost(papyrus)  Chains to(1)   Chains to(2)   Effect Category Category 1 multiplier Category 1 effect Catgory 2 symbol Category 3 effect Category 4 effect Category 5: Multiplier(P = player, N = neighbours, B = both player & neighbours)   Category 5: Card/token type Category 5: coins given when card enters play multiplier Category 5: End of game VP granted
+        public CardId Id { get; private set; }
 
-        public CardName name { get; private set; }
-
-        public string nameAsStr { get; private set; }
+        public string strName { get; private set; }
 
         public StructureType structureType { get; private set; }
 
@@ -680,10 +702,17 @@ namespace SevenWonders
 
         public bool isLeader { get { return structureType == StructureType.Leader; } }
 
+        public Card(CardId cardId, string name, Effect effect)
+        {
+            this.Id = cardId;
+            this.strName = name;
+            this.effect = effect;
+        }
+
         public Card(string[] createParams)
         {
             expansion = (ExpansionSet)Enum.Parse(typeof(ExpansionSet), createParams[0]);
-            nameAsStr = createParams[1];
+            strName = createParams[1];
 
             structureType = (StructureType)Enum.Parse(typeof(StructureType), createParams[2]);
 
@@ -702,7 +731,7 @@ namespace SevenWonders
                     break;
             }
 
-            name = CardNameFromStringName(nameAsStr, wonderStage);
+            Id = CardNameFromStringName(strName, wonderStage);
 
             description = createParams[4];
             iconName = createParams[5];
@@ -721,208 +750,211 @@ namespace SevenWonders
             chain[0] = createParams[19];
             chain[1] = createParams[20];
 
-            var effectType = (Effect.Type)Enum.Parse(typeof(Effect.Type), createParams[21]);
-
-            switch (effectType)
+            if (createParams[21] != string.Empty)
             {
-                case Effect.Type.Military:
-                    effect = new MilitaryEffect(int.Parse(createParams[22]));
-                    break;
+                var effectType = (Effect.Type)Enum.Parse(typeof(Effect.Type), createParams[21]);
 
-                case Effect.Type.Resource:
-                    effect = new ResourceEffect(structureType == StructureType.RawMaterial || structureType == StructureType.Goods,
-                        createParams[23]);
-                    break;
+                switch (effectType)
+                {
+                    case Effect.Type.Military:
+                        effect = new MilitaryEffect(int.Parse(createParams[22]));
+                        break;
 
-                case Effect.Type.Science:
-                    effect = new ScienceEffect(createParams[24]);
-                    break;
+                    case Effect.Type.Resource:
+                        effect = new ResourceEffect(structureType == StructureType.RawMaterial || structureType == StructureType.Goods,
+                            createParams[23]);
+                        break;
 
-                case Effect.Type.Commerce:
-                    effect = new CommercialDiscountEffect(createParams[25]);
-                    break;
+                    case Effect.Type.Science:
+                        effect = new ScienceEffect(createParams[24]);
+                        break;
 
-                case Effect.Type.CoinsPoints:
-                    CoinsAndPointsEffect.CardsConsidered cardsConsidered = (CoinsAndPointsEffect.CardsConsidered)
-                        Enum.Parse(typeof(CoinsAndPointsEffect.CardsConsidered), createParams[26]);
+                    case Effect.Type.Commerce:
+                        effect = new CommercialDiscountEffect(createParams[25]);
+                        break;
 
-                    StructureType classConsidered =
-                        (StructureType)Enum.Parse(typeof(StructureType), createParams[27]);
+                    case Effect.Type.CoinsPoints:
+                        CoinsAndPointsEffect.CardsConsidered cardsConsidered = (CoinsAndPointsEffect.CardsConsidered)
+                            Enum.Parse(typeof(CoinsAndPointsEffect.CardsConsidered), createParams[26]);
 
-                    int coinsGranted = 0;
-                    int.TryParse(createParams[28], out coinsGranted);
+                        StructureType classConsidered =
+                            (StructureType)Enum.Parse(typeof(StructureType), createParams[27]);
 
-                    int pointsAwarded = 0;
-                    int.TryParse(createParams[29], out pointsAwarded);
+                        int coinsGranted = 0;
+                        int.TryParse(createParams[28], out coinsGranted);
 
-                    effect = new CoinsAndPointsEffect(cardsConsidered, classConsidered, coinsGranted, pointsAwarded);
-                    break;
+                        int pointsAwarded = 0;
+                        int.TryParse(createParams[29], out pointsAwarded);
 
-                case Effect.Type.ShipOwnersGuild:
-                    effect = new ShipOwnersGuildEffect();
-                    break;
+                        effect = new CoinsAndPointsEffect(cardsConsidered, classConsidered, coinsGranted, pointsAwarded);
+                        break;
 
-                case Effect.Type.ScienceWild:
-                    effect = new ScienceWildEffect();
-                    break;
+                    case Effect.Type.ScienceWild:
+                        effect = new ScienceWildEffect();
+                        break;
 
-                case Effect.Type.PlayLastCardInAge:
-                    effect = new PlayLastCardInAgeEffect();
-                    break;
+                    //case Effect.Type.PlayLastCardInAge:
+                    //    effect = new PlayLastCardInAgeEffect();
+                    //    break;
 
-                case Effect.Type.PlayDiscardedCardForFree:
-                    effect = new PlayDiscardedCardForFreeEffect();
-                    break;
+                    case Effect.Type.PlayDiscardedCardForFree:
+                        effect = new PlayDiscardedCardForFreeEffect();
+                        break;
 
-                case Effect.Type.PlayDiscardedCardForFree_1VP:
-                    effect = new PlayDiscardedCardForFree_1VPEffect();
-                    break;
+                    //case Effect.Type.PlayDiscardedCardForFree_1VP:
+                    //    effect = new PlayDiscardedCardForFree_1VPEffect();
+                    //    break;
 
-                case Effect.Type.PlayDiscardedCardForFree_2VP:
-                    effect = new PlayDiscardedCardForFree_2VPEffect();
-                    break;
+                    //case Effect.Type.PlayDiscardedCardForFree_2VP:
+                    //    effect = new PlayDiscardedCardForFree_2VPEffect();
+                    //    break;
 
-                case Effect.Type.PlayACardForFreeOncePerAge:
-                    effect = new PlayACardForFreeOncePerAgeEffect();
-                    break;
+                    case Effect.Type.PlayACardForFreeOncePerAge:
+                        effect = new PlayACardForFreeOncePerAgeEffect();
+                        break;
 
-                case Effect.Type.CopyGuildFromNeighbor:
-                    effect = new CopyGuildFromNeighborEffect();
-                    break;
+                    //case Effect.Type.CopyGuildFromNeighbor:
+                    //    effect = new CopyGuildFromNeighborEffect();
+                    //    break;
 
-                case Effect.Type.Rhodos_B_Stage1:
-                    effect = new Rhodos_B_Stage1Effect();
-                    break;
+                    //case Effect.Type.Rhodos_B_Stage1:
+                    //    effect = new Rhodos_B_Stage1Effect();
+                    //    break;
 
-                case Effect.Type.Rhodos_B_Stage2:
-                    effect = new Rhodos_B_Stage2Effect();
-                    break;
+                    //case Effect.Type.Rhodos_B_Stage2:
+                    //    effect = new Rhodos_B_Stage2Effect();
+                    //    break;
 
-                // From the Leaders expansion pack
-                case Effect.Type.FreeLeaders:                    // Roma (A) board effect: Maecenas effect
-                    effect = new FreeLeadersEffect();
-                    break;
+                    // From the Leaders expansion pack
+                    case Effect.Type.FreeLeaders:                    // Roma (A) board effect: Maecenas effect
+                        effect = new FreeLeadersEffect();
+                        break;
 
-                case Effect.Type.DraftFourNewLeaders_5Coins:
-                    effect = new DraftFourNewLeaders_5CoinsEffect();
-                    break;
+                    //case Effect.Type.DraftFourNewLeaders_5Coins:
+                    //    effect = new DraftFourNewLeaders_5CoinsEffect();
+                    //    break;
 
-                case Effect.Type.PlayALeader_3VP:
-                    effect = new PlayALeader_3VPEffect();
-                    break;
+                    //case Effect.Type.PlayALeader_3VP:
+                    //    effect = new PlayALeader_3VPEffect();
+                     //   break;
 
-                case Effect.Type.StructureDiscount:
-                    effect = new StructureDiscountEffect((StructureType)Enum.Parse(typeof(StructureType), createParams[31]));
-                    break;
+                    case Effect.Type.StructureDiscount:
+                        effect = new StructureDiscountEffect((StructureType)Enum.Parse(typeof(StructureType), createParams[31]));
+                        break;
 
-                case Effect.Type.Aristotle:
-                    effect = new AristotleEffect();
-                    break;
+                        /*
+                    case Effect.Type.Aristotle:
+                        effect = new AristotleEffect();
+                        break;
 
-                case Effect.Type.Bilkis:
-                    effect = new BilkisEffect();
-                    break;
+                    case Effect.Type.Bilkis:
+                        effect = new BilkisEffect();
+                        break;
 
-                case Effect.Type.Hatshepsut:
-                    effect = new HatshepsutEffect();
-                    break;
+                    case Effect.Type.Hatshepsut:
+                        effect = new HatshepsutEffect();
+                        break;
 
-                case Effect.Type.Justinian:
-                    effect = new JustinianEffect();
-                    break;
+                    case Effect.Type.Justinian:
+                        effect = new JustinianEffect();
+                        break;
 
-                case Effect.Type.Plato:
-                    effect = new PlatoEffect();
-                    break;
+                    case Effect.Type.Plato:
+                        effect = new PlatoEffect();
+                        break;
 
-                case Effect.Type.Ramses:
-                    effect = new RamsesEffect();
-                    break;
+                    case Effect.Type.Ramses:
+                        effect = new RamsesEffect();
+                        break;
 
-                case Effect.Type.Tomyris:
-                    effect = new TomyrisEffect();
-                    break;
+                    case Effect.Type.Tomyris:
+                        effect = new TomyrisEffect();
+                        break;
 
-                case Effect.Type.Vitruvius:
-                    effect = new VitruviusEffect();
-                    break;
+                    case Effect.Type.Vitruvius:
+                        effect = new VitruviusEffect();
+                        break;
 
-                case Effect.Type.Courtesan:
-                    effect = new CourtesanEffect();
-                    break;
+                    case Effect.Type.Courtesan:
+                        effect = new CourtesanEffect();
+                        break;
+                        */
 
-                // From the Cities expansion pack
-                case Effect.Type.CopyScienceSymbolFromNeighbor:
-                    effect = new CopyScienceSymbolFromNeighborEffect();
-                    break;
+                    // From the Cities expansion pack
+                    case Effect.Type.CopyScienceSymbolFromNeighbor:
+                        effect = new CopyScienceSymbolFromNeighborEffect();
+                        break;
 
-                case Effect.Type.CoinsLossPoints:
-                    effect = new CoinsLossPointsEffect();
-                    break;
+                    case Effect.Type.CoinsLossPoints:
+                        effect = new CoinsLossPointsEffect();
+                        break;
 
-                case Effect.Type.Diplomacy:
-                    effect = new DiplomacyEffect();
-                    break;
+                    case Effect.Type.Diplomacy:
+                        effect = new DiplomacyEffect();
+                        break;
 
-                case Effect.Type.Gambling_Den:
-                    effect = new Gambling_DenEffect();
-                    break;
+                        /*
+                    case Effect.Type.Gambling_Den:
+                        effect = new Gambling_DenEffect();
+                        break;
 
-                case Effect.Type.Clandestine_Dock_West:
-                    effect = new Clandestine_Dock_WestEffect();
-                    break;
+                    case Effect.Type.Clandestine_Dock_West:
+                        effect = new Clandestine_Dock_WestEffect();
+                        break;
 
-                case Effect.Type.Clandestine_Dock_East:
-                    effect = new Clandestine_Dock_EastEffect();
-                    break;
+                    case Effect.Type.Clandestine_Dock_East:
+                        effect = new Clandestine_Dock_EastEffect();
+                        break;
 
-                case Effect.Type.Secret_Warehouse:
-                    effect = new Secret_WarehouseEffect();
-                    break;
+                    case Effect.Type.Secret_Warehouse:
+                        effect = new Secret_WarehouseEffect();
+                        break;
 
-                case Effect.Type.Gambling_House:
-                    effect = new Gambling_HouseEffect();
-                    break;
+                    case Effect.Type.Gambling_House:
+                        effect = new Gambling_HouseEffect();
+                        break;
 
-                case Effect.Type.Black_Market:
-                    effect = new Black_MarketEffect();
-                    break;
+                    case Effect.Type.Black_Market:
+                        effect = new Black_MarketEffect();
+                        break;
+                        */
+                    case Effect.Type.CoinsLossPerMilitaryPoints:
+                        effect = new CoinsLossPerMilitaryPointsEffect();
+                        break;
+                        /*
+                    case Effect.Type.Architect_Cabinet:
+                        effect = new Architect_CabinetEffect();
+                        break;
 
-                case Effect.Type.CoinsLossPerMilitaryPoints:
-                    effect = new CoinsLossPerMilitaryPointsEffect();
-                    break;
+                    case Effect.Type.Builders_Union:
+                        effect = new Builders_UnionEffect();
+                        break;
 
-                case Effect.Type.Architect_Cabinet:
-                    effect = new Architect_CabinetEffect();
-                    break;
+                    case Effect.Type.Bernice:
+                        effect = new BerniceEffect();
+                        break;
 
-                case Effect.Type.Builders_Union:
-                    effect = new Builders_UnionEffect();
-                    break;
+                    case Effect.Type.PlayABlackCardForFreeOncePerAge:
+                        effect = new PlayABlackCardForFreeOncePerAgeEffect();
+                        break;
 
-                case Effect.Type.Bernice:
-                    effect = new BerniceEffect();
-                    break;
-
-                case Effect.Type.PlayABlackCardForFreeOncePerAge:
-                    effect = new PlayABlackCardForFreeOncePerAgeEffect();
-                    break;
-
-                case Effect.Type.Semiramis:
-                    effect = new SemiramisEffect();
-                    break;
-
-                default:
-                    throw new Exception(string.Format("No effect class for this effect: {0}", effectType.ToString()));
+                    case Effect.Type.Semiramis:
+                        effect = new SemiramisEffect();
+                        break;
+                        */
+                    default:
+                        throw new Exception(string.Format("No effect class for this effect: {0}", effectType.ToString()));
+                }
             }
         }
+
 
         public int GetNumCardsAvailable(int numPlayers)
         {
             return numAvailableByNumPlayers[numPlayers - 3];
         }
 
-        public static CardName CardNameFromStringName(string nameAsString, int wonderStage = 0)
+        public static CardId CardNameFromStringName(string nameAsString, int wonderStage = 0)
         {
             nameAsString = nameAsString.Replace("(", string.Empty);
             nameAsString = nameAsString.Replace(")", string.Empty);
@@ -933,7 +965,7 @@ namespace SevenWonders
                 nameAsString += "_s" + wonderStage.ToString();
             }
 
-            return (CardName)Enum.Parse(typeof(CardName), nameAsString);
+            return (CardId)Enum.Parse(typeof(CardId), nameAsString);
         }
     }
 }

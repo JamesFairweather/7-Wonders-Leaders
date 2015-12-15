@@ -215,9 +215,8 @@ namespace SevenWonders
             {
                 p.playerBoard = popRandomBoard();
                 int startingCoins = gmCoordinator.leadersEnabled ? 6 : 3;
-                p.storeAction(new CoinsAndPointsEffect(
-                    CoinsAndPointsEffect.CardsConsidered.None, StructureType.Constant, startingCoins, 0));
-                p.storeAction(p.playerBoard.freeResource);
+                p.addTransaction(startingCoins);
+                p.storeCardEffect(p.playerBoard.startingResourceCard);
             }
 
             for (int i = 0; i < 4; i++)
@@ -319,7 +318,7 @@ namespace SevenWonders
 
                     //check if player has played card 220: gain 2 coins for every victory point gained
                     //give 2 coins if so
-                    if (p.playedStructure.Exists(x => x.name == CardName.Nero))
+                    if (p.playedStructure.Exists(x => x.Id == CardId.Nero))
                     {
                         throw new Exception();
                         // fix this.  Likely by making the player.GiveConflictToken into a function and
@@ -330,7 +329,7 @@ namespace SevenWonders
                     //check if right neighbour has played card 232: return conflict loss token received
                     //if no, receive lossToken
                     //if yes, do not get lossToken, instead, give lossToken to winner
-                    if (p.rightNeighbour.playedStructure.Exists(x => x.name == CardName.Tomyris) == false)
+                    if (p.rightNeighbour.playedStructure.Exists(x => x.Id == CardId.Tomyris) == false)
                     {
                         p.rightNeighbour.lossToken++;
                     }
@@ -368,7 +367,7 @@ namespace SevenWonders
                     //check if I have played card 232: return conflict loss token received
                     //if no, receive lossToken
                     //if yes, do not get lossToken, instead, give lossToken to rightNeighbour
-                    if (p.playedStructure.Exists(x => x.name == CardName.Tomyris) == false)
+                    if (p.playedStructure.Exists(x => x.Id == CardId.Tomyris) == false)
                     {
                         p.lossToken++;
                     }
@@ -469,26 +468,26 @@ namespace SevenWonders
         {
             board = new Dictionary<Board.Wonder, Board>(16)
             {
-                { Board.Wonder.Alexandria_A, new Board(ExpansionSet.Original, Board.Wonder.Alexandria_B, "Alexandria (A)", new ResourceEffect(true, "G"), 3) },
-                { Board.Wonder.Alexandria_B, new Board(ExpansionSet.Original, Board.Wonder.Alexandria_A, "Alexandria (B)", new ResourceEffect(true, "G"), 3) },
-                { Board.Wonder.Babylon_A, new Board(ExpansionSet.Original, Board.Wonder.Babylon_B, "Babylon (A)", new ResourceEffect(true, "B"), 3) },
-                { Board.Wonder.Babylon_B, new Board(ExpansionSet.Original, Board.Wonder.Babylon_A, "Babylon (B)", new ResourceEffect(true, "B"), 3) },
-                { Board.Wonder.Ephesos_A, new Board(ExpansionSet.Original, Board.Wonder.Ephesos_B, "Ephesos (A)", new ResourceEffect(true, "P"), 3) },
-                { Board.Wonder.Ephesos_B, new Board(ExpansionSet.Original, Board.Wonder.Ephesos_A, "Ephesos (B)", new ResourceEffect(true, "P"), 3) },
-                { Board.Wonder.Giza_A, new Board(ExpansionSet.Original, Board.Wonder.Giza_B, "Giza (A)", new ResourceEffect(true, "S"), 3) },
-                { Board.Wonder.Giza_B, new Board(ExpansionSet.Original, Board.Wonder.Giza_A, "Giza (B)", new ResourceEffect(true, "S"), 4) },
-                { Board.Wonder.Halikarnassos_A, new Board(ExpansionSet.Original, Board.Wonder.Halikarnassos_B, "Halikarnassos (A)", new ResourceEffect(true, "C"), 3) },
-                { Board.Wonder.Halikarnassos_B, new Board(ExpansionSet.Original, Board.Wonder.Halikarnassos_A, "Halikarnassos (B)", new ResourceEffect(true, "C"), 3) },
-                { Board.Wonder.Olympia_A, new Board(ExpansionSet.Original, Board.Wonder.Olympia_B, "Olympia (A)", new ResourceEffect(true, "W"), 3) },
-                { Board.Wonder.Olympia_B, new Board(ExpansionSet.Original, Board.Wonder.Olympia_A, "Olympia (B)", new ResourceEffect(true, "W"), 3) },
-                { Board.Wonder.Rhodos_A, new Board(ExpansionSet.Original, Board.Wonder.Rhodos_B, "Rhodos (A)", new ResourceEffect(true, "O"), 3) },
-                { Board.Wonder.Rhodos_B, new Board(ExpansionSet.Original, Board.Wonder.Rhodos_A, "Rhodos (B)", new ResourceEffect(true, "O"), 2) },
+                { Board.Wonder.Alexandria_A, new Board(ExpansionSet.Original, Board.Wonder.Alexandria_B, "Alexandria (A)", CardId.Alexandria_A_Board, new ResourceEffect(true, "G"), 3) },
+                { Board.Wonder.Alexandria_B, new Board(ExpansionSet.Original, Board.Wonder.Alexandria_A, "Alexandria (B)", CardId.Alexandria_B_Board, new ResourceEffect(true, "G"), 3) },
+                { Board.Wonder.Babylon_A, new Board(ExpansionSet.Original, Board.Wonder.Babylon_B, "Babylon (A)", CardId.Babylon_A_Board, new ResourceEffect(true, "B"), 3) },
+                { Board.Wonder.Babylon_B, new Board(ExpansionSet.Original, Board.Wonder.Babylon_A, "Babylon (B)", CardId.Babylon_B_Board, new ResourceEffect(true, "B"), 3) },
+                { Board.Wonder.Ephesos_A, new Board(ExpansionSet.Original, Board.Wonder.Ephesos_B, "Ephesos (A)", CardId.Ephesos_A_Board, new ResourceEffect(true, "P"), 3) },
+                { Board.Wonder.Ephesos_B, new Board(ExpansionSet.Original, Board.Wonder.Ephesos_A, "Ephesos (B)", CardId.Ephesos_B_Board, new ResourceEffect(true, "P"), 3) },
+                { Board.Wonder.Giza_A, new Board(ExpansionSet.Original, Board.Wonder.Giza_B, "Giza (A)", CardId.Giza_A_Board, new ResourceEffect(true, "S"), 3) },
+                { Board.Wonder.Giza_B, new Board(ExpansionSet.Original, Board.Wonder.Giza_A, "Giza (B)", CardId.Giza_B_Board, new ResourceEffect(true, "S"), 4) },
+                { Board.Wonder.Halikarnassos_A, new Board(ExpansionSet.Original, Board.Wonder.Halikarnassos_B, "Halikarnassos (A)", CardId.Halikarnassos_A_Board, new ResourceEffect(true, "C"), 3) },
+                { Board.Wonder.Halikarnassos_B, new Board(ExpansionSet.Original, Board.Wonder.Halikarnassos_A, "Halikarnassos (B)", CardId.Halikarnassos_B_Board, new ResourceEffect(true, "C"), 3) },
+                { Board.Wonder.Olympia_A, new Board(ExpansionSet.Original, Board.Wonder.Olympia_B, "Olympia (A)", CardId.Olympia_A_Board, new ResourceEffect(true, "W"), 3) },
+                { Board.Wonder.Olympia_B, new Board(ExpansionSet.Original, Board.Wonder.Olympia_A, "Olympia (B)", CardId.Olympia_B_Board, new ResourceEffect(true, "W"), 3) },
+                { Board.Wonder.Rhodos_A, new Board(ExpansionSet.Original, Board.Wonder.Rhodos_B, "Rhodos (A)", CardId.Rhodos_A_Board, new ResourceEffect(true, "O"), 3) },
+                { Board.Wonder.Rhodos_B, new Board(ExpansionSet.Original, Board.Wonder.Rhodos_A, "Rhodos (B)", CardId.Rhodos_B_Board, new ResourceEffect(true, "O"), 2) },
             };
 
             if (gmCoordinator.leadersEnabled)
             {
-                board.Add(Board.Wonder.Roma_A, new Board(ExpansionSet.Leaders, Board.Wonder.Roma_B, "Roma (A)", new FreeLeadersEffect(), 2));
-                board.Add(Board.Wonder.Roma_B, new Board(ExpansionSet.Leaders, Board.Wonder.Roma_A, "Roma (B)", new RomaBBoardEffect(), 3));
+                board.Add(Board.Wonder.Roma_A, new Board(ExpansionSet.Leaders, Board.Wonder.Roma_B, "Roma (A)", CardId.Roma_A_Board, new FreeLeadersEffect(), 2));
+                board.Add(Board.Wonder.Roma_B, new Board(ExpansionSet.Leaders, Board.Wonder.Roma_A, "Roma (B)", CardId.Roma_B_Board, null, 3));
             }
 
             // Take the board effects from the card list.
@@ -505,8 +504,8 @@ namespace SevenWonders
 
                 for (int i = 0; i < b.numOfStages; ++i)
                 {
-                    CardName wonderStageName = Card.CardNameFromStringName(b.name, i + 1);
-                    Card card = fullCardList.Find(c => c.name == wonderStageName);
+                    CardId wonderStageName = Card.CardNameFromStringName(b.name, i + 1);
+                    Card card = fullCardList.Find(c => c.Id == wonderStageName);
 
                     fullCardList.Remove(card);
                     b.stageCard.Add(card);
@@ -547,16 +546,16 @@ namespace SevenWonders
         {
             Player p = player[playerNickname];
 
-            CardName cName = Card.CardNameFromStringName(cardName);
+            CardId cName = Card.CardNameFromStringName(cardName);
 
             Card c = null;
             if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
             {
-                c = p.draftedLeaders.Find(x => x.name == cName);
+                c = p.draftedLeaders.Find(x => x.Id == cName);
             }
             else
             {
-                c = p.hand.Find(x => x.name == cName);
+                c = p.hand.Find(x => x.Id == cName);
             }
 
             if (c == null)
@@ -624,7 +623,7 @@ namespace SevenWonders
             p.addPlayedCardStructure(c);
 
             //store the card's action
-            p.storeAction(c.effect);
+            p.storeCardEffect(c);
 
             if (freeBuild)
             {
@@ -646,7 +645,7 @@ namespace SevenWonders
 
             if (c.structureType == StructureType.Leader)
             {
-                if (p.playerBoard.name == "Roma (A)" || p.playedStructure.Exists(x => x.name == CardName.Maecenas))
+                if (p.playerBoard.name == "Roma (A)" || p.playedStructure.Exists(x => x.Id == CardId.Maecenas))
                 {
                     costInCoins = 0;
                 }
@@ -695,14 +694,14 @@ namespace SevenWonders
 
             if (costInCoins != 0)
             {
-                p.storeAction(new CoinEffect(-costInCoins));
+                p.addTransaction(-costInCoins);
             }
 
             if (nLeftCoins != 0)
-                p.leftNeighbour.storeAction(new CoinEffect(nLeftCoins));
+                p.leftNeighbour.addTransaction(nLeftCoins);
 
             if (nRightCoins != 0)
-                p.rightNeighbour.storeAction(new CoinEffect(nRightCoins));
+                p.rightNeighbour.addTransaction(nRightCoins);
 
             //determine if the player should get 2 coins for having those leaders (get 2 coins for playing a yellow and playing a pre-req
             giveCoinFromLeadersOnBuild(p, c);
@@ -916,7 +915,7 @@ namespace SevenWonders
         {
             Player p = player[nickname];
 
-            discardCardForThreeCoins(p, p.hand.Find(x => x.name == Card.CardNameFromStringName(name)));
+            discardCardForThreeCoins(p, p.hand.Find(x => x.Id == Card.CardNameFromStringName(name)));
         }
 
         /// <summary>
@@ -926,7 +925,7 @@ namespace SevenWonders
         /// <param name="p"></param>
         public void discardCardForThreeCoins(Player p, Card c)
         {
-            p.storeAction(new CoinEffect(3));
+            p.addTransaction(3);
 
             //Find the card with the id number and find its effects
             p.hand.Remove(c);
@@ -1035,7 +1034,7 @@ namespace SevenWonders
                     }
                     else
                     {
-                        strCardsPlayed += string.Format("&{0}={1}", p.nickname, card.name);
+                        strCardsPlayed += string.Format("&{0}={1}", p.nickname, card.Id);
                     }
                     p.bUIRequiresUpdating = false;
                 }
@@ -1074,7 +1073,7 @@ namespace SevenWonders
 
                     foreach (Card card in p.hand)
                     {
-                        strLeaderHand += string.Format("&{0}=", card.name);
+                        strLeaderHand += string.Format("&{0}=", card.Id);
                     }
 
                     // send the list of cards to the player
@@ -1086,7 +1085,7 @@ namespace SevenWonders
 
                     foreach (Card c in p.draftedLeaders)
                     {
-                        strLeaderIcons += string.Format("&{0}=", c.name);
+                        strLeaderIcons += string.Format("&{0}=", c.Id);
                     }
 
                     gmCoordinator.sendMessage(p, strLeaderIcons);
@@ -1097,7 +1096,7 @@ namespace SevenWonders
 
                     foreach (Card card in p.draftedLeaders)
                     {
-                        strHand += string.Format("&{0}={1}", card.name, p.isCardBuildable(card).ToString());
+                        strHand += string.Format("&{0}={1}", card.Id, p.isCardBuildable(card).ToString());
                     }
 
                     strHand += string.Format("&WonderStage{0}={1}", p.currentStageOfWonder, p.isStageBuildable().ToString());
@@ -1132,7 +1131,7 @@ namespace SevenWonders
                         {
                             // Filter out structures that have already been built in the players' city.
                             if (p.isCardBuildable(card) != Buildable.StructureAlreadyBuilt)
-                                strHand += string.Format("&{0}={1}", card.name, Buildable.True.ToString());
+                                strHand += string.Format("&{0}={1}", card.Id, Buildable.True.ToString());
                         }
 
                         // The free build for Halikarnassos/Solomon requires the card be put in play.
@@ -1144,7 +1143,7 @@ namespace SevenWonders
                     {
                         foreach (Card card in p.hand)
                         {
-                            strHand += string.Format("&{0}={1}", card.name, p.isCardBuildable(card).ToString());
+                            strHand += string.Format("&{0}={1}", card.Id, p.isCardBuildable(card).ToString());
                         }
 
                         strHand += string.Format("&WonderStage{0}={1}", p.currentStageOfWonder, p.isStageBuildable().ToString());
@@ -1247,12 +1246,12 @@ namespace SevenWonders
             }
             else
             {
-                card = fullCardList.Find(y => y.name == (CardName)Enum.Parse(typeof(CardName), structureName));
+                card = fullCardList.Find(y => y.Id == (CardId)Enum.Parse(typeof(CardId), structureName));
             }
 
             bool hasDisountEffect = p.playedStructure.Exists(x => x.effect is StructureDiscountEffect && ((StructureDiscountEffect)x.effect).discountedStructureType == card.structureType);
 
-            Card bilkis = p.playedStructure.Find(x => x.name == CardName.Bilkis);
+            Card bilkis = p.playedStructure.Find(x => x.Id == CardId.Bilkis);
             if (bilkis != null)
             {
                 // Tell the commmerce window that the last entry in the resource list for the player is for Bilkis

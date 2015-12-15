@@ -40,7 +40,10 @@ namespace SevenWonders
         //number of stages
         public int numOfStages { get; private set; }
 
-        public Effect freeResource { get; private set; }
+        // public Effect freeResource { get; private set; }
+
+        // starting resource or effect
+        public Card startingResourceCard { get; private set; }
 
         //stage costs & effects
         public List<Card> stageCard;
@@ -54,12 +57,12 @@ namespace SevenWonders
         /// <param name="name">Name of the active side of the Wonder (e.g. "Giza (B)")</param>
         /// <param name="effect">This is the starting resource or effect that the Wonder Board provides</param>
         /// <param name="nStages">The number of stages this wonder has (1, 2, 3, 4)</param>
-        public Board(ExpansionSet e, Wonder otherside, string name, Effect boardEffect, int nStages)
+        public Board(ExpansionSet e, Wonder otherside, string name, CardId cardId, Effect boardEffect, int nStages)
         {
             this.expansionSet = e;
             this.otherSide = otherside;
             this.name = name;
-            this.freeResource = boardEffect;
+            this.startingResourceCard = new Card(cardId, name, boardEffect);
             this.numOfStages = nStages;
 
             inPlay = false;

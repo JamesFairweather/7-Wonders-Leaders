@@ -23,7 +23,7 @@ namespace SevenWonders
             {
                 foreach (Card card in player.hand)
                 {
-                    strOutput += card.name;
+                    strOutput += card.Id;
                     strOutput += " ";
                 }
             }
@@ -31,7 +31,7 @@ namespace SevenWonders
             {
                 foreach (Card card in player.hand)
                 {
-                    strOutput += card.name;
+                    strOutput += card.Id;
                     strOutput += " ";
                 }
             }
@@ -43,21 +43,21 @@ namespace SevenWonders
             if (gm.phase == GameManager.GamePhase.LeaderDraft || gm.phase == GameManager.GamePhase.LeaderRecruitment)
             {
                 // int[] favouredLeaders = { 216, 220, 222, 232, 200, 208, 205, 221, 214, 236, 213 };
-                CardName [] favouredLeaders = { CardName.Leonidas, CardName.Nero, CardName.Pericles, CardName.Tomyris, CardName.Alexander, CardName.Hannibal, CardName.Caesar, CardName.Nefertiti, CardName.Cleopatra, CardName.Zenobia, CardName.Justinian };
+                CardId [] favouredLeaders = { CardId.Leonidas, CardId.Nero, CardId.Pericles, CardId.Tomyris, CardId.Alexander, CardId.Hannibal, CardId.Caesar, CardId.Nefertiti, CardId.Cleopatra, CardId.Zenobia, CardId.Justinian };
 
                 Card bestLeader = null;
 
                 //try to find the highest rated card in hand
                 //start looking for the highest rated card, then go down to the next highest, etc.
-                foreach (CardName leaderName in favouredLeaders)
+                foreach (CardId leaderName in favouredLeaders)
                 {
                     if (gm.phase == GameManager.GamePhase.LeaderDraft)
                     {
-                        bestLeader = player.hand.Find(x => x.name == leaderName);
+                        bestLeader = player.hand.Find(x => x.Id == leaderName);
                     }
                     else if (gm.phase == GameManager.GamePhase.LeaderRecruitment)
                     {
-                        bestLeader = player.draftedLeaders.Find(x => x.name == leaderName);
+                        bestLeader = player.draftedLeaders.Find(x => x.Id == leaderName);
                     }
 
                     if (bestLeader != null)
@@ -75,12 +75,12 @@ namespace SevenWonders
 
                 if (bestLeader != null)
                 {
-                    Console.WriteLine(player.nickname + "Drafted leader: {0}", bestLeader.name);
+                    Console.WriteLine(player.nickname + "Drafted leader: {0}", bestLeader.Id);
                     gm.buildStructureFromHand(player, bestLeader, false, false, 0, 0);
                 }
                 else
                 {
-                    Console.WriteLine(player.nickname + " Action: Discard {0}", player.draftedLeaders[0].name);
+                    Console.WriteLine(player.nickname + " Action: Discard {0}", player.draftedLeaders[0].Id);
                     gm.discardCardForThreeCoins(player, player.draftedLeaders[0]);
                 }
 
@@ -178,7 +178,7 @@ namespace SevenWonders
                 {
                     if (card.structureType == StructureType.Military && player.isCardBuildable(card) != Buildable.True)
                     {
-                        Console.WriteLine(player.nickname + " Action: Discard {0}", card.name);
+                        Console.WriteLine(player.nickname + " Action: Discard {0}", card.Id);
                         gm.discardCardForThreeCoins(player, card);
                         return;
                     }
@@ -187,13 +187,13 @@ namespace SevenWonders
 
             if (c != null)
             {
-                Console.WriteLine(player.nickname + " Action: Construct {0}", c.name);
+                Console.WriteLine(player.nickname + " Action: Construct {0}", c.Id);
                 gm.buildStructureFromHand(player, c, false);
             }
             else
             {
                 c = player.hand[0];
-                Console.WriteLine(player.nickname + " Action: Discard {0}", c.name);
+                Console.WriteLine(player.nickname + " Action: Discard {0}", c.Id);
                 gm.discardCardForThreeCoins(player, c);
             }
         } 
