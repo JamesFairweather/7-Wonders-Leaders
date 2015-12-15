@@ -245,7 +245,7 @@ namespace SevenWonders
         /// <param name="s"></param>
         public void storeCardEffect(Card c)
         {
-            if (c.effect is CoinEffect || c.effect is ResourceEffect || c.effect is CoinsAndPointsEffect || c.effect is PlayACardForFreeOncePerAgeEffect)
+            if (c.effect is ResourceEffect || c.effect is CoinsAndPointsEffect || c.effect is PlayACardForFreeOncePerAgeEffect)
             {
                 // the effects of these cards do not come into play until the next turn.
                 // put them on the actions queue to be run after all players have turned
@@ -464,6 +464,17 @@ namespace SevenWonders
             {
                 throw new Exception("This ability needs to be dealt with on the end-of-turn action queue.");
             }
+            else if (
+                effect is ScienceWildEffect ||
+                effect is ScienceEffect ||
+                effect is MilitaryEffect ||
+                effect is FreeLeadersEffect)
+            {
+                // nothing to do; this card will be included in the end of game point total, or
+                // - Military cards are used at the end of each age to resolve conflicts
+                // - Science cards are used at the end of the game.
+                // - Free Leaders effects are captured when the cards are put into play
+            }
             else
             {
                 throw new Exception("Unimplemented effect type");
@@ -505,16 +516,26 @@ namespace SevenWonders
                 gm = (LeadersGameManager)gm;
             }
             */
+
+            foreach(int m in coinTransactions)
+            {
+                coin += m;
+            }
+
+            coinTransactions.Clear();
+
             //go through each action and execute the actions stored
             foreach (Effect act in actions)
             {
                 //category $: deduct a given amount of coins
                 // if (actactions[i][0] == '$')
+                /*
                 if (act is CoinEffect)
                 {
                     // add or subtract coins
                     coin += ((CoinEffect)act).coins;
                 }
+                */
                 /*
                 else if (act is MilitaryEffect)
                 {
@@ -523,7 +544,7 @@ namespace SevenWonders
                 */
                 //category 1: give one kind of non-science thing
                 // else if (actions[i][0] == '1')
-                else if (act is ResourceEffect)
+                if (act is ResourceEffect)
                 {
                     ResourceEffect e = act as ResourceEffect;
                     //increase the appropriate field by num
