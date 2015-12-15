@@ -573,7 +573,7 @@ namespace SevenWonders
 
             bool usedBilkis = strUsedBilkis != null && strUsedBilkis == "True";
 
-            buildStructureFromHand(p, c, strWonderStage == "True", freeBuild, nLeftCoins, nRightCoins, usedBilkis);
+            buildStructureFromHand(p, c, strWonderStage != null, freeBuild, nLeftCoins, nRightCoins, usedBilkis);
         }
 
         /// <summary>
@@ -1233,10 +1233,13 @@ namespace SevenWonders
             strCommerce += string.Format("&resourceDiscount={0}", p.rawMaterialsDiscount.ToString());
             strCommerce += string.Format("&goodsDiscount={0}", p.goodsDiscount.ToString());
 
-            if (wonderStage == "True")
+            if (wonderStage != null)
                 strCommerce += string.Format("&wonderCard={0}", Card.CardNameFromStringName(p.playerBoard.name, p.currentStageOfWonder+1));
 
-            strCommerce += string.Format("&Structure={0}&WonderStage={1}", structureName, wonderStage);
+            strCommerce += string.Format("&Structure={0}", structureName);
+
+            if (wonderStage != null)
+                strCommerce += "&BuildWonderStage=";
 
             Card card = null;
 

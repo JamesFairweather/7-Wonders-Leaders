@@ -654,13 +654,6 @@ namespace SevenWonders
                 {
                     sum += (conflictTokenOne + conflictTokenTwo + conflictTokenThree) * cpe.victoryPointsAtEndOfGameMultiplier;
                 }
-
-                /*
-                if (cpe.classConsidered == StructureType.WonderStage)
-                {
-                    sum += currentStageOfWonder * cpe.victoryPointsAtEndOfGameMultiplier;
-                }
-                */
             }
 
             if (cpe.cardsConsidered == CoinsAndPointsEffect.CardsConsidered.None)

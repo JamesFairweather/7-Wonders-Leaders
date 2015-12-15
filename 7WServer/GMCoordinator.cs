@@ -117,7 +117,7 @@ namespace SevenWonders
                     {
                         case "BldStrct":
                             qscoll = HttpUtility.ParseQueryString(message.Substring(9));
-                            gameManager.buildStructureFromHand(nickname, qscoll["Structure"], qscoll["WonderStage"], qscoll["FreeBuild"], qscoll["leftCoins"], qscoll["rightCoins"], qscoll["Bilkis"]);
+                            gameManager.buildStructureFromHand(nickname, qscoll["Structure"], qscoll["BuildWonderStage"], qscoll["FreeBuild"], qscoll["leftCoins"], qscoll["rightCoins"], qscoll["Bilkis"]);
                             MessageHandled = true;
                             break;
 
@@ -129,7 +129,7 @@ namespace SevenWonders
 
                         case "SendComm":
                             qscoll = HttpUtility.ParseQueryString(message.Substring(9));
-                            gameManager.updateCommercePanel(nickname, qscoll["Structure"], qscoll["WonderStage"]);
+                            gameManager.updateCommercePanel(nickname, qscoll["Structure"], qscoll["BuildWonderStage"]);
                             MessageHandled = true;
                             break;
                     }

@@ -84,7 +84,7 @@ namespace SevenWonders
 
             structureName = qscoll["Structure"];
 
-            isStage = qscoll["WonderStage"] == "True";
+            isStage = qscoll["BuildWonderStage"] != null;
 
             if (isStage)
             {
@@ -543,7 +543,9 @@ namespace SevenWonders
             {
                 // TODO: the response should be what resources were used from each neighbor.  The server should
                 // calculate the cost and exchange coins.
-                string strResponse = string.Format("BldStrct&WonderStage={0}&Structure={1}&leftCoins={2}&rightCoins={3}", isStage ? "True" : "False", structureName, leftcoin, rightcoin);
+                string strResponse = string.Format("BldStrct&Structure={0}&leftCoins={1}&rightCoins={2}", structureName, leftcoin, rightcoin);
+
+                if (isStage) strResponse += "&BuildWonderStage=";
                 if (usedBilkis)
                 {
                     strResponse += "&Bilkis=True";
