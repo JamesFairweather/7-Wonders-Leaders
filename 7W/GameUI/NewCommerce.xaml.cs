@@ -34,6 +34,7 @@ namespace SevenWonders
 
         bool hasBilkis;
         bool usedBilkis;
+        string leaderDiscountCardId;
         bool leftRawMarket, rightRawMarket, marketplace;
         string leftName, middleName, rightName;
         Card cardToBuild;
@@ -93,12 +94,24 @@ namespace SevenWonders
             {
                 string strWonderName = qscoll["WonderStageCard"];
 
-                cardCost = coordinator.FindCard(strWonderName).cost;
+                cardToBuild = coordinator.FindCard(strWonderName);
             }
-            else
+
+            cardCost = cardToBuild.cost;
+
+            string strLeaderDiscounts = qscoll["LeaderDiscountCards"];
+
+            if (strLeaderDiscounts != string.Empty)
             {
-                //                cardCost = coordinator.FindCard(structureName).cost;
-                cardCost = cardToBuild.cost;
+                foreach (string strCardId in strLeaderDiscounts.Split(','))
+                {
+                    Card leaderDiscountCard = coordinator.FindCard(strCardId);
+
+                    if (((StructureDiscountEffect)leaderDiscountCard.effect).discountedStructureType == cardToBuild.structureType)
+                    {
+                        leaderDiscountCardId = leaderDiscountCard.Id.ToString();
+                    }
+                }
             }
 
             leftRawMarket = false;
@@ -183,10 +196,20 @@ namespace SevenWonders
             leftManuImage.Source = rightManuImage.Source = new BitmapImage(
                 new Uri("pack://application:,,,/7W;component/Resources/Images/Commerce/" + (marketplace ? "1m.png" : "2m.png")));
 
+            if (leaderDiscountCardId != null)
+            {
+                middleDag.add(new ResourceEffect(false, "WSBOCGP"));
+            }
+
             hasBilkis = qscoll["Bilkis"] != null;
 
             if (hasBilkis)
+            {
                 imgBilkisPower.Visibility = Visibility.Visible;
+
+                // Add Bilkis' choice
+                middleDag.add(new ResourceEffect(false, "WSBOCGP"));
+            }
 
             //generate mutable elements (DAG buttons, Price representations, currentResources, etc.)
             reset();
@@ -552,7 +575,7 @@ namespace SevenWonders
                 if (isStage) strResponse += "&BuildWonderStage=";
                 if (usedBilkis)
                 {
-                    strResponse += "&Bilkis=True";
+                    strResponse += "&Bilkis=";
                 }
                 coordinator.sendToHost(strResponse);
 

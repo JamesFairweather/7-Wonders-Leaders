@@ -521,10 +521,6 @@ namespace SevenWonders
         protected Board popRandomBoard()
         {
             int index = (new Random()).Next(0, board.Count);
-            index = 9;
-
-            if ( gmCoordinator.leadersEnabled )
-                index = 15;
 
             KeyValuePair<Board.Wonder, Board> randomBoard = board.ElementAt(index);
 
@@ -549,14 +545,10 @@ namespace SevenWonders
         public void buildStructureFromHand(string playerNickname, NameValueCollection qscoll)
         {
             string cardName = qscoll["Structure"];
-            string strWonderStage = qscoll["BuildWonderStage"];
-            string strFreeBuild = qscoll["FreeBuild"];
             string strLeftCoins = qscoll["leftCoins"];
             string strRightCoins = qscoll["rightCoins"];
-            string strUsedBilkis = qscoll["Bilkis"];
 
             Player p = player[playerNickname];
-
 
             CardId cardId = Card.CardNameFromStringName(cardName);
 
@@ -581,10 +573,7 @@ namespace SevenWonders
             if (strRightCoins != null)
                 nRightCoins = int.Parse(strRightCoins);
 
-            bool freeBuild = strFreeBuild != null && strFreeBuild == "True";
-            bool usedBilkis = strUsedBilkis != null && strUsedBilkis == "True";
-
-            buildStructureFromHand(p, c, strWonderStage != null, freeBuild, nLeftCoins, nRightCoins, usedBilkis);
+            buildStructureFromHand(p, c, qscoll["BuildWonderStage"] != null, qscoll["FreeBuild"] != null, nLeftCoins, nRightCoins, qscoll["Bilkis"] != null);
         }
 
         /// <summary>
@@ -630,6 +619,9 @@ namespace SevenWonders
                 p.hand.Clear();
             }
 
+            // Possible TODO: move these to _after_ the coin cost has been resolved.  Maecenas has a problem where he was being played
+            // for free because his effect took place _after_ the card had been added.  Need to do some testing around this to ensure
+            // moving this down doesn't screw up Olympia.
             //add the card to played card structure
             p.addPlayedCardStructure(c);
 
@@ -656,7 +648,7 @@ namespace SevenWonders
 
             if (c.structureType == StructureType.Leader)
             {
-                if (p.playerBoard.name == "Roma (A)" || p.playedStructure.Exists(x => x.Id == CardId.Maecenas))
+                if (p.playerBoard.name == "Roma (A)" || (p.playedStructure.Exists(x => x.Id == CardId.Maecenas) && (c.Id != CardId.Maecenas)))
                 {
                     costInCoins = 0;
                 }
@@ -669,39 +661,6 @@ namespace SevenWonders
                     costInCoins -= 1;
                 }
             }
-
-#if FALSE
-            //if player has Rome B, then playing leaders will refund a 2 coin discount
-            if (/*p.playerBoard.freeResource == 'd' && */c.structureType == StructureType.Leader)
-            {
-                //give 2 coins back if the card cost more than 2
-                //else give less than 2 coins back
-                int coins = c.cost.coin;
-                if (c.cost.coin >= 2)
-                {
-                    coins = 2;
-                    // p.storeAction("12$");
-                }
-                else
-                {
-                    // JDF.  Not sure this is correct.  Will need to test it.
-                    // p.storeAction("1" + c.cost.Length + "$");
-                }
-                p.storeAction(new CoinEffect(coins));
-            }
-#endif
-
-            /*
-            //if player's neighbour has Rome B, then refund a 1 coin discount instead
-            else if ((p.leftNeighbour.playerBoard.freeResource == 'd' || p.rightNeighbour.playerBoard.freeResource == 'd') && c.structureType == StructureType.Leader)
-            {
-                if (c.cost.coin >= 1)
-                {
-                    p.storeAction(new SimpleEffect(1, '$'));
-                    // p.storeAction("11$");
-                }
-            }
-            */
 
             if (costInCoins != 0)
             {
@@ -1061,11 +1020,6 @@ namespace SevenWonders
                     if (p.currentStageOfWonder < p.playerBoard.numOfStages)
                         strCommerce += string.Format("&WonderStageCard={0}", Card.CardNameFromStringName(p.playerBoard.name, p.currentStageOfWonder + 1));
 
-                    foreach (Card c in p.playedStructure.Where(x => x.effect is StructureDiscountEffect))
-                    {
-                        strCommerce += "&" + c.Id + "=";
-                    }
-
                     Card bilkis = p.playedStructure.Find(x => x.Id == CardId.Bilkis);
                     if (bilkis != null)
                     {
@@ -1073,6 +1027,15 @@ namespace SevenWonders
                         // and isn't due to another leader effect.
                         strCommerce += "&" + bilkis.Id + "=";
                     }
+
+                    strCommerce += "&LeaderDiscountCards=";
+
+                    foreach (Card c in p.playedStructure.Where(x => x.effect is StructureDiscountEffect))
+                    {
+                        strCommerce += c.Id + ",";
+                    }
+
+                    strCommerce = strCommerce.TrimEnd(',');
 
                     gmCoordinator.sendMessage(p, strHand + strCommerce);
                 }

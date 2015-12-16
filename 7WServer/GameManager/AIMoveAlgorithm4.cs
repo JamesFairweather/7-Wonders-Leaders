@@ -21,7 +21,7 @@ namespace SevenWonders
 
             if (gm.phase == GameManager.GamePhase.LeaderRecruitment)
             {
-                foreach (Card card in player.hand)
+                foreach (Card card in player.draftedLeaders)
                 {
                     strOutput += card.Id;
                     strOutput += " ";

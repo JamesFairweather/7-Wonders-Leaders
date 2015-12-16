@@ -450,7 +450,7 @@ namespace SevenWonders
             btnBuildStructureForFree_isEnabled = false;
             playerPlayedHisTurn = true;
             // bilkisButton.IsEnabled = false;
-            coordinator.sendToHost(string.Format("BldStrct&FreeBuild=True&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
+            coordinator.sendToHost(string.Format("BldStrct&FreeBuild=&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
             coordinator.endTurn();
 
         }
