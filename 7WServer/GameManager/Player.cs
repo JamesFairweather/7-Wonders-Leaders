@@ -803,7 +803,52 @@ namespace SevenWonders
 
             foreach (Card c in playedStructure.Where(x => x.structureType == StructureType.Leader))
             {
-                if (c.effect is CoinsAndPointsEffect)
+                if (c.effect == null)
+                {
+                    switch (c.Id)
+                    {
+                        case CardId.Justinian:
+                            {
+                                // Justinian is worth 3 victory points for each set of  3 Age cards(Military + Scientific + Civilian) in the player's city.
+
+                                int nMilitaryCards = playedStructure.Where(x => x.structureType == StructureType.Military).Count();
+                                int nScienceCards = playedStructure.Where(x => x.structureType == StructureType.Science).Count();
+                                int nCivilianCards = playedStructure.Where(x => x.structureType == StructureType.Civilian).Count();
+
+                                // find the structure type with the fewest number of cards played
+                                int least = Math.Min(Math.Min(nMilitaryCards, nCivilianCards), nScienceCards);
+
+                                // Score 3 times that number for Justinian.
+                                score.leaders += least * 3;
+                            }
+                            break;
+
+                        case CardId.Plato:
+                            {
+                                // Plato is worth 7 victory points for each set of 7 Age cards (Raw Material + Manufactured Goods + Civilian + Commercial + Science + Military + Guild) in the player's city. 
+
+                                int nCards = playedStructure.Where(x => x.structureType == StructureType.RawMaterial).Count();
+                                int least = nCards;
+                                nCards = playedStructure.Where(x => x.structureType == StructureType.Goods).Count();
+                                if (nCards < least) least = nCards;
+                                nCards = playedStructure.Where(x => x.structureType == StructureType.Civilian).Count();
+                                if (nCards < least) least = nCards;
+                                nCards = playedStructure.Where(x => x.structureType == StructureType.Commerce).Count();
+                                if (nCards < least) least = nCards;
+                                nCards = playedStructure.Where(x => x.structureType == StructureType.Science).Count();
+                                if (nCards < least) least = nCards;
+                                nCards = playedStructure.Where(x => x.structureType == StructureType.Military).Count();
+                                if (nCards < least) least = nCards;
+                                nCards = playedStructure.Where(x => x.structureType == StructureType.Guild).Count();
+                                if (nCards < least) least = nCards;
+
+                                // Score 7 times the lowest color group for Plato
+                                score.leaders += least * 3;
+                            }
+                            break;
+                    }
+                }
+                else if (c.effect is CoinsAndPointsEffect)
                 {
                     score.leaders += CountVictoryPoints(c.effect as CoinsAndPointsEffect);
                 }

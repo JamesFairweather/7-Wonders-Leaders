@@ -128,17 +128,17 @@ Leaders,Alexander,Leader,0,Adds 1 VP to each Victory Conflict token.,Alexander,1
 Leaders,Amytis,Leader,0,Worth 2 victory points (VP) for each Wonder stage built by the player.,Amytis,1,0,1,1,1,4,,,,,,,,,,CoinsPoints,,,,,Player,WonderStage,,2,,
 Leaders,Archimedes,Leader,0,Archimedes allows the player to build green Structures for one resource less than their written cost (for future cards).,Archimedes,1,0,1,1,1,4,,,,,,,,,,StructureDiscount,,,,,,,,,,Science
 Leaders,Aristotle,Leader,0,Aristotle adds 3 VP to each set of different scientific symbols (meaning that the bonus goes from 7 VP to 10 VP per set). ,Aristotle,1,0,1,1,1,3,,,,,,,,,,,,,,,,,,,,
-Leaders,Bilkis,Leader,0,Bilkis allows the player to purchase any resource by paying 1 coin to the bank once per turn (for future commerce.),Bilkis,1,1,1,1,1,4,,,,,,,,,,,,,,,,,,,,
-Leaders,Caesar,Leader,0,Caesar grants 2 shields.,shield_2,1,1,1,1,1,5,,,,,,,,,,Military,2,,,,,,,,,
-Leaders,Cleopatra,Leader,0,Cleopatra is worth  5 victory points at the end of the game.,Cleopatra,1,1,1,1,1,4,,,,,,,,,,CoinsPoints,,,,,None,Constant,,5,,
-Leaders,Croeseus,Leader,0,The player takes 6 coins from the bank.,Croeseus,1,1,1,1,1,1,,,,,,,,,,CoinsPoints,,,,,None,Constant,6,,,
-Leaders,Euclid,Leader,0,He grants the compass scientific symbol. This symbol is added to those of scientific structures (green cards) in the player's city.,compass,1,1,1,1,1,5,,,,,,,,,,Science,,,C,,,,,,,
-Leaders,Hammurabi,Leader,0,Hammruabi allows the player to build blue Structures for one resource less than their written cost (for future cards).,Hammurabi,1,1,1,1,1,2,,,,,,,,,,StructureDiscount,,,,,,,,,,Civilian
-Leaders,Hannibal,Leader,0,Hannibal grants 1 shield.,shield_1,1,1,1,1,1,2,,,,,,,,,,Military,1,,,,,,,,,
-Leaders,Hatshepsut,Leader,0,Each purchase of one or more resources from  a neighbor grants 1 coin from the bank. Note that this gain is limited to 1 coin per neighbor per turn.,Hatshepsut,1,1,1,1,1,2,,,,,,,,,,,,,,,,,,,,
-Leaders,Hiram,Leader,0,Hiram gives is worth 2 victory points per purple card present  in the player's city.,Hiram,1,1,1,1,1,3,,,,,,,,,,CoinsPoints,,,,,Player,Guild,,2,,
-Leaders,Hypatia,Leader,0,Hypatia is worth 1 victory point per green card present  in the player's city at the end of the game.,Hypatia,1,1,1,1,1,4,,,,,,,,,,CoinsPoints,,,,,Player,Science,,1,,
-Leaders,Imhotep,Leader,0,Future wonder stages can be built for for one resource less than their written cost.,Imhotep,1,1,1,1,1,3,,,,,,,,,,StructureDiscount,,,,,,,,,,WonderStage
+Leaders,Bilkis,Leader,0,Bilkis allows the player to purchase any resource by paying 1 coin to the bank once per turn (for future commerce.),Bilkis,1,0,1,1,1,4,,,,,,,,,,,,,,,,,,,,
+Leaders,Caesar,Leader,0,Caesar grants 2 shields.,shield_2,1,0,1,1,1,5,,,,,,,,,,Military,2,,,,,,,,,
+Leaders,Cleopatra,Leader,0,Cleopatra is worth  5 victory points at the end of the game.,Cleopatra,1,0,1,1,1,4,,,,,,,,,,CoinsPoints,,,,,None,Constant,,5,,
+Leaders,Croeseus,Leader,0,The player takes 6 coins from the bank.,Croeseus,1,0,1,1,1,1,,,,,,,,,,CoinsPoints,,,,,None,Constant,6,,,
+Leaders,Euclid,Leader,0,He grants the compass scientific symbol. This symbol is added to those of scientific structures (green cards) in the player's city.,compass,1,0,1,1,1,5,,,,,,,,,,Science,,,C,,,,,,,
+Leaders,Hammurabi,Leader,0,Hammruabi allows the player to build blue Structures for one resource less than their written cost (for future cards).,Hammurabi,1,0,1,1,1,2,,,,,,,,,,StructureDiscount,,,,,,,,,,Civilian
+Leaders,Hannibal,Leader,0,Hannibal grants 1 shield.,shield_1,1,0,1,1,1,2,,,,,,,,,,Military,1,,,,,,,,,
+Leaders,Hatshepsut,Leader,0,Each purchase of one or more resources from  a neighbor grants 1 coin from the bank. Note that this gain is limited to 1 coin per neighbor per turn.,Hatshepsut,1,0,1,1,1,2,,,,,,,,,,,,,,,,,,,,
+Leaders,Hiram,Leader,0,Hiram gives is worth 2 victory points per purple card present  in the player's city.,Hiram,1,0,1,1,1,3,,,,,,,,,,CoinsPoints,,,,,Player,Guild,,2,,
+Leaders,Hypatia,Leader,0,Hypatia is worth 1 victory point per green card present  in the player's city at the end of the game.,Hypatia,1,0,1,1,1,4,,,,,,,,,,CoinsPoints,,,,,Player,Science,,1,,
+Leaders,Imhotep,Leader,0,Future wonder stages can be built for for one resource less than their written cost.,Imhotep,1,0,1,1,1,3,,,,,,,,,,StructureDiscount,,,,,,,,,,WonderStage
 Leaders,Justinian,Leader,0,Justinian is worth 3 victory points for each set of  3 Age cards (Military + Scientific + Civilian) in the player's city. ,Justinian,1,1,1,1,1,3,,,,,,,,,,,,,,,,,,,,
 Leaders,Leonidas,Leader,0,Leonidas allows the player to build red Structures for one resource less than their written cost (for future cards).,Leonidas,1,1,1,1,1,2,,,,,,,,,,StructureDiscount,,,,,,,,,,Military
 Leaders,Maecenas,Leader,0,The controlling player can recruit all of his or her  future Leaders for free during the Recruitment Phase.,Maecenas,1,1,1,1,1,1,,,,,,,,,,FreeLeaders,,,,,,,,,,
