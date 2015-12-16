@@ -49,6 +49,12 @@ Technical stories:
 	   wonder stage, and what commercial discount effects are in place.
 	- client sends what card was selected and a list of which resources were used.
 
+- There's a bug where if commerce is used to use a leader to build a Wonder stage, the recipient isn't getting his coins
+  from the builder.
+
+- Coins granted from Nero aren't being distributed at the right time.  Not sure how to solve this; might need to make player.coin settable publically.
+  Or change when the transactions happen, or allow them to take place immmediately.
+
 - A bunch of special leader effects still need to be implemented.
 
 - The list of players (the datagrid) isn't hooked up at the match-making.
