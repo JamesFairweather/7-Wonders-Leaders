@@ -36,7 +36,7 @@ namespace SevenWonders
         bool usedBilkis;
         bool leftRawMarket, rightRawMarket, marketplace;
         string leftName, middleName, rightName;
-        string structureName;
+        Card cardToBuild;
         // int ID;
         bool isStage;
 
@@ -71,7 +71,7 @@ namespace SevenWonders
         /// <summary>
         /// Set the coordinator and handle CommerceInformation, which contains all necessary UI data, from GameManager
         /// </summary>
-        public NewCommerce(Coordinator coordinator, /* List<Card> cardList, */ /*string cardName, int wonderStage,*/ NameValueCollection qscoll)
+        public NewCommerce(Coordinator coordinator, Card cardToBuild, bool isWonderStage, /* List<Card> cardList, */ /*string cardName, int wonderStage,*/ NameValueCollection qscoll)
         {
             //intialise all the UI components in the xaml file (labels, etc.) to avoid null pointer
             InitializeComponent();
@@ -82,19 +82,23 @@ namespace SevenWonders
             middleName = "Player";
             rightName = "Right Neighbor";
 
-            structureName = qscoll["Structure"];
+            this.cardToBuild = cardToBuild;
+            // structureName = qscoll["Structure"];
 
-            isStage = qscoll["BuildWonderStage"] != null;
+            // isStage = qscoll["BuildWonderStage"] != null;
+
+            this.isStage = isWonderStage;
 
             if (isStage)
             {
-                string strWonderName = qscoll["wonderCard"];
+                string strWonderName = qscoll["WonderStageCard"];
 
                 cardCost = coordinator.FindCard(strWonderName).cost;
             }
             else
             {
-                cardCost = coordinator.FindCard(structureName).cost;
+                //                cardCost = coordinator.FindCard(structureName).cost;
+                cardCost = cardToBuild.cost;
             }
 
             leftRawMarket = false;
@@ -543,7 +547,7 @@ namespace SevenWonders
             {
                 // TODO: the response should be what resources were used from each neighbor.  The server should
                 // calculate the cost and exchange coins.
-                string strResponse = string.Format("BldStrct&Structure={0}&leftCoins={1}&rightCoins={2}", structureName, leftcoin, rightcoin);
+                string strResponse = string.Format("BldStrct&Structure={0}&leftCoins={1}&rightCoins={2}", cardToBuild.Id, leftcoin, rightcoin);
 
                 if (isStage) strResponse += "&BuildWonderStage=";
                 if (usedBilkis)

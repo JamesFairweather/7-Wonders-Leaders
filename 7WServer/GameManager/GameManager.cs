@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 
@@ -545,9 +546,17 @@ namespace SevenWonders
             return randomBoard.Value;
         }
 
-        public void buildStructureFromHand(string playerNickname, string cardName, string strWonderStage, string strFreeBuild, string strLeftCoins, string strRightCoins, string strUsedBilkis)
+        public void buildStructureFromHand(string playerNickname, NameValueCollection qscoll)
         {
+            string cardName = qscoll["Structure"];
+            string strWonderStage = qscoll["BuildWonderStage"];
+            string strFreeBuild = qscoll["FreeBuild"];
+            string strLeftCoins = qscoll["leftCoins"];
+            string strRightCoins = qscoll["rightCoins"];
+            string strUsedBilkis = qscoll["Bilkis"];
+
             Player p = player[playerNickname];
+
 
             CardId cardId = Card.CardNameFromStringName(cardName);
 
@@ -573,7 +582,6 @@ namespace SevenWonders
                 nRightCoins = int.Parse(strRightCoins);
 
             bool freeBuild = strFreeBuild != null && strFreeBuild == "True";
-
             bool usedBilkis = strUsedBilkis != null && strUsedBilkis == "True";
 
             buildStructureFromHand(p, c, strWonderStage != null, freeBuild, nLeftCoins, nRightCoins, usedBilkis);
@@ -869,10 +877,22 @@ namespace SevenWonders
             }
         }
 
+        private string BuildResourceString(string who, Player plyr, bool isSelf = false)
+        {
+            string strRet = string.Format("&{0}Resources=", who);
+
+            foreach (ResourceEffect se in plyr.dag.getResourceList(isSelf))
+            {
+                strRet += se.resourceTypes + ",";
+            }
+
+            return strRet.TrimEnd(',');
+        }
+
         /// <summary>
-        /// Send the main display information for all players
-        /// This is called at the beginning of the game and after each turn
-        /// </summary>
+                 /// Send the main display information for all players
+                 /// This is called at the beginning of the game and after each turn
+                 /// </summary>
         public void updateAllGameUI()
         {
             string strPlayerNames = "&Names=";
@@ -997,7 +1017,8 @@ namespace SevenWonders
                         strHand += strCards.TrimEnd(',');
                         strHand += strBuildStates.TrimEnd(',');
                         strHand += string.Format("&WonderStage={0},{1}", p.currentStageOfWonder, p.isStageBuildable());
-                        strHand += "&Instructions=Choose a card to play for free from the discard pile&CanDiscard=False";
+                        strHand += "&Instructions=Choose a card to play for free from the discard pile";
+                        strHand += "&CanDiscard=False";
                     }
                     else
                     {
@@ -1026,7 +1047,34 @@ namespace SevenWonders
                         }
                     }
 
-                    gmCoordinator.sendMessage(p, strHand);
+                    // Commerce data
+                    string strCommerce = string.Empty;
+
+                    strCommerce += BuildResourceString("Player", p, true);
+                    strCommerce += BuildResourceString("Left", p.leftNeighbour);
+                    strCommerce += BuildResourceString("Right", p.rightNeighbour);
+
+                    strCommerce += string.Format("&coin={0}", p.coin);
+                    strCommerce += string.Format("&resourceDiscount={0}", p.rawMaterialsDiscount.ToString());
+                    strCommerce += string.Format("&goodsDiscount={0}", p.goodsDiscount.ToString());
+
+                    if (p.currentStageOfWonder < p.playerBoard.numOfStages)
+                        strCommerce += string.Format("&WonderStageCard={0}", Card.CardNameFromStringName(p.playerBoard.name, p.currentStageOfWonder + 1));
+
+                    foreach (Card c in p.playedStructure.Where(x => x.effect is StructureDiscountEffect))
+                    {
+                        strCommerce += "&" + c.Id + "=";
+                    }
+
+                    Card bilkis = p.playedStructure.Find(x => x.Id == CardId.Bilkis);
+                    if (bilkis != null)
+                    {
+                        // Tell the commmerce window that the last entry in the resource list for the player is for Bilkis
+                        // and isn't due to another leader effect.
+                        strCommerce += "&" + bilkis.Id + "=";
+                    }
+
+                    gmCoordinator.sendMessage(p, strHand + strCommerce);
                 }
 
                 //send the timer signal if the current Age is less than 4 (i.e. game is still going)
@@ -1044,38 +1092,8 @@ namespace SevenWonders
                 endOfSessionActions();
         }
 
-        string BuildResourceString(string who, Player plyr, bool isSelf, bool hasDiscountEffect, bool hasBilkis)
-        {
-            string strRet = string.Format("&{0}Resources=", who);
 
-            foreach (Effect e in plyr.dag.getResourceList(isSelf))
-            {
-                ResourceEffect se = e as ResourceEffect;
-
-                strRet += se.resourceTypes + ",";
-            }
-
-            if (hasDiscountEffect)
-            {
-                // add a wild card effect, which has a choice of all 7 resources.  This is free
-                // to use, but can only be used by that type of structure (Wonder/Civilian/Military/Science)
-                strRet += "WSBOCGP,";
-            }
-
-            if (hasBilkis)
-            {
-                // add a wild card effect for Bilkis, which has a choice of all 7 resources, but costs
-                // 1 coin to use.
-                strRet += "WSBOCGP,";
-            }
-
-            // remove the trailing comma, if necessary
-            if (strRet.EndsWith(","))
-                strRet = strRet.Remove(strRet.Length - 1);
-
-            return strRet;
-        }
-
+        /*
         /// <summary>
         /// Server to Client message consisting of Commerce UI updates
         /// </summary>
@@ -1133,7 +1151,7 @@ namespace SevenWonders
 
             gmCoordinator.sendMessage(p, strCommerce);
         }
-
+        */
         protected int numOfPlayersThatHaveTakenTheirTurn = 0;
 
         /*

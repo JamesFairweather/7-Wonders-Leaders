@@ -59,6 +59,8 @@ namespace SevenWonders
         public bool playerPlayedHisTurn = false;
         public bool btnBuildStructureForFree_isEnabled = false;
 
+        NameValueCollection handData;
+
         List<KeyValuePair<Card, Buildable>> hand = new List<KeyValuePair<Card, Buildable>>();
 
         Buildable stageBuildable;
@@ -178,6 +180,8 @@ namespace SevenWonders
         /// <param name="information"></param>
         public void showHandPanel(NameValueCollection qscoll)
         {
+            handData = qscoll;
+
             //the player is in a new turn now because his UI are still updating.
             //Therefore set playerPlayedHisturn to false
             playerPlayedHisTurn = false;
@@ -185,8 +189,8 @@ namespace SevenWonders
 
             hand.Clear();
 
-            string[] strCards = qscoll["Cards"].Split(',');
-            string[] strBuildStates = qscoll["BuildStates"].Split(',');
+            string[] strCards = handData["Cards"].Split(',');
+            string[] strBuildStates = handData["BuildStates"].Split(',');
 
             for (int i = 0; i < strCards.Length; ++i)
             {
@@ -197,23 +201,23 @@ namespace SevenWonders
                 }
             }
 
-            string strWonderStage = qscoll["WonderStage"];
+            string strWonderStage = handData["WonderStage"];
             if (strWonderStage != null)
             {
                 stageBuildable = (Buildable)Enum.Parse(typeof(Buildable), strWonderStage.Substring(2));
             }
 
-            if (qscoll["Instructions"] != null)
+            if (handData["Instructions"] != null)
             {
                 lblPlayMessage.Content = new TextBlock()
                 {
-                    Text = qscoll["Instructions"],
+                    Text = handData["Instructions"],
                     TextWrapping = TextWrapping.Wrap,
                     FontSize = 14,
                 };
             }
 
-            canDiscardStructure = qscoll["CanDiscard"] == null || (qscoll["CanDiscard"] == "True");
+            canDiscardStructure = handData["CanDiscard"] == null || (handData["CanDiscard"] == "True");
 
             handPanel.Items.Clear();
 
@@ -466,7 +470,9 @@ namespace SevenWonders
             }
             else
             {
-                coordinator.sendToHost("SendComm&Structure=" + hand[handPanel.SelectedIndex].Key.Id);     // the server's response will open the Commerce Dialog box
+                // coordinator.sendToHost("SendComm&Structure=" + hand[handPanel.SelectedIndex].Key.Id);     // the server's response will open the Commerce Dialog box
+                coordinator.commerceUI = new NewCommerce(coordinator, hand[handPanel.SelectedIndex].Key, false, handData);
+                coordinator.commerceUI.ShowDialog();
             }
 
             if (hand[handPanel.SelectedIndex].Key.structureType == StructureType.Leader)
@@ -499,7 +505,9 @@ namespace SevenWonders
             }
             else
             {
-                coordinator.sendToHost("SendComm&BuildWonderStage=&Structure=" + hand[handPanel.SelectedIndex].Key.Id);     // the server's response will open the Commerce Dialog box
+                // coordinator.sendToHost("SendComm&BuildWonderStage=&Structure=" + hand[handPanel.SelectedIndex].Key.Id);     // the server's response will open the Commerce Dialog box
+                coordinator.commerceUI = new NewCommerce(coordinator, hand[handPanel.SelectedIndex].Key, true, handData);
+                coordinator.commerceUI.ShowDialog();
             }
 
             if (hand[handPanel.SelectedIndex].Key.structureType == StructureType.Leader)
