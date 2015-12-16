@@ -667,51 +667,20 @@ namespace SevenWonders
                 p.addTransaction(-costInCoins);
             }
 
+            // Hatshepsut: Each purchase of one or more resources from  a neighbor grants 1 coin from the bank (max 2 per turn, if resources from both neighbors are used)
+            bool hasHatshepsut = p.playedStructure.Exists(x => x.Id == CardId.Hatshepsut);
+
             if (nLeftCoins != 0)
+            {
                 p.leftNeighbour.addTransaction(nLeftCoins);
+                if (hasHatshepsut) p.addTransaction(1);     // Probably should log this
+            }
 
             if (nRightCoins != 0)
+            {
                 p.rightNeighbour.addTransaction(nRightCoins);
-
-            //determine if the player should get 2 coins for having those leaders (get 2 coins for playing a yellow and playing a pre-req
-            giveCoinFromLeadersOnBuild(p, c);
-        }
-
-        /// <summary>
-        /// Determines if 2 coins should be given for playing a card. Give 2 coins when the appropriate leader was played.
-        /// </summary>
-        private void giveCoinFromLeadersOnBuild(Player p, Card c)
-        {
-            /*
-            for (int i = 0; i < p.numOfPlayedCards; i++)
-            {
-                //235 - 2 coin for yellow card played
-                if (p.playedStructure[i].id == 235)
-                {
-                    if (c.colour == "Yellow")
-                    {
-                        p.storeAction("12$");
-                        break;
-                    }
-                }
+                if (hasHatshepsut) p.addTransaction(1);     // Probably should log this
             }
-
-            for (int i = 0; i < p.numOfPlayedCards; i++)
-            {
-                //234 - 2 coins if played from a pre-requisite
-                if (p.playedStructure[i].id == 234 && c.id != 234)
-                {
-                    for (int j = 0; j < p.numOfPlayedCards; j++)
-                    {
-                        if (c.freePreq == p.playedStructure[j].name)
-                        {
-                            p.storeAction("12$");
-                            return;
-                        }
-                    }
-                }
-            }
-            */
         }
 
         public void discardCardForThreeCoins(string nickname, string name)
