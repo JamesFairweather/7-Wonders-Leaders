@@ -54,14 +54,6 @@ namespace SevenWonders
 
         public List<Card> discardPile = new List<Card>();
 
-        public bool esteban = false;
-
-        // is true for the extra turn awarded when a player is playing the last card in his hand
-        bool gettingBabylonExtraCard = false;
-
-        // is true for the extra turn awarded when a player is playing a card from the discard pile.
-        // bool playingCardFromDiscardPile = false;
-
         string[] playerNicks;
 
         public bool gameConcluded { get; set; }
@@ -516,7 +508,7 @@ namespace SevenWonders
         protected Board popRandomBoard()
         {
             int index = (new Random()).Next(0, board.Count);
-            index = 9;
+            index = 3;
 
             KeyValuePair<Board.Wonder, Board> randomBoard = board.ElementAt(index);
 
@@ -611,17 +603,6 @@ namespace SevenWonders
 
                 c = p.playerBoard.stageCard[p.currentStageOfWonder];
                 p.currentStageOfWonder++;
-
-                // if they just built the 2nd stage of Babylon B's wonder, update the player state.
-                if (p.playerBoard.name == "Babylon (B)" && p.currentStageOfWonder == 2)
-                    p.babylonPowerEnabled = true;
-            }
-
-            if (p.hand.Count == 1 && !p.babylonPowerEnabled)
-            {
-                // discard the last card in the hand, unless the player is Babylon (B) and their Power is enabled (the 2nd wonder stage)
-                discardPile.Add(p.hand.First());
-                p.hand.Clear();
             }
 
             // Possible TODO: move these to _after_ the coin cost has been resolved.  Maecenas has a problem where he was being played
@@ -814,10 +795,21 @@ namespace SevenWonders
                 executeAIActions();
             }
 
+            if (phase == GamePhase.LeaderDraft)
+                return;
+
             //execute the Actions for each players
             foreach (Player p in player.Values)
             {
                 p.executeAction();
+
+                if (phase == GamePhase.Playing && p.hand.Count == 1 && !p.babylonPowerEnabled)
+                {
+                    // discard the last card in the hand, unless their board is Babylon (B) and their Power is enabled (the 2nd wonder stage)
+                    // Note that this must be done _before_ Halikarnassos plays its Power (free build from discard pile).
+                    discardPile.Add(p.hand.First());
+                    p.hand.Clear();
+                }
             }
         }
 
@@ -992,7 +984,7 @@ namespace SevenWonders
                     gmCoordinator.sendMessage(p, strCardsPlayed);
 
                     // Check if we're in a special state - extra turn for Babylon (B)
-                    if (gettingBabylonExtraCard && !p.babylonPowerEnabled)
+                    if (this.phase == GamePhase.Babylon && p.phase != GamePhase.Babylon)
                         continue;
 
                     // Check if we're in a special state - playing a card from the discard pile
@@ -1017,10 +1009,9 @@ namespace SevenWonders
                     {
                         strHand += MakeHandString(p, p.hand) + MakeCommerceInfoString(p);
 
-                        if (gettingBabylonExtraCard)
-                        // if (phase == GamePhase.Babylon)
+                        if (phase == GamePhase.Babylon)
                         {
-                            strHand += "&Instructions=Babylon: you may build the last card in your hand or discard it for 3 coins";
+                            strHand += "&Instructions=Babylon: you may build the last card in your hand, use it to build a wonder stage, or discard it for 3 coins";
                         }
                         else
                         {
@@ -1080,23 +1071,19 @@ namespace SevenWonders
 
             numOfPlayersThatHaveTakenTheirTurn++;
 
-            if ((numOfPlayersThatHaveTakenTheirTurn == numOfPlayers) || gettingBabylonExtraCard || phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon || phase == GamePhase.RomaB)
+            if ((numOfPlayersThatHaveTakenTheirTurn == numOfPlayers) || phase == GamePhase.Babylon || phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon || phase == GamePhase.RomaB)
             {
                 //reset the number of players that have taken their turn
                 numOfPlayersThatHaveTakenTheirTurn = 0;
 
-                //execute every player's action
-                    // any other turn, execute everyone's actions.
                 executeActionsAtEndOfTurn();
 
-                if (gettingBabylonExtraCard && currentTurn == 6 && p.babylonPowerEnabled)
-                {
-                    gettingBabylonExtraCard = false;
-                }
-                else if (currentTurn == 6 && p.babylonPowerEnabled)
-                {
-                    gettingBabylonExtraCard = true;
-                }
+                if (currentTurn == 6 && p.babylonPowerEnabled)
+                    p.phase = GamePhase.Babylon;
+
+                // do this action first, so that if they discard their other card, Halikarnassos could built it if they
+                // are building from the discard pile.
+                bool bSpecialPhase = SetSpecialPhase(p, GamePhase.Babylon);
 
                 // I will need to go through this logic carefully.  Babylon (B) must play or discard their last
                 // card _before_ Halikarnassos looks at the discard pile.  Will need to connect a 2nd client first,
@@ -1105,9 +1092,9 @@ namespace SevenWonders
                 // "if" here.  That way the game manager will do the Babylon extra card first, and only after that's
                 // done, do Halikarnassos.  Or maybe I'll need to add a game manager state to control this, rather
                 // than using booleans to control the logic.
-                SetSpecialPhase(p, GamePhase.Halikarnassos);
+                if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Halikarnassos);
 
-                SetSpecialPhase(p, GamePhase.Solomon);
+                if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Solomon);
 
                 if (phase == GamePhase.RomaB && p.draftingExtraLeader)
                 {
@@ -1120,7 +1107,7 @@ namespace SevenWonders
                 }
 
                 //all players have completed their turn
-                if (!gettingBabylonExtraCard && phase != GamePhase.Halikarnassos && phase != GamePhase.Solomon && phase != GamePhase.RomaB)
+                if (!bSpecialPhase)
                 {
                     switch (phase)
                     {

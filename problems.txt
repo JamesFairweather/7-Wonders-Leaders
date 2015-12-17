@@ -32,15 +32,16 @@ AI players
 
 Technical stories:
 
+- A bunch of special leader effects still need to be implemented.
+
 - There is a problem when Babylon B's power is activated and Halikarnassos builds a free build wonder stage
   with their 6th card.  Babylon B must play first, then Halikarnassos can play.  Will need to use a 2nd client
   to run through this logic.
 
+- Babylon B's first wonder stage points aren't counting (?)
+
 - Should probably have a way to distinguish between the table host (creates the game and may add AI players) vs.
   non-hosts - cannot add AI players.
-
-- There's a bug with Halikarnassos not counting its B side wonder points properly.  Update 12/12/2015.  I believe I fixed this bug.
-  Also check that the UI is updated before the player needs to select his card.
 
 - On a normal turn, there should just one message exchanged: server sends game state to the client:
 	 - what cards were just played by the other players
@@ -50,12 +51,7 @@ Technical stories:
 	- client sends what card was selected and a list of which resources were used.
 
 - There's a bug where if commerce is used to use a leader to build a Wonder stage, the recipient isn't getting his coins
-  from the builder.
-
-- Coins granted from Nero aren't being distributed at the right time.  Not sure how to solve this; might need to make player.coin settable publically.
-  Or change when the transactions happen, or allow them to take place immmediately.
-
-- A bunch of special leader effects still need to be implemented.
+  from the builder.  This might be fixed; retest.
 
 - The list of players (the datagrid) isn't hooked up at the match-making.
 

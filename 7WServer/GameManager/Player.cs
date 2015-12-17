@@ -331,6 +331,13 @@ namespace SevenWonders
             {
                 switch(card.Id)
                 {
+                    case CardId.Babylon_B_s2:
+                        // This is a signal that the Babylon player gets to take a 7th turn in this and future ages.
+                        // It only does something after the 6th turn, unlike other Powers such as Halikarnassos, Solomon,
+                        // and Roma (B)
+                        babylonPowerEnabled = true;
+                        break;
+
                     case CardId.Halikarnassos_A_s2:
                     case CardId.Halikarnassos_B_s1:
                     case CardId.Halikarnassos_B_s2:
