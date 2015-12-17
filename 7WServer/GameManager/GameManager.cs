@@ -6,26 +6,29 @@ using System.Text;
 
 namespace SevenWonders
 {
+    // I have a feeling that we really only need 3 phases: LeaderDraft (drawing 4
+    // leaders before the game), Leader Recruitment, and Playing.  Playing needs
+    // I think just two substates: Regular turn or Extra turn.  Extra turn would
+    // be any turn where the game has to wait for one player to choose a
+    // card/action (i.e. Babylon B, Halikarnassos, Solomon, Roma B, China)
+
+    public enum GamePhase
+    {
+        None,
+        // WaitingForPlayers,   // not used presently
+        // Start,               // not used presently
+        LeaderDraft,            // drafting leaders (i.e. before Age 1)
+        LeaderRecruitment,      // playing a leader card at the start of each Age
+        Playing,                // normal turn
+        Babylon,                // Waiting for Babylon to play its last card in the age.
+        Halikarnassos,          // Waiting for Halikarnassos to play from the discard pile.
+        RomaB,                  // Waiting  for Roma (B) to play a leader after building 2nd or 3rd wonder stage
+        Solomon,                // Waiting for Solomon to play from the discard pile (can coincide with Halikarnassos if Rome B builds its 2nd or 3rd wonder stage and the player plays Solomon)
+        End,
+    };
+
     public class GameManager
     {
-        public enum GamePhase
-        {
-            // WaitingForPlayers,   // not used presently
-            // Start,               // not used presently
-            LeaderDraft,            // drafting leaders (i.e. before Age 1)
-            LeaderRecruitment,      // playing a leader card at the start of each Age
-            Playing,                // normal turn
-            Babylon,                // Waiting for Babylon to play its last card in the age.
-            Halikarnassos,          // Waiting for Halikarnassos to play from the discard pile.
-            RomaB,                  // Waiting  for Roma (B) to play a leader after building 2nd or 3rd wonder stage
-            Solomon,                // Waiting for Solomon to play from the discard pile (can coincide with Halikarnassos if Rome B builds its 2nd or 3rd wonder stage and the player plays Solomon)
-            End,
-        };
-
-        // I have a feeling that we really only need 3 phases: LeaderDraft (drawing 4 leaders before the game), Leader Recruitment, and Playing.
-        // Playing needs I think just two substates: Regular turn or Extra turn.  Extra turn would be any turn where the game has to wait for one
-        // player to choose a card/action (i.e. Babylon B, Halikarnassos, Solomon, Roma B, China)
-
         public int numOfPlayers { get; set; }
         public int numOfAI { get; set; }
 
@@ -57,13 +60,15 @@ namespace SevenWonders
         bool gettingBabylonExtraCard = false;
 
         // is true for the extra turn awarded when a player is playing a card from the discard pile.
-        bool playingCardFromDiscardPile = false;
+        // bool playingCardFromDiscardPile = false;
 
         string[] playerNicks;
 
         public bool gameConcluded { get; set; }
 
         public GamePhase phase { get; private set; }
+
+        private GamePhase prevPhase;
 
         /// <summary>
         /// Shared constructor for GameManager and LeadersGameManager
@@ -430,7 +435,7 @@ namespace SevenWonders
             //shuffle the deck
             Deck deck = deckList.Find(x => x.age == currentAge);
 
-            if (currentAge != 0)
+            if (currentAge != 4)
                 deck.shuffle();
 
             //if the current deck is 0, then that means we are dealing with the leaders deck
@@ -548,12 +553,13 @@ namespace SevenWonders
             {
                 c = p.draftedLeaders.Find(x => x.Id == cardId);
             }
-            else if (playingCardFromDiscardPile)
+            else if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
             {
                 c = discardPile.Find(x => x.Id == cardId);
             }
             else
             {
+                // Normal turn
                 c = p.hand.Find(x => x.Id == cardId);
             }
 
@@ -580,7 +586,7 @@ namespace SevenWonders
             {
                 p.draftedLeaders.Remove(c);
             }
-            else if (playingCardFromDiscardPile)
+            else if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
             {
                 discardPile.Remove(c);
             }
@@ -645,8 +651,11 @@ namespace SevenWonders
             //check if the Card costs money and add the coins paid to the neighbors for their resources
             int costInCoins = c.cost.coin + nLeftCoins + nRightCoins + (usedBilkis ? 1 : 0);
 
-            if (playingCardFromDiscardPile)
+            if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
+            {
+                // cards built from the discard pile do not have a cost associated with them.
                 costInCoins = 0;
+            }
 
             if (c.structureType == StructureType.Leader)
             {
@@ -684,12 +693,17 @@ namespace SevenWonders
                 if (hasHatshepsut) p.addTransaction(1);     // Probably should log this
             }
 
-            if (!playingCardFromDiscardPile && p.playedStructure.Exists(x => x.Id == CardId.Vitruvius))
+            if ((phase == GamePhase.Babylon || phase == GamePhase.Playing) &&
+                (p.playedStructure.Exists(x => x.Id == CardId.Xenophon) && (c.structureType == StructureType.Commerce)) ||
+                (p.playedStructure.Exists(x => x.Id == CardId.Vitruvius) && (p.playedStructure.Exists(y => (y.chain[0] == c.strName) || (y.chain[1] == c.strName)))))
             {
+                // Xenophon grants 2 coins for each yellow structure that the player builds
+                // from this point forward.  The coins are taken from the bank when the structures are built.
+
                 // Vitruvius grants 2 coins whenever the player builds a structure through
                 // building chains. The coins are taken from the bank when the structures are built.
-                if (p.playedStructure.Exists(y => (y.chain[0] == c.strName) || (y.chain[1] == c.strName)))
-                    p.addTransaction(2);        // TODO: log this.  Would be nice to show a visual representation on the screen as well.
+
+                p.addTransaction(2);        // TODO: log this.  Would be nice to show a visual representation on the screen as well.
             }
         }
 
@@ -794,7 +808,7 @@ namespace SevenWonders
         /// </summary>
         public void executeActionsAtEndOfTurn()
         {
-            if (!gettingBabylonExtraCard && !playingCardFromDiscardPile && phase != GamePhase.RomaB)
+            if (phase == GamePhase.LeaderDraft || phase == GamePhase.LeaderRecruitment || phase == GamePhase.Playing)
             {
                 //make AI moves
                 executeAIActions();
@@ -983,13 +997,16 @@ namespace SevenWonders
 
                     // Check if we're in a special state - playing a card from the discard pile
                     // only the player (or players) who are getting the extra turn can proceed here.
-                    if (playingCardFromDiscardPile && !p.playCardFromDiscardPile)
+                    if ((this.phase == GamePhase.Halikarnassos) && (p.phase != GamePhase.Halikarnassos))
+                        continue;
+
+                    if ((this.phase == GamePhase.Solomon) && (p.phase != GamePhase.Solomon))
                         continue;
 
                     string strHand = string.Empty;
 
                     //send the hand panel (action information) for regular ages (not the Recruitment phase i.e. Age 0)
-                    if (playingCardFromDiscardPile)
+                    if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
                     {
                         strHand += MakeHandString(p, discardPile, true);
 
@@ -1031,6 +1048,27 @@ namespace SevenWonders
 
         protected int numOfPlayersThatHaveTakenTheirTurn = 0;
 
+        bool SetSpecialPhase(Player p, GamePhase specialPhase)
+        {
+            if (this.phase == specialPhase && p.phase == specialPhase)
+            {
+                // Hmm, where to go next?
+                this.phase = this.prevPhase;
+                this.prevPhase = GamePhase.None;
+                p.phase = GamePhase.None;
+            }
+            else if (p.phase == specialPhase)
+            {
+                this.prevPhase = this.phase;
+                this.phase = specialPhase;
+
+                // we are in a special phase
+                return true;
+            }
+
+            return false;
+        }
+
         /*
          * Player sends "t" message (turn complete) to the GameManager
          * Increment the amount of players that have taken their turn
@@ -1042,7 +1080,7 @@ namespace SevenWonders
 
             numOfPlayersThatHaveTakenTheirTurn++;
 
-            if ((numOfPlayersThatHaveTakenTheirTurn == numOfPlayers) || gettingBabylonExtraCard || playingCardFromDiscardPile || phase == GamePhase.RomaB)
+            if ((numOfPlayersThatHaveTakenTheirTurn == numOfPlayers) || gettingBabylonExtraCard || phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon || phase == GamePhase.RomaB)
             {
                 //reset the number of players that have taken their turn
                 numOfPlayersThatHaveTakenTheirTurn = 0;
@@ -1067,15 +1105,9 @@ namespace SevenWonders
                 // "if" here.  That way the game manager will do the Babylon extra card first, and only after that's
                 // done, do Halikarnassos.  Or maybe I'll need to add a game manager state to control this, rather
                 // than using booleans to control the logic.
-                if (playingCardFromDiscardPile && p.playCardFromDiscardPile)
-                {
-                    playingCardFromDiscardPile = false;
-                    p.playCardFromDiscardPile = false;
-                }
-                else if (p.playCardFromDiscardPile)
-                {
-                    playingCardFromDiscardPile = true;
-                }
+                SetSpecialPhase(p, GamePhase.Halikarnassos);
+
+                SetSpecialPhase(p, GamePhase.Solomon);
 
                 if (phase == GamePhase.RomaB && p.draftingExtraLeader)
                 {
@@ -1088,11 +1120,8 @@ namespace SevenWonders
                 }
 
                 //all players have completed their turn
-                if (!gettingBabylonExtraCard && !playingCardFromDiscardPile && phase != GamePhase.RomaB)
+                if (!gettingBabylonExtraCard && phase != GamePhase.Halikarnassos && phase != GamePhase.Solomon && phase != GamePhase.RomaB)
                 {
-                    // gettingBabylonExtraCard = false;
-                    // playingCardFromDiscardPile = false;
-
                     switch (phase)
                     {
                         case GamePhase.LeaderDraft:

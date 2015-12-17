@@ -161,7 +161,10 @@ namespace SevenWonders
         // if Olympia's Power (play a card for free) has not been used, this is true
         public bool olympiaPowerAvailable { get; set; }
 
-        public bool playCardFromDiscardPile = false;
+        // This player is in a special game phase (e.g. playing Babylon's extra card or playing from the discard pile)
+        // The player needs to provide input as to what to do next.
+        public GamePhase phase = GamePhase.None;
+        // public bool playCardFromDiscardPile = false;
 
         public bool draftingExtraLeader = false;
 
@@ -328,9 +331,15 @@ namespace SevenWonders
             {
                 switch(card.Id)
                 {
+                    case CardId.Halikarnassos_A_s2:
                     case CardId.Halikarnassos_B_s1:
                     case CardId.Halikarnassos_B_s2:
-                        playCardFromDiscardPile = true;
+                    case CardId.Halikarnassos_B_s3:
+                        phase = GamePhase.Halikarnassos;
+                        break;
+
+                    case CardId.Solomon:
+                        phase = GamePhase.Solomon;
                         break;
 
                     case CardId.Rhodos_B_s1:
@@ -410,10 +419,6 @@ namespace SevenWonders
                             goodsDiscount = CommercialDiscountEffect.Goods.BothNeighbors;
                         break;
                 }
-            }
-            else if (effect is PlayDiscardedCardForFreeEffect)
-            {
-                playCardFromDiscardPile = true;
             }
             else if (effect is PlayACardForFreeOncePerAgeEffect)
             {
@@ -849,7 +854,7 @@ namespace SevenWonders
                                 if (nCards < least) least = nCards;
 
                                 // Score 7 times the lowest color group for Plato
-                                score.leaders += least * 3;
+                                score.leaders += least * 7;
                             }
                             break;
                     }

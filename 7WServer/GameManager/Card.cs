@@ -349,7 +349,7 @@ namespace SevenWonders
 
             // Special wonder stages
             // PlayLastCardInAge,              // Babylon (B) 2nd stage
-            PlayDiscardedCardForFree,       // Halikarnassos (A) 2nd stage
+            // PlayDiscardedCardForFree,       // Halikarnassos (A) 2nd stage
             //PlayDiscardedCardForFree_1VP,   // Halikarnassos (B) 2nd stage
             //PlayDiscardedCardForFree_2VP,   // Halikarnassos (B) 1st stage
             PlayACardForFreeOncePerAge,     // Olympia (A) 2nd stage
@@ -522,9 +522,9 @@ namespace SevenWonders
    // {
    // }
 
-    public class PlayDiscardedCardForFreeEffect : Effect
-    {
-    }
+    //public class PlayDiscardedCardForFreeEffect : Effect
+   // {
+   // }
 
     //public class PlayDiscardedCardForFree_1VPEffect : Effect
     //{
@@ -799,9 +799,9 @@ namespace SevenWonders
                     //    effect = new PlayLastCardInAgeEffect();
                     //    break;
 
-                    case Effect.Type.PlayDiscardedCardForFree:
-                        effect = new PlayDiscardedCardForFreeEffect();
-                        break;
+                    //case Effect.Type.PlayDiscardedCardForFree:
+                    //    effect = new PlayDiscardedCardForFreeEffect();
+                    //    break;
 
                     //case Effect.Type.PlayDiscardedCardForFree_1VP:
                     //    effect = new PlayDiscardedCardForFree_1VPEffect();

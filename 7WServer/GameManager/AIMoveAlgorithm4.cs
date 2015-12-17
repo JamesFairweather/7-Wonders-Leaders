@@ -19,7 +19,7 @@ namespace SevenWonders
 
             string strOutput = string.Format("{0} hand: [ ", player.nickname);
 
-            if (gm.phase == GameManager.GamePhase.LeaderRecruitment)
+            if (gm.phase == GamePhase.LeaderRecruitment)
             {
                 foreach (Card card in player.draftedLeaders)
                 {
@@ -40,7 +40,7 @@ namespace SevenWonders
 
             Console.WriteLine(strOutput);
 
-            if (gm.phase == GameManager.GamePhase.LeaderDraft || gm.phase == GameManager.GamePhase.LeaderRecruitment)
+            if (gm.phase == GamePhase.LeaderDraft || gm.phase == GamePhase.LeaderRecruitment)
             {
                 // int[] favouredLeaders = { 216, 220, 222, 232, 200, 208, 205, 221, 214, 236, 213 };
                 CardId [] favouredLeaders = { CardId.Leonidas, CardId.Nero, CardId.Pericles, CardId.Tomyris, CardId.Alexander, CardId.Hannibal, CardId.Caesar, CardId.Nefertiti, CardId.Cleopatra, CardId.Zenobia, CardId.Justinian };
@@ -51,11 +51,11 @@ namespace SevenWonders
                 //start looking for the highest rated card, then go down to the next highest, etc.
                 foreach (CardId leaderName in favouredLeaders)
                 {
-                    if (gm.phase == GameManager.GamePhase.LeaderDraft)
+                    if (gm.phase == GamePhase.LeaderDraft)
                     {
                         bestLeader = player.hand.Find(x => x.Id == leaderName);
                     }
-                    else if (gm.phase == GameManager.GamePhase.LeaderRecruitment)
+                    else if (gm.phase == GamePhase.LeaderRecruitment)
                     {
                         bestLeader = player.draftedLeaders.Find(x => x.Id == leaderName);
                     }
@@ -66,7 +66,7 @@ namespace SevenWonders
                     }
                 }
 
-                if (bestLeader == null && gm.phase == GameManager.GamePhase.LeaderDraft)
+                if (bestLeader == null && gm.phase == GamePhase.LeaderDraft)
                 {
                     // this hand didn't contain a favoured leader, so draft the first one in the list.  We cannot
                     // discard during the draft.  Leaders may only be discarded for 3 coins during recruitment.
