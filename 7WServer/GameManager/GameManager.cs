@@ -59,8 +59,6 @@ namespace SevenWonders
         // is true for the extra turn awarded when a player is playing a card from the discard pile.
         bool playingCardFromDiscardPile = false;
 
-        List<Card> savedHandWhenPlayingFromDiscardPile;
-
         string[] playerNicks;
 
         public bool gameConcluded { get; set; }
@@ -321,6 +319,7 @@ namespace SevenWonders
                         // Nero grants 2 coins for each Victory token earned by the player from this point forward. These coins are taken from the bank when the Victory tokens are gained.
                         // Bug: this transaction needs to be executed immediately
                         p.addTransaction(2);
+                        p.executeAction();
                     }
 
                     //check if right neighbour has played card 232: return conflict loss token received
@@ -357,6 +356,7 @@ namespace SevenWonders
                         // Nero grants 2 coins for each Victory token earned by the player from this point forward. These coins are taken from the bank when the Victory tokens are gained.
                         // Bug: this transaction needs to be executed immediately
                         p.rightNeighbour.addTransaction(2);
+                        p.rightNeighbour.executeAction();
                     }
 
                     if (p.playedStructure.Exists(x => x.Id == CardId.Tomyris))
@@ -511,6 +511,7 @@ namespace SevenWonders
         protected Board popRandomBoard()
         {
             int index = (new Random()).Next(0, board.Count);
+            index = 9;
 
             KeyValuePair<Board.Wonder, Board> randomBoard = board.ElementAt(index);
 
@@ -547,6 +548,10 @@ namespace SevenWonders
             {
                 c = p.draftedLeaders.Find(x => x.Id == cardId);
             }
+            else if (playingCardFromDiscardPile)
+            {
+                c = discardPile.Find(x => x.Id == cardId);
+            }
             else
             {
                 c = p.hand.Find(x => x.Id == cardId);
@@ -574,6 +579,10 @@ namespace SevenWonders
             if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
             {
                 p.draftedLeaders.Remove(c);
+            }
+            else if (playingCardFromDiscardPile)
+            {
+                discardPile.Remove(c);
             }
             else
             {
@@ -636,6 +645,9 @@ namespace SevenWonders
             //check if the Card costs money and add the coins paid to the neighbors for their resources
             int costInCoins = c.cost.coin + nLeftCoins + nRightCoins + (usedBilkis ? 1 : 0);
 
+            if (playingCardFromDiscardPile)
+                costInCoins = 0;
+
             if (c.structureType == StructureType.Leader)
             {
                 if (p.playerBoard.name == "Roma (A)" || (p.playedStructure.Exists(x => x.Id == CardId.Maecenas) && (c.Id != CardId.Maecenas)))
@@ -670,6 +682,14 @@ namespace SevenWonders
             {
                 p.rightNeighbour.addTransaction(nRightCoins);
                 if (hasHatshepsut) p.addTransaction(1);     // Probably should log this
+            }
+
+            if (!playingCardFromDiscardPile && p.playedStructure.Exists(x => x.Id == CardId.Vitruvius))
+            {
+                // Vitruvius grants 2 coins whenever the player builds a structure through
+                // building chains. The coins are taken from the bank when the structures are built.
+                if (p.playedStructure.Exists(y => (y.chain[0] == c.strName) || (y.chain[1] == c.strName)))
+                    p.addTransaction(2);        // TODO: log this.  Would be nice to show a visual representation on the screen as well.
             }
         }
 
@@ -971,10 +991,7 @@ namespace SevenWonders
                     //send the hand panel (action information) for regular ages (not the Recruitment phase i.e. Age 0)
                     if (playingCardFromDiscardPile)
                     {
-                        savedHandWhenPlayingFromDiscardPile = p.hand;   // save the player's hand
-                        p.hand = discardPile;                           // the player's hand now points to the discard pile.
-
-                        strHand += MakeHandString(p, p.hand, true);
+                        strHand += MakeHandString(p, discardPile, true);
 
                         strHand += "&Instructions=Choose a card to play for free from the discard pile";
                         strHand += "&CanDiscard=False";
@@ -1012,66 +1029,6 @@ namespace SevenWonders
                 endOfSessionActions();
         }
 
-
-        /*
-        /// <summary>
-        /// Server to Client message consisting of Commerce UI updates
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="nickname"></param>
-        public void updateCommercePanel(string nickname, string structureName, string wonderStage)
-        {
-            Player p = player[nickname];
-
-            // Leaders who give discounts on certain card types:
-            // "Imhotep" (Wonder stages)
-            // "Archimedes" (Science cards)
-            // "Hammurabi" (Civilian)
-            // "Leonidas" (Military)
-
-            // old structure included structure name, cost, whether a Wonder stage is being constructed, and leader discount
-            // I'm going to skip the name and whether it is a wonder stage (client already knows these) and the cost (client knows all card info) and the leaders, for now.
-
-            string strCommerce = "CommData";
-
-            strCommerce += string.Format("&coin={0}", p.coin);
-            strCommerce += string.Format("&resourceDiscount={0}", p.rawMaterialsDiscount.ToString());
-            strCommerce += string.Format("&goodsDiscount={0}", p.goodsDiscount.ToString());
-
-            if (wonderStage != null)
-                strCommerce += string.Format("&wonderCard={0}", Card.CardNameFromStringName(p.playerBoard.name, p.currentStageOfWonder+1));
-
-            strCommerce += string.Format("&Structure={0}", structureName);
-
-            Card card = null;
-
-            if (wonderStage != null)
-            {
-                strCommerce += "&BuildWonderStage=";
-                card = p.playerBoard.stageCard[p.currentStageOfWonder];
-            }
-            else
-            {
-                card = fullCardList.Find(y => y.Id == (CardId)Enum.Parse(typeof(CardId), structureName));
-            }
-
-            bool hasDisountEffect = p.playedStructure.Exists(x => x.effect is StructureDiscountEffect && ((StructureDiscountEffect)x.effect).discountedStructureType == card.structureType);
-
-            Card bilkis = p.playedStructure.Find(x => x.Id == CardId.Bilkis);
-            if (bilkis != null)
-            {
-                // Tell the commmerce window that the last entry in the resource list for the player is for Bilkis
-                // and isn't due to another leader effect.
-                strCommerce += string.Format("&Bilkis=");
-            }
-
-            strCommerce += BuildResourceString("Player", p, true, hasDisountEffect, bilkis != null);
-            strCommerce += BuildResourceString("Left", p.leftNeighbour, false, false, false);
-            strCommerce += BuildResourceString("Right", p.rightNeighbour, false, false, false);
-
-            gmCoordinator.sendMessage(p, strCommerce);
-        }
-        */
         protected int numOfPlayersThatHaveTakenTheirTurn = 0;
 
         /*
@@ -1114,10 +1071,6 @@ namespace SevenWonders
                 {
                     playingCardFromDiscardPile = false;
                     p.playCardFromDiscardPile = false;
-
-                    // restore the player's original hand
-                    p.hand = savedHandWhenPlayingFromDiscardPile;
-                    savedHandWhenPlayingFromDiscardPile = null;
                 }
                 else if (p.playCardFromDiscardPile)
                 {

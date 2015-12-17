@@ -903,10 +903,9 @@ namespace SevenWonders
             if (playedStructure.Exists(x => (x.chain[0] == card.strName) || (x.chain[1] == card.strName)))
                 return Buildable.True;
 
-            //if the owner has built card 228: free guild cards
-            //return T if the card is purple
             if (card.structureType == StructureType.Guild && playedStructure.Exists(x => x.Id == CardId.Ramses))
             {
+                // Ramses: The player can build any Guild card for free.
                 return Buildable.True;
             }
 
