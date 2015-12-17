@@ -533,6 +533,7 @@ namespace SevenWonders
         {
             int sum = 0;
 
+
             if (cpe.cardsConsidered == CoinsAndPointsEffect.CardsConsidered.PlayerAndNeighbors ||
                 cpe.cardsConsidered == CoinsAndPointsEffect.CardsConsidered.Neighbors)
             {
@@ -568,17 +569,17 @@ namespace SevenWonders
                     sum += (conflictTokenOne + conflictTokenTwo + conflictTokenThree) * cpe.victoryPointsAtEndOfGameMultiplier;
                 }
 
-                if (cpe.cardsConsidered == CoinsAndPointsEffect.CardsConsidered.None)
-                {
-                    // Civilian structures and wonder stages constructed fall into this category.
-                    sum += cpe.victoryPointsAtEndOfGameMultiplier;
-                }
-
                 if (cpe.classConsidered == StructureType.ThreeCoins)
                 {
                     // Midas, Gamer's Guild give points for each set of 3 coins in the player's possession at the end of the game.
                     sum += coin / 3;
                 }
+            }
+
+            if (cpe.cardsConsidered == CoinsAndPointsEffect.CardsConsidered.None)
+            {
+                // Civilian structures and wonder stages constructed fall into this category.
+                sum += cpe.victoryPointsAtEndOfGameMultiplier;
             }
 
             return sum;
