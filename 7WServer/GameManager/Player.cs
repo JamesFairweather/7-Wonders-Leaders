@@ -161,7 +161,10 @@ namespace SevenWonders
         // if Olympia's Power (play a card for free) has not been used, this is true
         public bool olympiaPowerAvailable { get; set; }
 
-        public bool playCardFromDiscardPile = false;
+        // This player is in a special game phase (e.g. playing Babylon's extra card or playing from the discard pile)
+        // The player needs to provide input as to what to do next.
+        public GamePhase phase = GamePhase.None;
+        // public bool playCardFromDiscardPile = false;
 
         public bool draftingExtraLeader = false;
 
@@ -328,9 +331,22 @@ namespace SevenWonders
             {
                 switch(card.Id)
                 {
+                    case CardId.Babylon_B_s2:
+                        // This is a signal that the Babylon player gets to take a 7th turn in this and future ages.
+                        // It only does something after the 6th turn, unlike other Powers such as Halikarnassos, Solomon,
+                        // and Roma (B)
+                        babylonPowerEnabled = true;
+                        break;
+
+                    case CardId.Halikarnassos_A_s2:
                     case CardId.Halikarnassos_B_s1:
                     case CardId.Halikarnassos_B_s2:
-                        playCardFromDiscardPile = true;
+                    case CardId.Halikarnassos_B_s3:
+                        phase = GamePhase.Halikarnassos;
+                        break;
+
+                    case CardId.Solomon:
+                        phase = GamePhase.Solomon;
                         break;
 
                     case CardId.Rhodos_B_s1:
@@ -410,10 +426,6 @@ namespace SevenWonders
                             goodsDiscount = CommercialDiscountEffect.Goods.BothNeighbors;
                         break;
                 }
-            }
-            else if (effect is PlayDiscardedCardForFreeEffect)
-            {
-                playCardFromDiscardPile = true;
             }
             else if (effect is PlayACardForFreeOncePerAgeEffect)
             {
@@ -521,6 +533,7 @@ namespace SevenWonders
         {
             int sum = 0;
 
+
             if (cpe.cardsConsidered == CoinsAndPointsEffect.CardsConsidered.PlayerAndNeighbors ||
                 cpe.cardsConsidered == CoinsAndPointsEffect.CardsConsidered.Neighbors)
             {
@@ -554,6 +567,12 @@ namespace SevenWonders
                 if (cpe.classConsidered == StructureType.ConflictToken)
                 {
                     sum += (conflictTokenOne + conflictTokenTwo + conflictTokenThree) * cpe.victoryPointsAtEndOfGameMultiplier;
+                }
+
+                if (cpe.classConsidered == StructureType.ThreeCoins)
+                {
+                    // Midas, Gamer's Guild give points for each set of 3 coins in the player's possession at the end of the game.
+                    sum += coin / 3;
                 }
             }
 
@@ -803,7 +822,52 @@ namespace SevenWonders
 
             foreach (Card c in playedStructure.Where(x => x.structureType == StructureType.Leader))
             {
-                if (c.effect is CoinsAndPointsEffect)
+                if (c.effect == null)
+                {
+                    switch (c.Id)
+                    {
+                        case CardId.Justinian:
+                            {
+                                // Justinian is worth 3 victory points for each set of  3 Age cards(Military + Scientific + Civilian) in the player's city.
+
+                                int nMilitaryCards = playedStructure.Where(x => x.structureType == StructureType.Military).Count();
+                                int nScienceCards = playedStructure.Where(x => x.structureType == StructureType.Science).Count();
+                                int nCivilianCards = playedStructure.Where(x => x.structureType == StructureType.Civilian).Count();
+
+                                // find the structure type with the fewest number of cards played
+                                int least = Math.Min(Math.Min(nMilitaryCards, nCivilianCards), nScienceCards);
+
+                                // Score 3 times that number for Justinian.
+                                score.leaders += least * 3;
+                            }
+                            break;
+
+                        case CardId.Plato:
+                            {
+                                // Plato is worth 7 victory points for each set of 7 Age cards (Raw Material + Manufactured Goods + Civilian + Commercial + Science + Military + Guild) in the player's city. 
+
+                                int nCards = playedStructure.Where(x => x.structureType == StructureType.RawMaterial).Count();
+                                int least = nCards;
+                                nCards = playedStructure.Where(x => x.structureType == StructureType.Goods).Count();
+                                if (nCards < least) least = nCards;
+                                nCards = playedStructure.Where(x => x.structureType == StructureType.Civilian).Count();
+                                if (nCards < least) least = nCards;
+                                nCards = playedStructure.Where(x => x.structureType == StructureType.Commerce).Count();
+                                if (nCards < least) least = nCards;
+                                nCards = playedStructure.Where(x => x.structureType == StructureType.Science).Count();
+                                if (nCards < least) least = nCards;
+                                nCards = playedStructure.Where(x => x.structureType == StructureType.Military).Count();
+                                if (nCards < least) least = nCards;
+                                nCards = playedStructure.Where(x => x.structureType == StructureType.Guild).Count();
+                                if (nCards < least) least = nCards;
+
+                                // Score 7 times the lowest color group for Plato
+                                score.leaders += least * 7;
+                            }
+                            break;
+                    }
+                }
+                else if (c.effect is CoinsAndPointsEffect)
                 {
                     score.leaders += CountVictoryPoints(c.effect as CoinsAndPointsEffect);
                 }
@@ -852,10 +916,9 @@ namespace SevenWonders
             if (playedStructure.Exists(x => (x.chain[0] == card.strName) || (x.chain[1] == card.strName)))
                 return Buildable.True;
 
-            //if the owner has built card 228: free guild cards
-            //return T if the card is purple
             if (card.structureType == StructureType.Guild && playedStructure.Exists(x => x.Id == CardId.Ramses))
             {
+                // Ramses: The player can build any Guild card for free.
                 return Buildable.True;
             }
 

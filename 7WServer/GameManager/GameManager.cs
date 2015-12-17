@@ -1,30 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 
 namespace SevenWonders
 {
+    // I have a feeling that we really only need 3 phases: LeaderDraft (drawing 4
+    // leaders before the game), Leader Recruitment, and Playing.  Playing needs
+    // I think just two substates: Regular turn or Extra turn.  Extra turn would
+    // be any turn where the game has to wait for one player to choose a
+    // card/action (i.e. Babylon B, Halikarnassos, Solomon, Roma B, China)
+
+    public enum GamePhase
+    {
+        None,
+        // WaitingForPlayers,   // not used presently
+        // Start,               // not used presently
+        LeaderDraft,            // drafting leaders (i.e. before Age 1)
+        LeaderRecruitment,      // playing a leader card at the start of each Age
+        Playing,                // normal turn
+        Babylon,                // Waiting for Babylon to play its last card in the age.
+        Halikarnassos,          // Waiting for Halikarnassos to play from the discard pile.
+        RomaB,                  // Waiting  for Roma (B) to play a leader after building 2nd or 3rd wonder stage
+        Solomon,                // Waiting for Solomon to play from the discard pile (can coincide with Halikarnassos if Rome B builds its 2nd or 3rd wonder stage and the player plays Solomon)
+        End,
+    };
+
     public class GameManager
     {
-        public enum GamePhase
-        {
-            // WaitingForPlayers,   // not used presently
-            // Start,               // not used presently
-            LeaderDraft,            // drafting leaders (i.e. before Age 1)
-            LeaderRecruitment,      // playing a leader card at the start of each Age
-            Playing,                // normal turn
-            Babylon,                // Waiting for Babylon to play its last card in the age.
-            Halikarnassos,          // Waiting for Halikarnassos to play from the discard pile.
-            RomaB,                  // Waiting  for Roma (B) to play a leader after building 2nd or 3rd wonder stage
-            Solomon,                // Waiting for Solomon to play from the discard pile (can coincide with Halikarnassos if Rome B builds its 2nd or 3rd wonder stage and the player plays Solomon)
-            End,
-        };
-
-        // I have a feeling that we really only need 3 phases: LeaderDraft (drawing 4 leaders before the game), Leader Recruitment, and Playing.
-        // Playing needs I think just two substates: Regular turn or Extra turn.  Extra turn would be any turn where the game has to wait for one
-        // player to choose a card/action (i.e. Babylon B, Halikarnassos, Solomon, Roma B, China)
-
         public int numOfPlayers { get; set; }
         public int numOfAI { get; set; }
 
@@ -50,21 +54,13 @@ namespace SevenWonders
 
         public List<Card> discardPile = new List<Card>();
 
-        public bool esteban = false;
-
-        // is true for the extra turn awarded when a player is playing the last card in his hand
-        bool gettingBabylonExtraCard = false;
-
-        // is true for the extra turn awarded when a player is playing a card from the discard pile.
-        bool playingCardFromDiscardPile = false;
-
-        List<Card> savedHandWhenPlayingFromDiscardPile;
-
         string[] playerNicks;
 
         public bool gameConcluded { get; set; }
 
         public GamePhase phase { get; private set; }
+
+        private GamePhase prevPhase;
 
         /// <summary>
         /// Shared constructor for GameManager and LeadersGameManager
@@ -298,7 +294,6 @@ namespace SevenWonders
 
             foreach (Player p in player.Values)
             {
-
                 //if the current player's shield is greater than the next person, increase conflicttoken by the appropriate age
                 //if less, get a losstoken
                 if (p.shield > p.rightNeighbour.shield)
@@ -316,28 +311,26 @@ namespace SevenWonders
                         p.conflictTokenThree += 1;
                     }
 
-                    //check if player has played card 220: gain 2 coins for every victory point gained
-                    //give 2 coins if so
                     if (p.playedStructure.Exists(x => x.Id == CardId.Nero))
                     {
-                        throw new Exception();
-                        // fix this.  Likely by making the player.GiveConflictToken into a function and
-                        // having that function check whether the current player has Nero.
-                        // p.coin += 2;
+                        // Nero grants 2 coins for each Victory token earned by the player from this point forward. These coins are taken from the bank when the Victory tokens are gained.
+                        // Bug: this transaction needs to be executed immediately
+                        p.addTransaction(2);
+                        p.executeAction();
                     }
 
                     //check if right neighbour has played card 232: return conflict loss token received
                     //if no, receive lossToken
                     //if yes, do not get lossToken, instead, give lossToken to winner
-                    if (p.rightNeighbour.playedStructure.Exists(x => x.Id == CardId.Tomyris) == false)
-                    {
-                        p.rightNeighbour.lossToken++;
-                    }
-                    else
+                    if (p.rightNeighbour.playedStructure.Exists(x => x.Id == CardId.Tomyris))
                     {
                         //the loser is rightNeighbour
                         //the winner is current player. current player will get the loss token
                         p.lossToken++;
+                    }
+                    else
+                    {
+                        p.rightNeighbour.lossToken++;
                     }
                 }
                 else if (p.shield < p.rightNeighbour.shield)
@@ -355,30 +348,25 @@ namespace SevenWonders
                         p.rightNeighbour.conflictTokenThree += 1;
                     }
 
-                    /*
-                    //check if player has played card 220: gain 2 coins for every victory point gained
-                    //give 2 coins if so
-                    if (p.rightNeighbour.playedStructure.Exists(x => x.name == "Nero"))
+                    if (p.rightNeighbour.playedStructure.Exists(x => x.Id == CardId.Nero))
                     {
-                        p.rightNeighbour.coin += 2;
+                        // Nero grants 2 coins for each Victory token earned by the player from this point forward. These coins are taken from the bank when the Victory tokens are gained.
+                        // Bug: this transaction needs to be executed immediately
+                        p.rightNeighbour.addTransaction(2);
+                        p.rightNeighbour.executeAction();
                     }
-                    */
 
-                    //check if I have played card 232: return conflict loss token received
-                    //if no, receive lossToken
-                    //if yes, do not get lossToken, instead, give lossToken to rightNeighbour
-                    if (p.playedStructure.Exists(x => x.Id == CardId.Tomyris) == false)
-                    {
-                        p.lossToken++;
-                    }
-                    else
+                    if (p.playedStructure.Exists(x => x.Id == CardId.Tomyris))
                     {
                         //the loser is rightNeighbour
                         //the winner is current player. current player will get the loss token
                         p.rightNeighbour.lossToken++;
                     }
+                    else
+                    {
+                        p.lossToken++;
+                    }
                 }
-
             }
         }
 
@@ -439,7 +427,7 @@ namespace SevenWonders
             //shuffle the deck
             Deck deck = deckList.Find(x => x.age == currentAge);
 
-            if (currentAge != 0)
+            if (currentAge != 4)
                 deck.shuffle();
 
             //if the current deck is 0, then that means we are dealing with the leaders deck
@@ -520,10 +508,7 @@ namespace SevenWonders
         protected Board popRandomBoard()
         {
             int index = (new Random()).Next(0, board.Count);
-            index = 9;
-
-            if ( gmCoordinator.leadersEnabled )
-                index = 15;
+            index = 3;
 
             KeyValuePair<Board.Wonder, Board> randomBoard = board.ElementAt(index);
 
@@ -545,8 +530,12 @@ namespace SevenWonders
             return randomBoard.Value;
         }
 
-        public void buildStructureFromHand(string playerNickname, string cardName, string strWonderStage, string strFreeBuild, string strLeftCoins, string strRightCoins, string strUsedBilkis)
+        public void buildStructureFromHand(string playerNickname, NameValueCollection qscoll)
         {
+            string cardName = qscoll["Structure"];
+            string strLeftCoins = qscoll["leftCoins"];
+            string strRightCoins = qscoll["rightCoins"];
+
             Player p = player[playerNickname];
 
             CardId cardId = Card.CardNameFromStringName(cardName);
@@ -556,8 +545,13 @@ namespace SevenWonders
             {
                 c = p.draftedLeaders.Find(x => x.Id == cardId);
             }
+            else if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
+            {
+                c = discardPile.Find(x => x.Id == cardId);
+            }
             else
             {
+                // Normal turn
                 c = p.hand.Find(x => x.Id == cardId);
             }
 
@@ -572,11 +566,7 @@ namespace SevenWonders
             if (strRightCoins != null)
                 nRightCoins = int.Parse(strRightCoins);
 
-            bool freeBuild = strFreeBuild != null && strFreeBuild == "True";
-
-            bool usedBilkis = strUsedBilkis != null && strUsedBilkis == "True";
-
-            buildStructureFromHand(p, c, strWonderStage != null, freeBuild, nLeftCoins, nRightCoins, usedBilkis);
+            buildStructureFromHand(p, c, qscoll["BuildWonderStage"] != null, qscoll["FreeBuild"] != null, nLeftCoins, nRightCoins, qscoll["Bilkis"] != null);
         }
 
         /// <summary>
@@ -587,6 +577,10 @@ namespace SevenWonders
             if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
             {
                 p.draftedLeaders.Remove(c);
+            }
+            else if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
+            {
+                discardPile.Remove(c);
             }
             else
             {
@@ -609,19 +603,11 @@ namespace SevenWonders
 
                 c = p.playerBoard.stageCard[p.currentStageOfWonder];
                 p.currentStageOfWonder++;
-
-                // if they just built the 2nd stage of Babylon B's wonder, update the player state.
-                if (p.playerBoard.name == "Babylon (B)" && p.currentStageOfWonder == 2)
-                    p.babylonPowerEnabled = true;
             }
 
-            if (p.hand.Count == 1 && !p.babylonPowerEnabled)
-            {
-                // discard the last card in the hand, unless the player is Babylon (B) and their Power is enabled (the 2nd wonder stage)
-                discardPile.Add(p.hand.First());
-                p.hand.Clear();
-            }
-
+            // Possible TODO: move these to _after_ the coin cost has been resolved.  Maecenas has a problem where he was being played
+            // for free because his effect took place _after_ the card had been added.  Need to do some testing around this to ensure
+            // moving this down doesn't screw up Olympia.
             //add the card to played card structure
             p.addPlayedCardStructure(c);
 
@@ -646,9 +632,15 @@ namespace SevenWonders
             //check if the Card costs money and add the coins paid to the neighbors for their resources
             int costInCoins = c.cost.coin + nLeftCoins + nRightCoins + (usedBilkis ? 1 : 0);
 
+            if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
+            {
+                // cards built from the discard pile do not have a cost associated with them.
+                costInCoins = 0;
+            }
+
             if (c.structureType == StructureType.Leader)
             {
-                if (p.playerBoard.name == "Roma (A)" || p.playedStructure.Exists(x => x.Id == CardId.Maecenas))
+                if (p.playerBoard.name == "Roma (A)" || (p.playedStructure.Exists(x => x.Id == CardId.Maecenas) && (c.Id != CardId.Maecenas)))
                 {
                     costInCoins = 0;
                 }
@@ -662,89 +654,38 @@ namespace SevenWonders
                 }
             }
 
-#if FALSE
-            //if player has Rome B, then playing leaders will refund a 2 coin discount
-            if (/*p.playerBoard.freeResource == 'd' && */c.structureType == StructureType.Leader)
-            {
-                //give 2 coins back if the card cost more than 2
-                //else give less than 2 coins back
-                int coins = c.cost.coin;
-                if (c.cost.coin >= 2)
-                {
-                    coins = 2;
-                    // p.storeAction("12$");
-                }
-                else
-                {
-                    // JDF.  Not sure this is correct.  Will need to test it.
-                    // p.storeAction("1" + c.cost.Length + "$");
-                }
-                p.storeAction(new CoinEffect(coins));
-            }
-#endif
-
-            /*
-            //if player's neighbour has Rome B, then refund a 1 coin discount instead
-            else if ((p.leftNeighbour.playerBoard.freeResource == 'd' || p.rightNeighbour.playerBoard.freeResource == 'd') && c.structureType == StructureType.Leader)
-            {
-                if (c.cost.coin >= 1)
-                {
-                    p.storeAction(new SimpleEffect(1, '$'));
-                    // p.storeAction("11$");
-                }
-            }
-            */
-
             if (costInCoins != 0)
             {
                 p.addTransaction(-costInCoins);
             }
 
+            // Hatshepsut: Each purchase of one or more resources from  a neighbor grants 1 coin from the bank (max 2 per turn, if resources from both neighbors are used)
+            bool hasHatshepsut = p.playedStructure.Exists(x => x.Id == CardId.Hatshepsut);
+
             if (nLeftCoins != 0)
+            {
                 p.leftNeighbour.addTransaction(nLeftCoins);
+                if (hasHatshepsut) p.addTransaction(1);     // Probably should log this
+            }
 
             if (nRightCoins != 0)
+            {
                 p.rightNeighbour.addTransaction(nRightCoins);
-
-            //determine if the player should get 2 coins for having those leaders (get 2 coins for playing a yellow and playing a pre-req
-            giveCoinFromLeadersOnBuild(p, c);
-        }
-
-        /// <summary>
-        /// Determines if 2 coins should be given for playing a card. Give 2 coins when the appropriate leader was played.
-        /// </summary>
-        private void giveCoinFromLeadersOnBuild(Player p, Card c)
-        {
-            /*
-            for (int i = 0; i < p.numOfPlayedCards; i++)
-            {
-                //235 - 2 coin for yellow card played
-                if (p.playedStructure[i].id == 235)
-                {
-                    if (c.colour == "Yellow")
-                    {
-                        p.storeAction("12$");
-                        break;
-                    }
-                }
+                if (hasHatshepsut) p.addTransaction(1);     // Probably should log this
             }
 
-            for (int i = 0; i < p.numOfPlayedCards; i++)
+            if ((phase == GamePhase.Babylon || phase == GamePhase.Playing) &&
+                (p.playedStructure.Exists(x => x.Id == CardId.Xenophon) && (c.structureType == StructureType.Commerce)) ||
+                (p.playedStructure.Exists(x => x.Id == CardId.Vitruvius) && (p.playedStructure.Exists(y => (y.chain[0] == c.strName) || (y.chain[1] == c.strName)))))
             {
-                //234 - 2 coins if played from a pre-requisite
-                if (p.playedStructure[i].id == 234 && c.id != 234)
-                {
-                    for (int j = 0; j < p.numOfPlayedCards; j++)
-                    {
-                        if (c.freePreq == p.playedStructure[j].name)
-                        {
-                            p.storeAction("12$");
-                            return;
-                        }
-                    }
-                }
+                // Xenophon grants 2 coins for each yellow structure that the player builds
+                // from this point forward.  The coins are taken from the bank when the structures are built.
+
+                // Vitruvius grants 2 coins whenever the player builds a structure through
+                // building chains. The coins are taken from the bank when the structures are built.
+
+                p.addTransaction(2);        // TODO: log this.  Would be nice to show a visual representation on the screen as well.
             }
-            */
         }
 
         public void discardCardForThreeCoins(string nickname, string name)
@@ -848,16 +789,27 @@ namespace SevenWonders
         /// </summary>
         public void executeActionsAtEndOfTurn()
         {
-            if (!gettingBabylonExtraCard && !playingCardFromDiscardPile && phase != GamePhase.RomaB)
+            if (phase == GamePhase.LeaderDraft || phase == GamePhase.LeaderRecruitment || phase == GamePhase.Playing)
             {
                 //make AI moves
                 executeAIActions();
             }
 
+            if (phase == GamePhase.LeaderDraft)
+                return;
+
             //execute the Actions for each players
             foreach (Player p in player.Values)
             {
                 p.executeAction();
+
+                if (phase == GamePhase.Playing && p.hand.Count == 1 && !p.babylonPowerEnabled)
+                {
+                    // discard the last card in the hand, unless their board is Babylon (B) and their Power is enabled (the 2nd wonder stage)
+                    // Note that this must be done _before_ Halikarnassos plays its Power (free build from discard pile).
+                    discardPile.Add(p.hand.First());
+                    p.hand.Clear();
+                }
             }
         }
 
@@ -867,6 +819,90 @@ namespace SevenWonders
             {
                 if (p.isAI) p.makeMove();
             }
+        }
+
+        private string BuildResourceString(string who, Player plyr, bool isSelf = false)
+        {
+            string strRet = string.Format("&{0}Resources=", who);
+
+            foreach (ResourceEffect se in plyr.dag.getResourceList(isSelf))
+            {
+                strRet += se.resourceTypes + ",";
+            }
+
+            return strRet.TrimEnd(',');
+        }
+
+        private string MakeHandString(Player p, List<Card> cardList, bool buildingFromDiscardedCards = false)
+        {
+            string strHand = "SetPlyrH";
+
+            string strCards = "&Cards=";
+            string strBuildStates = "&BuildStates=";
+
+            foreach (Card card in cardList)
+            {
+                if (buildingFromDiscardedCards)
+                {
+                    // Filter out structures that have already been built in the players' city.
+                    if (p.isCardBuildable(card) == Buildable.StructureAlreadyBuilt)
+                        continue;
+                }
+
+                strCards += card.Id + ",";
+
+                if (buildingFromDiscardedCards)
+                {
+                    strBuildStates += Buildable.True + ",";
+                }
+                else
+                {
+                    strBuildStates += p.isCardBuildable(card) + ",";
+                }
+            }
+
+            strHand += strCards.TrimEnd(',');
+            strHand += strBuildStates.TrimEnd(',');
+
+            strHand += string.Format("&WonderStage={0},{1}", p.currentStageOfWonder, p.isStageBuildable());
+
+            return strHand;
+        }
+
+        private string MakeCommerceInfoString(Player p)
+        {
+            // Commerce data
+            string strCommerce = string.Empty;
+
+            strCommerce += BuildResourceString("Player", p, true);
+            strCommerce += BuildResourceString("Left", p.leftNeighbour);
+            strCommerce += BuildResourceString("Right", p.rightNeighbour);
+
+            strCommerce += string.Format("&coin={0}", p.coin);
+            strCommerce += string.Format("&resourceDiscount={0}", p.rawMaterialsDiscount.ToString());
+            strCommerce += string.Format("&goodsDiscount={0}", p.goodsDiscount.ToString());
+
+            if (p.currentStageOfWonder < p.playerBoard.numOfStages)
+                strCommerce += string.Format("&WonderStageCard={0}", Card.CardNameFromStringName(p.playerBoard.name, p.currentStageOfWonder + 1));
+
+            Card bilkis = p.playedStructure.Find(x => x.Id == CardId.Bilkis);
+            if (bilkis != null)
+            {
+                // Tell the commmerce window that the last entry in the resource list for the player is for Bilkis
+                // and isn't due to another leader effect.
+                strCommerce += "&" + bilkis.Id + "=";
+            }
+
+            strCommerce += "&LeaderDiscountCards=";
+
+            foreach (Card c in p.playedStructure.Where(x => x.effect is StructureDiscountEffect))
+            {
+                strCommerce += c.Id + ",";
+            }
+
+            strCommerce = strCommerce.TrimEnd(',');
+
+            return strCommerce;
         }
 
         /// <summary>
@@ -937,20 +973,8 @@ namespace SevenWonders
                     gmCoordinator.sendMessage(p, strCardsPlayed);
                     gmCoordinator.sendMessage(p, strLeaderIcons);
 
-                    string strCards = "&Cards=";
-                    string strBuildStates = "&BuildStates=";
+                    string strHand = MakeHandString(p, p.draftedLeaders) + MakeCommerceInfoString(p);
 
-                    foreach (Card card in p.draftedLeaders)
-                    {
-                        strCards += card.Id + ",";
-                        strBuildStates += p.isCardBuildable(card) + ",";
-                    }
-
-                    strCards = strCards.TrimEnd(',');
-                    strBuildStates = strBuildStates.TrimEnd(',');
-
-                    string strHand = "SetPlyrH" + strCards + strBuildStates;
-                    strHand += string.Format("&WonderStage={0},{1}", p.currentStageOfWonder, p.isStageBuildable().ToString());
                     strHand += "&Instructions=Leader Recruitment: choose a leader to play, build a wonder stage with, or discard for 3 coins";
 
                     gmCoordinator.sendMessage(p, strHand);
@@ -960,65 +984,34 @@ namespace SevenWonders
                     gmCoordinator.sendMessage(p, strCardsPlayed);
 
                     // Check if we're in a special state - extra turn for Babylon (B)
-                    if (gettingBabylonExtraCard && !p.babylonPowerEnabled)
+                    if (this.phase == GamePhase.Babylon && p.phase != GamePhase.Babylon)
                         continue;
 
                     // Check if we're in a special state - playing a card from the discard pile
                     // only the player (or players) who are getting the extra turn can proceed here.
-                    if (playingCardFromDiscardPile && !p.playCardFromDiscardPile)
+                    if ((this.phase == GamePhase.Halikarnassos) && (p.phase != GamePhase.Halikarnassos))
                         continue;
 
+                    if ((this.phase == GamePhase.Solomon) && (p.phase != GamePhase.Solomon))
+                        continue;
+
+                    string strHand = string.Empty;
+
                     //send the hand panel (action information) for regular ages (not the Recruitment phase i.e. Age 0)
-                    string strHand = "SetPlyrH";
-
-                    if (playingCardFromDiscardPile)
+                    if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
                     {
-                        savedHandWhenPlayingFromDiscardPile = p.hand;   // save the player's hand
-                        p.hand = discardPile;                           // the player's hand now points to the discard pile.
+                        strHand += MakeHandString(p, discardPile, true);
 
-                        string strCards = "&Cards=";
-                        string strBuildStates = "&BuildStates=";
-
-                        foreach (Card card in discardPile)
-                        {
-                            // Filter out structures that have already been built in the players' city.
-                            if (p.isCardBuildable(card) != Buildable.StructureAlreadyBuilt)
-                            {
-                                strCards += card.Id + ",";
-                                strBuildStates += Buildable.True + ",";
-                            }
-                        }
-
-                        strBuildStates = strBuildStates.TrimEnd(',');
-
-                        // The free build for Halikarnassos/Solomon requires the card be put in play.
-                        // It cannot be used to build a wonder stage, nor can it be discarded for 3
-                        // coins.
-                        strHand += strCards.TrimEnd(',');
-                        strHand += strBuildStates.TrimEnd(',');
-                        strHand += string.Format("&WonderStage={0},{1}", p.currentStageOfWonder, p.isStageBuildable());
-                        strHand += "&Instructions=Choose a card to play for free from the discard pile&CanDiscard=False";
+                        strHand += "&Instructions=Choose a card to play for free from the discard pile";
+                        strHand += "&CanDiscard=False";
                     }
                     else
                     {
-                        string strCards = "&Cards=";
-                        string strBuildStates = "&BuildStates=";
+                        strHand += MakeHandString(p, p.hand) + MakeCommerceInfoString(p);
 
-                        foreach (Card card in p.hand)
+                        if (phase == GamePhase.Babylon)
                         {
-                            strCards += card.Id + ",";
-                            strBuildStates += p.isCardBuildable(card) + ",";
-                        }
-
-                        strHand += strCards.TrimEnd(',');
-                        strHand += strBuildStates.TrimEnd(',');
-
-                        strHand += string.Format("&WonderStage={0},{1}", p.currentStageOfWonder, p.isStageBuildable());
-
-                        if (gettingBabylonExtraCard)
-                        // if (phase == GamePhase.Babylon)
-                        {
-                            strHand += "&Instructions=Babylon: you may build the last card in your hand or discard it for 3 coins";
+                            strHand += "&Instructions=Babylon: you may build the last card in your hand, use it to build a wonder stage, or discard it for 3 coins";
                         }
                         else
                         {
@@ -1044,97 +1037,28 @@ namespace SevenWonders
                 endOfSessionActions();
         }
 
-        string BuildResourceString(string who, Player plyr, bool isSelf, bool hasDiscountEffect, bool hasBilkis)
-        {
-            string strRet = string.Format("&{0}Resources=", who);
-
-            foreach (Effect e in plyr.dag.getResourceList(isSelf))
-            {
-                ResourceEffect se = e as ResourceEffect;
-
-                strRet += se.resourceTypes + ",";
-            }
-
-            if (hasDiscountEffect)
-            {
-                // add a wild card effect, which has a choice of all 7 resources.  This is free
-                // to use, but can only be used by that type of structure (Wonder/Civilian/Military/Science)
-                strRet += "WSBOCGP,";
-            }
-
-            if (hasBilkis)
-            {
-                // add a wild card effect for Bilkis, which has a choice of all 7 resources, but costs
-                // 1 coin to use.
-                strRet += "WSBOCGP,";
-            }
-
-            // remove the trailing comma, if necessary
-            if (strRet.EndsWith(","))
-                strRet = strRet.Remove(strRet.Length - 1);
-
-            return strRet;
-        }
-
-        /// <summary>
-        /// Server to Client message consisting of Commerce UI updates
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="nickname"></param>
-        public void updateCommercePanel(string nickname, string structureName, string wonderStage)
-        {
-            Player p = player[nickname];
-
-            // Leaders who give discounts on certain card types:
-            // "Imhotep" (Wonder stages)
-            // "Archimedes" (Science cards)
-            // "Hammurabi" (Civilian)
-            // "Leonidas" (Military)
-
-            // old structure included structure name, cost, whether a Wonder stage is being constructed, and leader discount
-            // I'm going to skip the name and whether it is a wonder stage (client already knows these) and the cost (client knows all card info) and the leaders, for now.
-
-            string strCommerce = "CommData";
-
-            strCommerce += string.Format("&coin={0}", p.coin);
-            strCommerce += string.Format("&resourceDiscount={0}", p.rawMaterialsDiscount.ToString());
-            strCommerce += string.Format("&goodsDiscount={0}", p.goodsDiscount.ToString());
-
-            if (wonderStage != null)
-                strCommerce += string.Format("&wonderCard={0}", Card.CardNameFromStringName(p.playerBoard.name, p.currentStageOfWonder+1));
-
-            strCommerce += string.Format("&Structure={0}", structureName);
-
-            Card card = null;
-
-            if (wonderStage != null)
-            {
-                strCommerce += "&BuildWonderStage=";
-                card = p.playerBoard.stageCard[p.currentStageOfWonder];
-            }
-            else
-            {
-                card = fullCardList.Find(y => y.Id == (CardId)Enum.Parse(typeof(CardId), structureName));
-            }
-
-            bool hasDisountEffect = p.playedStructure.Exists(x => x.effect is StructureDiscountEffect && ((StructureDiscountEffect)x.effect).discountedStructureType == card.structureType);
-
-            Card bilkis = p.playedStructure.Find(x => x.Id == CardId.Bilkis);
-            if (bilkis != null)
-            {
-                // Tell the commmerce window that the last entry in the resource list for the player is for Bilkis
-                // and isn't due to another leader effect.
-                strCommerce += string.Format("&Bilkis=");
-            }
-
-            strCommerce += BuildResourceString("Player", p, true, hasDisountEffect, bilkis != null);
-            strCommerce += BuildResourceString("Left", p.leftNeighbour, false, false, false);
-            strCommerce += BuildResourceString("Right", p.rightNeighbour, false, false, false);
-
-            gmCoordinator.sendMessage(p, strCommerce);
-        }
-
         protected int numOfPlayersThatHaveTakenTheirTurn = 0;
+
+        bool SetSpecialPhase(Player p, GamePhase specialPhase)
+        {
+            if (this.phase == specialPhase && p.phase == specialPhase)
+            {
+                // Hmm, where to go next?
+                this.phase = this.prevPhase;
+                this.prevPhase = GamePhase.None;
+                p.phase = GamePhase.None;
+            }
+            else if (p.phase == specialPhase)
+            {
+                this.prevPhase = this.phase;
+                this.phase = specialPhase;
+
+                // we are in a special phase
+                return true;
+            }
+
+            return false;
+        }
 
         /*
          * Player sends "t" message (turn complete) to the GameManager
@@ -1147,23 +1071,19 @@ namespace SevenWonders
 
             numOfPlayersThatHaveTakenTheirTurn++;
 
-            if ((numOfPlayersThatHaveTakenTheirTurn == numOfPlayers) || gettingBabylonExtraCard || playingCardFromDiscardPile || phase == GamePhase.RomaB)
+            if ((numOfPlayersThatHaveTakenTheirTurn == numOfPlayers) || phase == GamePhase.Babylon || phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon || phase == GamePhase.RomaB)
             {
                 //reset the number of players that have taken their turn
                 numOfPlayersThatHaveTakenTheirTurn = 0;
 
-                //execute every player's action
-                    // any other turn, execute everyone's actions.
                 executeActionsAtEndOfTurn();
 
-                if (gettingBabylonExtraCard && currentTurn == 6 && p.babylonPowerEnabled)
-                {
-                    gettingBabylonExtraCard = false;
-                }
-                else if (currentTurn == 6 && p.babylonPowerEnabled)
-                {
-                    gettingBabylonExtraCard = true;
-                }
+                if (currentTurn == 6 && p.babylonPowerEnabled)
+                    p.phase = GamePhase.Babylon;
+
+                // do this action first, so that if they discard their other card, Halikarnassos could built it if they
+                // are building from the discard pile.
+                bool bSpecialPhase = SetSpecialPhase(p, GamePhase.Babylon);
 
                 // I will need to go through this logic carefully.  Babylon (B) must play or discard their last
                 // card _before_ Halikarnassos looks at the discard pile.  Will need to connect a 2nd client first,
@@ -1172,19 +1092,9 @@ namespace SevenWonders
                 // "if" here.  That way the game manager will do the Babylon extra card first, and only after that's
                 // done, do Halikarnassos.  Or maybe I'll need to add a game manager state to control this, rather
                 // than using booleans to control the logic.
-                if (playingCardFromDiscardPile && p.playCardFromDiscardPile)
-                {
-                    playingCardFromDiscardPile = false;
-                    p.playCardFromDiscardPile = false;
+                if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Halikarnassos);
 
-                    // restore the player's original hand
-                    p.hand = savedHandWhenPlayingFromDiscardPile;
-                    savedHandWhenPlayingFromDiscardPile = null;
-                }
-                else if (p.playCardFromDiscardPile)
-                {
-                    playingCardFromDiscardPile = true;
-                }
+                if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Solomon);
 
                 if (phase == GamePhase.RomaB && p.draftingExtraLeader)
                 {
@@ -1197,11 +1107,8 @@ namespace SevenWonders
                 }
 
                 //all players have completed their turn
-                if (!gettingBabylonExtraCard && !playingCardFromDiscardPile && phase != GamePhase.RomaB)
+                if (!bSpecialPhase)
                 {
-                    // gettingBabylonExtraCard = false;
-                    // playingCardFromDiscardPile = false;
-
                     switch (phase)
                     {
                         case GamePhase.LeaderDraft:

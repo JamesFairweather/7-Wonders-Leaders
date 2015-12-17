@@ -31,6 +31,7 @@ namespace SevenWonders
         //The various UI that Coordinator keeps track of
         public MainWindow gameUI;
         TableUI tableUI;
+        public NewCommerce commerceUI;
         //JoinTableUI joinTableUI;
         LeaderDraft leaderDraftWindow;
 
@@ -53,7 +54,7 @@ namespace SevenWonders
         int currentTurn;
 
         //Leaders
-        BilkisUI bilkisUI;
+        // BilkisUI bilkisUI;
 
         List<Card> fullCardList = new List<Card>();
 
@@ -231,6 +232,7 @@ namespace SevenWonders
             sendToHost("ar");
         }
 
+        /*
         //tell the GMCoordinator, which in turn tells the GameManager, to add AI
         //UC-03 R01
         public void newAIUI(char mode)
@@ -249,6 +251,7 @@ namespace SevenWonders
                 bilkisUI.ShowDialog();
             }));
         }
+        */
 
 #if TRUE
         /*
@@ -415,7 +418,7 @@ namespace SevenWonders
                         break;
 
                     case "CommData":        // Commerce data
-
+                        /*
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
                         Application.Current.Dispatcher.Invoke(new Action(delegate
                         {
@@ -425,6 +428,8 @@ namespace SevenWonders
                             commerce.ShowDialog();
                         }));
                         messageHandled = true;
+                        */
+                        throw new Exception("Server shouldn't be sending CommData messages any more");
                         break;
 
                     case "EnableFB":
@@ -535,22 +540,6 @@ namespace SevenWonders
                         messageHandled = true;
                         break;
 
-                        /*
-                    case "SetCoins":
-                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
-
-                        foreach (string s in qcoll.Keys)
-                        {
-                            Application.Current.Dispatcher.Invoke(new Action(delegate
-                            {
-                                gameUI.showPlayerBarPanel(s, qcoll[s]);
-                            }));
-                        }
-                        messageHandled = true;
-
-                        break;
-                        */
-
                     case "SetPlyrH":        // Set player hand
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
 
@@ -595,32 +584,7 @@ namespace SevenWonders
 
                 // displayJoinGameUI();
             }
-
-            //leaders: received Recruitment phase turn display (Age 0 turn)
-            else if (message[0] == 'r')
-            {
-                Application.Current.Dispatcher.Invoke(new Action(delegate
-                {
-                    gameUI.showHandPanelLeadersPhase(message.Substring(1));
-                }));
-            }
             /*
-            //enable the Esteban button
-            else if (message == "EE")
-            {
-                Application.Current.Dispatcher.Invoke(new Action(delegate
-                {
-                    gameUI.estebanButton.IsEnabled = true;
-                }));
-            }
-            //enable the Bilkis Button...forever
-            else if (message == "EB")
-            {
-                Application.Current.Dispatcher.Invoke(new Action(delegate
-                {
-                    gameUI.bilkisButton.IsEnabled = true;
-                }));
-            }
             //receive Courtesan's guild information
             else if (message[0] == 'c')
             {

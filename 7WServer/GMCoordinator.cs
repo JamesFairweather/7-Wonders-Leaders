@@ -117,10 +117,11 @@ namespace SevenWonders
                     {
                         case "BldStrct":
                             qscoll = HttpUtility.ParseQueryString(message.Substring(9));
-                            gameManager.buildStructureFromHand(nickname, qscoll["Structure"], qscoll["BuildWonderStage"], qscoll["FreeBuild"], qscoll["leftCoins"], qscoll["rightCoins"], qscoll["Bilkis"]);
+                            gameManager.buildStructureFromHand(nickname, qscoll);
                             MessageHandled = true;
                             break;
 
+                            // TODO: merge this into the one above
                         case "Discards":
                             qscoll = HttpUtility.ParseQueryString(message.Substring(9));
                             gameManager.discardCardForThreeCoins(nickname, qscoll["Structure"]);
@@ -128,10 +129,13 @@ namespace SevenWonders
                             break;
 
                         case "SendComm":
+                            /*
                             qscoll = HttpUtility.ParseQueryString(message.Substring(9));
                             gameManager.updateCommercePanel(nickname, qscoll["Structure"], qscoll["BuildWonderStage"]);
                             MessageHandled = true;
                             break;
+                            */
+                            throw new Exception("Server shouldn't be getting commerce data requests from the client any more.");
                     }
                 }
 
@@ -180,23 +184,6 @@ namespace SevenWonders
 
                             Console.WriteLine("All players have hit Ready.  Game is starting now with {0} AI players", numOfAI);
 
-#if FALSE
-                            if (currentMode == ExpansionSet.Leaders)
-                            {
-                                throw new NotImplementedException();
-                                /*
-                                //tell the GameManager to start on the beginning of session operations
-                                gameManager = new LeadersGameManager(this, numOfPlayers, playerNicks, numOfAI, AIStrats);
-                                //have to upcast to LeadersGameManager because polymorphism doesn't work in C#
-                                gameManager = (LeadersGameManager)gameManager;
-                                */
-                            }
-                            else if (currentMode == ExpansionSet.Original)
-                            {
-                                gameManager = new GameManager(this, numOfPlayers, playerNicks, numOfAI, AIStrats);
-                            }
-                            else throw new NotImplementedException();
-#endif
                             gameManager = new GameManager(this, numOfPlayers, playerNicks, numOfAI, AIStrats);
 
                             //S[n], n = number of players in this game

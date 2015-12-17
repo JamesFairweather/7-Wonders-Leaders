@@ -130,24 +130,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="GameUI\AIStrategy.xaml.cs">
-      <DependentUpon>AIStrategy.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="GameUI\BilkisUI.xaml.cs">
-      <DependentUpon>BilkisUI.xaml</DependentUpon>
-    </Compile>
     <Compile Include="GameUI\changeNicknameUI.xaml.cs">
       <DependentUpon>changeNicknameUI.xaml</DependentUpon>
     </Compile>
     <Compile Include="Coordinator.cs" />
-    <Compile Include="GameUI\CourtesanUI.xaml.cs">
-      <DependentUpon>CourtesanUI.xaml</DependentUpon>
-    </Compile>
     <Compile Include="GameUI\FinalScore.xaml.cs">
       <DependentUpon>FinalScore.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="GameUI\Help.xaml.cs">
-      <DependentUpon>Help.xaml</DependentUpon>
     </Compile>
     <Compile Include="GameUI\LeaderDraft.xaml.cs">
       <DependentUpon>LeaderDraft.xaml</DependentUpon>
@@ -162,29 +150,13 @@
     <Compile Include="GameUI\JoinTableUI.xaml.cs">
       <DependentUpon>JoinTableUI.xaml</DependentUpon>
     </Compile>
-    <Page Include="GameUI\AIStrategy.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="GameUI\BilkisUI.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="GameUI\changeNicknameUI.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="GameUI\CourtesanUI.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="GameUI\FinalScore.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="GameUI\Help.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="GameUI\LeaderDraft.xaml">
       <SubType>Designer</SubType>
@@ -198,10 +170,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Resource Include="GlassButton.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Resource>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

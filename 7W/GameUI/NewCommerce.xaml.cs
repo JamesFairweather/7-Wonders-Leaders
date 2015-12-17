@@ -34,9 +34,10 @@ namespace SevenWonders
 
         bool hasBilkis;
         bool usedBilkis;
+        string leaderDiscountCardId;
         bool leftRawMarket, rightRawMarket, marketplace;
         string leftName, middleName, rightName;
-        string structureName;
+        Card cardToBuild;
         // int ID;
         bool isStage;
 
@@ -71,7 +72,7 @@ namespace SevenWonders
         /// <summary>
         /// Set the coordinator and handle CommerceInformation, which contains all necessary UI data, from GameManager
         /// </summary>
-        public NewCommerce(Coordinator coordinator, /* List<Card> cardList, */ /*string cardName, int wonderStage,*/ NameValueCollection qscoll)
+        public NewCommerce(Coordinator coordinator, Card cardToBuild, bool isWonderStage, /* List<Card> cardList, */ /*string cardName, int wonderStage,*/ NameValueCollection qscoll)
         {
             //intialise all the UI components in the xaml file (labels, etc.) to avoid null pointer
             InitializeComponent();
@@ -82,19 +83,35 @@ namespace SevenWonders
             middleName = "Player";
             rightName = "Right Neighbor";
 
-            structureName = qscoll["Structure"];
+            this.cardToBuild = cardToBuild;
+            // structureName = qscoll["Structure"];
 
-            isStage = qscoll["BuildWonderStage"] != null;
+            // isStage = qscoll["BuildWonderStage"] != null;
+
+            this.isStage = isWonderStage;
 
             if (isStage)
             {
-                string strWonderName = qscoll["wonderCard"];
+                string strWonderName = qscoll["WonderStageCard"];
 
-                cardCost = coordinator.FindCard(strWonderName).cost;
+                cardToBuild = coordinator.FindCard(strWonderName);
             }
-            else
+
+            cardCost = cardToBuild.cost;
+
+            string strLeaderDiscounts = qscoll["LeaderDiscountCards"];
+
+            if (strLeaderDiscounts != string.Empty)
             {
-                cardCost = coordinator.FindCard(structureName).cost;
+                foreach (string strCardId in strLeaderDiscounts.Split(','))
+                {
+                    Card leaderDiscountCard = coordinator.FindCard(strCardId);
+
+                    if (((StructureDiscountEffect)leaderDiscountCard.effect).discountedStructureType == cardToBuild.structureType)
+                    {
+                        leaderDiscountCardId = leaderDiscountCard.Id.ToString();
+                    }
+                }
             }
 
             leftRawMarket = false;
@@ -179,10 +196,20 @@ namespace SevenWonders
             leftManuImage.Source = rightManuImage.Source = new BitmapImage(
                 new Uri("pack://application:,,,/7W;component/Resources/Images/Commerce/" + (marketplace ? "1m.png" : "2m.png")));
 
+            if (leaderDiscountCardId != null)
+            {
+                middleDag.add(new ResourceEffect(false, "WSBOCGP"));
+            }
+
             hasBilkis = qscoll["Bilkis"] != null;
 
             if (hasBilkis)
+            {
                 imgBilkisPower.Visibility = Visibility.Visible;
+
+                // Add Bilkis' choice
+                middleDag.add(new ResourceEffect(false, "WSBOCGP"));
+            }
 
             //generate mutable elements (DAG buttons, Price representations, currentResources, etc.)
             reset();
@@ -543,12 +570,12 @@ namespace SevenWonders
             {
                 // TODO: the response should be what resources were used from each neighbor.  The server should
                 // calculate the cost and exchange coins.
-                string strResponse = string.Format("BldStrct&Structure={0}&leftCoins={1}&rightCoins={2}", structureName, leftcoin, rightcoin);
+                string strResponse = string.Format("BldStrct&Structure={0}&leftCoins={1}&rightCoins={2}", cardToBuild.Id, leftcoin, rightcoin);
 
                 if (isStage) strResponse += "&BuildWonderStage=";
                 if (usedBilkis)
                 {
-                    strResponse += "&Bilkis=True";
+                    strResponse += "&Bilkis=";
                 }
                 coordinator.sendToHost(strResponse);
 
