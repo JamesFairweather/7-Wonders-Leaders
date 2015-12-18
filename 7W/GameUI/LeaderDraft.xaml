@@ -20,7 +20,7 @@
             <!-- <Button Name="btnDraft" IsEnabled="False" Click="btnDraft_Click">Accept</Button> -->
             <TextBlock Margin="5" FontSize="14" TextWrapping="Wrap" Name="LeaderDescription"></TextBlock>
         </StackPanel>
-        <ListBox Grid.Row="0" Grid.Column="1" Name="hand" SelectionChanged="hand_SelectionChanged" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled" MouseDoubleClick="hand_MouseDoubleClick">
+        <ListBox Grid.Row="0" Grid.Column="1" Name="hand" SelectionChanged="hand_SelectionChanged" ScrollViewer.VerticalScrollBarVisibility="Disabled" MouseDoubleClick="hand_MouseDoubleClick">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"/>

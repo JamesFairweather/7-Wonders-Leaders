@@ -417,19 +417,15 @@ namespace SevenWonders
                         messageHandled = true;
                         break;
 
-                    case "CommData":        // Commerce data
-                        /*
+                    case "Courtesn":        // Commerce data
+                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
                         Application.Current.Dispatcher.Invoke(new Action(delegate
                         {
-                            //gameUI.showCommerceUI(s);
-                            NewCommerce commerce = new NewCommerce(this, qcoll);
-
-                            commerce.ShowDialog();
+                            leaderDraftWindow.UpdateUI(qcoll);
+                            leaderDraftWindow.Show();
                         }));
                         messageHandled = true;
-                        */
-                        throw new Exception("Server shouldn't be sending CommData messages any more");
                         break;
 
                     case "EnableFB":

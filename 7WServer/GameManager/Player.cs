@@ -161,12 +161,14 @@ namespace SevenWonders
         // if Olympia's Power (play a card for free) has not been used, this is true
         public bool olympiaPowerAvailable { get; set; }
 
+        // If the player has played the Courtesan's Guild, they copy a leader card from a neighbor.
+        // This leader could affect military (Hannibal, Caesar), or give coins (Xenophon, Nero), or
+        // have some other effect that needs to be considered whenever leader cards are considered.
+        public CardId copiedLeaderId = CardId.Lumber_Yard;
+
         // This player is in a special game phase (e.g. playing Babylon's extra card or playing from the discard pile)
         // The player needs to provide input as to what to do next.
         public GamePhase phase = GamePhase.None;
-        // public bool playCardFromDiscardPile = false;
-
-        public bool draftingExtraLeader = false;
 
         //bilkis (0 is nothing, 1 is ore, 2 is stone, 3 is glass, 4 is papyrus, 5 is loom, 6 is wood, 7 is brick
         public byte bilkis;
@@ -176,12 +178,6 @@ namespace SevenWonders
         private List<Effect> actions = new List<Effect>();
 
         private List<int> coinTransactions = new List<int>();
-
-        // Many leaders and cities cards have enduring effects.  The list above is just for effects
-        // on this turn.  Actually, I think it's mostly for money exchanges.  If I don't have an
-        // effect list here, then any time a card is played I may need to a search for not just the 
-        // played cards but also check what board is being used.  I think Rome is the only board that
-        // has a very unusual effect though.
 
         //Player's left and right neighbours
         public Player leftNeighbour { get; set; }
@@ -384,10 +380,13 @@ namespace SevenWonders
 
                     case CardId.Roma_B_s2:
                     case CardId.Roma_B_s3:
-                        draftingExtraLeader = true;
 
-                        // TODO: can I do this instead of considering the points effect separately at the end of the game?
-                        // effect = new CoinsAndPointsEffect(CoinsAndPointsEffect.CardsConsidered.None, StructureType.Constant, 0, 3);
+                        // the player needs to choose another leader from his leader d
+                        phase = GamePhase.RomaB;
+                        break;
+
+                    case CardId.Courtesans_Guild:
+                        phase = GamePhase.Courtesan;
                         break;
                 }
             }

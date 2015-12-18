@@ -24,6 +24,7 @@ namespace SevenWonders
         Halikarnassos,          // Waiting for Halikarnassos to play from the discard pile.
         RomaB,                  // Waiting  for Roma (B) to play a leader after building 2nd or 3rd wonder stage
         Solomon,                // Waiting for Solomon to play from the discard pile (can coincide with Halikarnassos if Rome B builds its 2nd or 3rd wonder stage and the player plays Solomon)
+        Courtesan,              // Waiting for a player to select a leader to copy
         End,
     };
 
@@ -508,7 +509,7 @@ namespace SevenWonders
         protected Board popRandomBoard()
         {
             int index = (new Random()).Next(0, board.Count);
-            index = 3;
+            index = 15;
 
             KeyValuePair<Board.Wonder, Board> randomBoard = board.ElementAt(index);
 
@@ -548,6 +549,10 @@ namespace SevenWonders
             else if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
             {
                 c = discardPile.Find(x => x.Id == cardId);
+            }
+            else if (phase == GamePhase.Courtesan)
+            {
+
             }
             else
             {
@@ -961,8 +966,10 @@ namespace SevenWonders
                     // send the list of cards to the player
                     gmCoordinator.sendMessage(p, strLeaderHand);
                 }
-                else if (phase == GamePhase.LeaderRecruitment || (phase == GamePhase.RomaB && p.draftingExtraLeader))
+                else if (phase == GamePhase.LeaderRecruitment || (phase == GamePhase.RomaB && p.phase == GamePhase.RomaB))
                 {
+                    gmCoordinator.sendMessage(p, strCardsPlayed);
+
                     string strLeaderIcons = "LeadrIcn";
 
                     foreach (Card c in p.draftedLeaders)
@@ -970,7 +977,6 @@ namespace SevenWonders
                         strLeaderIcons += string.Format("&{0}=", c.Id);
                     }
 
-                    gmCoordinator.sendMessage(p, strCardsPlayed);
                     gmCoordinator.sendMessage(p, strLeaderIcons);
 
                     string strHand = MakeHandString(p, p.draftedLeaders) + MakeCommerceInfoString(p);
@@ -978,6 +984,25 @@ namespace SevenWonders
                     strHand += "&Instructions=Leader Recruitment: choose a leader to play, build a wonder stage with, or discard for 3 coins";
 
                     gmCoordinator.sendMessage(p, strHand);
+                }
+                else if (phase == GamePhase.Courtesan)
+                {
+                    gmCoordinator.sendMessage(p, strCardsPlayed);
+
+                    string strCourtesanInfo = "Courtesn";
+
+                    foreach (Card c in p.leftNeighbour.playedStructure.Where(x => x.structureType == StructureType.Leader))
+                    {
+                        strCourtesanInfo += string.Format("&{0}=", c.Id);
+                    }
+
+                    foreach (Card c in p.rightNeighbour.playedStructure.Where(x => x.structureType == StructureType.Leader))
+                    {
+                        strCourtesanInfo += string.Format("&{0}=", c.Id);
+                    }
+
+                    // tell the client to pick a leader card
+                    gmCoordinator.sendMessage(p, strCourtesanInfo);
                 }
                 else
                 {
@@ -1093,18 +1118,9 @@ namespace SevenWonders
                 // done, do Halikarnassos.  Or maybe I'll need to add a game manager state to control this, rather
                 // than using booleans to control the logic.
                 if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Halikarnassos);
-
                 if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Solomon);
-
-                if (phase == GamePhase.RomaB && p.draftingExtraLeader)
-                {
-                    phase = GamePhase.Playing;
-                    p.draftingExtraLeader = false;
-                }
-                else if (p.draftingExtraLeader)
-                {
-                    phase = GamePhase.RomaB;
-                }
+                if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.RomaB);
+                if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Courtesan);
 
                 //all players have completed their turn
                 if (!bSpecialPhase)
