@@ -60,7 +60,7 @@ namespace SevenWonders
                         bestLeader = player.draftedLeaders.Find(x => x.Id == leaderName);
                     }
 
-                    if (bestLeader != null)
+                    if (bestLeader != null && player.isCardBuildable(bestLeader) == Buildable.True)
                     {
                         break;
                     }

@@ -48,9 +48,6 @@ Technical stories:
 	   wonder stage, and what commercial discount effects are in place.
 	- client sends what card was selected and a list of which resources were used.
 
-- There's a bug where if commerce is used to use a leader to build a Wonder stage, the recipient isn't getting his coins
-  from the builder.  This might be fixed; retest.
-
 - The list of players (the datagrid) isn't hooked up at the match-making.
 
 - it would be nice to use data binding, if I can figure it out.
