@@ -58,6 +58,8 @@ namespace SevenWonders
 
         List<Card> fullCardList = new List<Card>();
 
+        public Card copiedLeader;
+
         public Coordinator(MainWindow gameUI)
         {
             this.gameUI = gameUI;
@@ -283,7 +285,7 @@ namespace SevenWonders
             tableUI.ShowDialog();
 
             if (expansionSet == ExpansionSet.Leaders)
-                leaderDraftWindow = new LeaderDraft(this);
+                leaderDraftWindow = new LeaderDraft(this, false);
         }
 
         /*
@@ -422,8 +424,9 @@ namespace SevenWonders
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
                         Application.Current.Dispatcher.Invoke(new Action(delegate
                         {
-                            leaderDraftWindow.UpdateUI(qcoll);
-                            leaderDraftWindow.Show();
+                            LeaderDraft leaderDraft = new LeaderDraft(this, true);
+                            leaderDraft.UpdateUI(qcoll);
+                            leaderDraft.Show();
                         }));
                         messageHandled = true;
                         break;

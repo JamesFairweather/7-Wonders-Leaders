@@ -16,7 +16,7 @@
             <ColumnDefinition Width="6*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Top">
-            <TextBlock Margin="5" TextWrapping="Wrap" FontSize="14">Choose a leader to draft</TextBlock>
+            <TextBlock Name="Instructions" Margin="5" TextWrapping="Wrap" FontSize="14">Choose a leader to draft</TextBlock>
             <!-- <Button Name="btnDraft" IsEnabled="False" Click="btnDraft_Click">Accept</Button> -->
             <TextBlock Margin="5" FontSize="14" TextWrapping="Wrap" Name="LeaderDescription"></TextBlock>
         </StackPanel>

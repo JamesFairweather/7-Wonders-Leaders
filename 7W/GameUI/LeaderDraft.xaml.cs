@@ -21,8 +21,9 @@ namespace SevenWonders
     public partial class LeaderDraft : Window
     {
         Coordinator coordinator;
+        bool isCourtesanSelection;
 
-        public LeaderDraft(Coordinator c)
+        public LeaderDraft(Coordinator c, bool courtesanSelection)
         {
             InitializeComponent();
 
@@ -30,6 +31,11 @@ namespace SevenWonders
             RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.Fant);
 
             coordinator = c;
+
+            isCourtesanSelection = courtesanSelection;
+
+            if (isCourtesanSelection)
+                Instructions.Text = "Choose a neighbor's leader to copy.";
         }
 
         public void UpdateUI(NameValueCollection cards)
@@ -40,7 +46,6 @@ namespace SevenWonders
             {
                 BitmapImage bmpImg = new BitmapImage();
                 bmpImg.BeginInit();
-                //Item1 of the id_buildable array of Tuples represents the id image
                 bmpImg.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/cards/" + cardName + ".jpg");
                 bmpImg.EndInit();
 
@@ -62,30 +67,11 @@ namespace SevenWonders
         {
             if (hand.SelectedItem != null)
             {
-                // btnDraft.IsEnabled = true;
                 LeaderDescription.Text = coordinator.FindCard(((ListBoxItem)hand.SelectedItem).Name).description;
             }
             else
             {
-                // btnDraft.IsEnabled = false;
                 LeaderDescription.Text = null;
-            }
-        }
-
-        private void btnDraft_Click(object sender, RoutedEventArgs e)
-        {
-            ListBoxItem entry = hand.SelectedItem as ListBoxItem;
-
-            hand.Items.Remove(entry);
-            RecruitedLeaders.Items.Add(entry);
-
-            coordinator.sendToHost(string.Format("BldStrct&Structure={0}", entry.Name));
-            coordinator.endTurn();
-
-            if (hand.Items.Count == 0)
-            {
-                // if this was the 4th leader to be drafted, close the dialog box.
-                Close();
             }
         }
 
@@ -105,17 +91,27 @@ namespace SevenWonders
         {
             ListBoxItem entry = hand.SelectedItem as ListBoxItem;
 
-            hand.Items.Remove(entry);
-            RecruitedLeaders.Items.Add(entry);
+            if (isCourtesanSelection)
+            {
+                coordinator.copiedLeader = coordinator.FindCard(entry.Name);
+                Close();
+            }
+            else
+            {
+                hand.Items.Remove(entry);
+                RecruitedLeaders.Items.Add(entry);
+
+                if (hand.Items.Count == 0)
+                {
+                    // if this was the 4th leader to be drafted, or the choice of leader for
+                    // the Courtesan's Guild was made, close the dialog box.
+                    coordinator.copiedLeader = coordinator.FindCard(entry.Name);
+                    Close();
+                }
+            }
 
             coordinator.sendToHost(string.Format("BldStrct&Structure={0}", entry.Name));
             coordinator.endTurn();
-
-            if (hand.Items.Count == 0)
-            {
-                // if this was the 4th leader to be drafted, close the dialog box.
-                Close();
-            }
         }
     }
 }

@@ -533,26 +533,44 @@ namespace SevenWonders
 
         public void buildStructureFromHand(string playerNickname, NameValueCollection qscoll)
         {
-            string cardName = qscoll["Structure"];
             string strLeftCoins = qscoll["leftCoins"];
             string strRightCoins = qscoll["rightCoins"];
 
             Player p = player[playerNickname];
 
-            CardId cardId = Card.CardNameFromStringName(cardName);
+            CardId cardId = Card.CardNameFromStringName(qscoll["Structure"]);
 
             Card c = null;
             if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
             {
+                // Leader Recruitment is not a special phase, so the players' phase state is
+                // not set to this value and it's valid to receive meessages in any order.
+
+                if (phase == GamePhase.RomaB && p.phase != GamePhase.RomaB)
+                    throw new Exception("RomaB: received a message from a player who is not in the RomaB phase.");
+
                 c = p.draftedLeaders.Find(x => x.Id == cardId);
             }
             else if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
             {
+                if (phase == GamePhase.Halikarnassos && p.phase != GamePhase.Halikarnassos)
+                    throw new Exception("Halikarnassos: received a message from a player who is not in the Halikarnassos phase.");
+
+                if (phase == GamePhase.Solomon && p.phase != GamePhase.Solomon)
+                    throw new Exception("Solomon: received a message from a player who is not in the Solomon phase.");
+
+
                 c = discardPile.Find(x => x.Id == cardId);
             }
             else if (phase == GamePhase.Courtesan)
             {
+                if (p.phase != GamePhase.Courtesan)
+                    throw new Exception("Courtesan phase: received a message from a player who is not in the Courtesan phase.");
 
+                c = p.leftNeighbour.playedStructure.Find(x => x.Id == cardId);
+
+                if (c == null)
+                    c = p.rightNeighbour.playedStructure.Find(x => x.Id == cardId);
             }
             else
             {
@@ -579,22 +597,36 @@ namespace SevenWonders
         /// </summary>
         public void buildStructureFromHand(Player p, Card c, bool wonderStage, bool freeBuild = false, int nLeftCoins = 0, int nRightCoins = 0, bool usedBilkis = false)
         {
+            bool bFound = false;
+
             if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
             {
-                p.draftedLeaders.Remove(c);
+                bFound = p.draftedLeaders.Remove(c);
             }
             else if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
             {
-                discardPile.Remove(c);
+                bFound = discardPile.Remove(c);
+            }
+            else if (phase == GamePhase.Courtesan)
+            {
+                bFound = p.leftNeighbour.playedStructure.Exists(x => x.Id == c.Id);
+
+                if (!bFound)
+                    bFound = p.rightNeighbour.playedStructure.Exists(x => x.Id == c.Id);
             }
             else
             {
-                p.hand.Remove(c);
+                bFound = p.hand.Remove(c);
             }
+
+            if (!bFound)
+                throw new Exception("Invalid card play");
 
             if (phase == GamePhase.LeaderDraft)
             {
                 p.draftedLeaders.Add(c);
+
+                // Nothing else to do during the leader draft phase
                 return;
             }
 
@@ -639,13 +671,13 @@ namespace SevenWonders
 
             if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
             {
-                // cards built from the discard pile do not have a cost associated with them.
+                // cards built from the discard pile do not have a cost associated with them
                 costInCoins = 0;
             }
 
             if (c.structureType == StructureType.Leader)
             {
-                if (p.playerBoard.name == "Roma (A)" || (p.playedStructure.Exists(x => x.Id == CardId.Maecenas) && (c.Id != CardId.Maecenas)))
+                if (p.playerBoard.name == "Roma (A)" || (p.playedStructure.Exists(x => x.Id == CardId.Maecenas) && (c.Id != CardId.Maecenas)) || phase == GamePhase.Courtesan)
                 {
                     costInCoins = 0;
                 }
@@ -951,8 +983,10 @@ namespace SevenWonders
 
             foreach (Player p in player.Values)
             {
-                // send current turn information
-                // gmCoordinator.sendMessage(p, "T" + currentTurn);
+                if (phase != GamePhase.LeaderDraft)
+                {
+                    gmCoordinator.sendMessage(p, strCardsPlayed);
+                }
 
                 if (phase == GamePhase.LeaderDraft)
                 {
@@ -963,13 +997,10 @@ namespace SevenWonders
                         strLeaderHand += string.Format("&{0}=", card.Id);
                     }
 
-                    // send the list of cards to the player
                     gmCoordinator.sendMessage(p, strLeaderHand);
                 }
                 else if (phase == GamePhase.LeaderRecruitment || (phase == GamePhase.RomaB && p.phase == GamePhase.RomaB))
                 {
-                    gmCoordinator.sendMessage(p, strCardsPlayed);
-
                     string strLeaderIcons = "LeadrIcn";
 
                     foreach (Card c in p.draftedLeaders)
@@ -985,10 +1016,8 @@ namespace SevenWonders
 
                     gmCoordinator.sendMessage(p, strHand);
                 }
-                else if (phase == GamePhase.Courtesan)
+                else if (phase == GamePhase.Courtesan && p.phase == GamePhase.Courtesan)
                 {
-                    gmCoordinator.sendMessage(p, strCardsPlayed);
-
                     string strCourtesanInfo = "Courtesn";
 
                     foreach (Card c in p.leftNeighbour.playedStructure.Where(x => x.structureType == StructureType.Leader))
@@ -1004,48 +1033,33 @@ namespace SevenWonders
                     // tell the client to pick a leader card
                     gmCoordinator.sendMessage(p, strCourtesanInfo);
                 }
-                else
+                else if ((phase == GamePhase.Halikarnassos && p.phase == GamePhase.Halikarnassos) || (phase == GamePhase.Solomon && p.phase == GamePhase.Solomon))
                 {
-                    gmCoordinator.sendMessage(p, strCardsPlayed);
+                    string strHand = MakeHandString(p, discardPile, true);
 
-                    // Check if we're in a special state - extra turn for Babylon (B)
-                    if (this.phase == GamePhase.Babylon && p.phase != GamePhase.Babylon)
-                        continue;
-
-                    // Check if we're in a special state - playing a card from the discard pile
-                    // only the player (or players) who are getting the extra turn can proceed here.
-                    if ((this.phase == GamePhase.Halikarnassos) && (p.phase != GamePhase.Halikarnassos))
-                        continue;
-
-                    if ((this.phase == GamePhase.Solomon) && (p.phase != GamePhase.Solomon))
-                        continue;
-
-                    string strHand = string.Empty;
-
-                    //send the hand panel (action information) for regular ages (not the Recruitment phase i.e. Age 0)
-                    if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
-                    {
-                        strHand += MakeHandString(p, discardPile, true);
-
-                        strHand += "&Instructions=Choose a card to play for free from the discard pile";
-                        strHand += "&CanDiscard=False";
-                    }
-                    else
-                    {
-                        strHand += MakeHandString(p, p.hand) + MakeCommerceInfoString(p);
-
-                        if (phase == GamePhase.Babylon)
-                        {
-                            strHand += "&Instructions=Babylon: you may build the last card in your hand, use it to build a wonder stage, or discard it for 3 coins";
-                        }
-                        else
-                        {
-                            strHand += "&Instructions=Choose a card from the list below to play, build a wonder stage with, or discard";
-                        }
-                    }
+                    strHand += "&Instructions=Choose a card to play for free from the discard pile.  It cannot be discarded or used to build a wonder stage.";
+                    strHand += "&CanDiscard=False";
 
                     gmCoordinator.sendMessage(p, strHand);
                 }
+                else if (phase == GamePhase.Babylon && p.phase == GamePhase.Babylon)
+                {
+                    string strHand = MakeHandString(p, p.hand) + MakeCommerceInfoString(p);
+                    strHand += "&Instructions=Babylon: you may build the last card in your hand, use it to build a wonder stage, or discard it for 3 coins.";
+
+                    gmCoordinator.sendMessage(p, strHand);
+                }
+                else if (phase == GamePhase.Playing || phase == GamePhase.End)
+                {
+                    // prevent other players from seeing their hands until all special phases are done.
+                    // Normal turn: everyone gets a hand of cards to choose from.
+                    string strHand = MakeHandString(p, p.hand) + MakeCommerceInfoString(p);
+                    strHand += "&Instructions=Choose a card from the list below to play, build a wonder stage with, or discard";
+
+                    gmCoordinator.sendMessage(p, strHand);
+                }
+
+                // TODO: should I send a message to the others players about what they're waiting for when there's a post-build phase?
 
                 //send the timer signal if the current Age is less than 4 (i.e. game is still going)
                 if (gameConcluded == false)
@@ -1096,7 +1110,7 @@ namespace SevenWonders
 
             numOfPlayersThatHaveTakenTheirTurn++;
 
-            if ((numOfPlayersThatHaveTakenTheirTurn == numOfPlayers) || phase == GamePhase.Babylon || phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon || phase == GamePhase.RomaB)
+            if ((numOfPlayersThatHaveTakenTheirTurn == numOfPlayers) || phase == GamePhase.Babylon || phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon || phase == GamePhase.RomaB || phase == GamePhase.Courtesan)
             {
                 //reset the number of players that have taken their turn
                 numOfPlayersThatHaveTakenTheirTurn = 0;

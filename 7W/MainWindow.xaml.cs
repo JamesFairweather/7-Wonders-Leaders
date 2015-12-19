@@ -470,7 +470,6 @@ namespace SevenWonders
             }
             else
             {
-                // coordinator.sendToHost("SendComm&Structure=" + hand[handPanel.SelectedIndex].Key.Id);     // the server's response will open the Commerce Dialog box
                 coordinator.commerceUI = new NewCommerce(coordinator, hand[handPanel.SelectedIndex].Key, false, handData);
                 coordinator.commerceUI.ShowDialog();
             }
@@ -505,7 +504,6 @@ namespace SevenWonders
             }
             else
             {
-                // coordinator.sendToHost("SendComm&BuildWonderStage=&Structure=" + hand[handPanel.SelectedIndex].Key.Id);     // the server's response will open the Commerce Dialog box
                 coordinator.commerceUI = new NewCommerce(coordinator, hand[handPanel.SelectedIndex].Key, true, handData);
                 coordinator.commerceUI.ShowDialog();
             }
@@ -637,7 +635,28 @@ namespace SevenWonders
                 {
                     Card lastPlayedCard = coordinator.FindCard(cardName);
 
-                    StructureType colour = lastPlayedCard.structureType;
+                    if (lastPlayedCard.Id == coordinator.copiedLeader.Id)
+                    {
+                        BitmapImage bmi_copied = new BitmapImage();
+                        bmi_copied.BeginInit();
+                        bmi_copied.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/Icons/" + coordinator.copiedLeader.iconName + ".png");
+                        bmi_copied.EndInit();
+                        Image img_copied = new Image();
+                        img_copied.Source = bmi_copied;
+
+                        int CourtesanUIElement = playerState[playerName].structuresBuilt[StructureType.Guild].Children.Count - 1;
+
+                        Image imgCourtesan = playerState[playerName].structuresBuilt[StructureType.Guild].Children[CourtesanUIElement] as Image;
+
+                        RenderTargetBitmap rndBmp = new RenderTargetBitmap( Convert.ToInt32(imgCourtesan.Width), Convert.ToInt32(imgCourtesan.Height), 96, 96, PixelFormats.Pbgra32);
+
+                        rndBmp.Render(imgCourtesan);
+                        rndBmp.Render(img_copied);
+
+                        imgCourtesan.Source = rndBmp;
+
+                        return;
+                    }
 
                     if (playerState[playerName].lastCardPlayed != null)
                         playerState[playerName].lastCardPlayed.Effect = null;

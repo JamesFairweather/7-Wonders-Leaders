@@ -16,11 +16,11 @@ namespace SevenWonders
         public int guilds;
         public int science;
         public int leaders;
-        // public int cities;       // not used yet.
+        public int cities;
 
         public int Total()
         {
-            return military + coins + wonders + civilian + commerce + guilds + science;
+            return military + coins + wonders + civilian + commerce + guilds + science + leaders + cities;
         }
     };
 }

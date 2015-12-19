@@ -259,64 +259,6 @@ namespace SevenWonders
             coinTransactions.Add(coins);
         }
 
-        /// <summary>
-        /// Check if Salomon (aka Halicarnassus) is stored as an action.
-        /// Return false if it is not
-        /// Return true if it is, then remove it
-        /// </summary>
-        /// <returns></returns>
-        public bool hasSalomon()
-        {
-            /*
-            for (int i = 0; i < numOfActions; i++)
-            {
-                //found Salomon
-                if (actions[i] == "SALOMON")
-                {
-                    //remove the item and return true
-                    for (int j = i; j < (numOfActions - 1); j++)
-                    {
-                        actions[j] = actions[j + 1];
-                    }
-
-                    numOfActions--;
-
-                    return true;
-                }
-            }
-            */
-
-            return false;
-        }
-
-        /// <summary>
-        /// Check if Courtesan's guild is played and remove it if it is
-        /// </summary>
-        /// <returns></returns>
-        public bool hasCourtesan()
-        {
-            /*
-            for (int i = 0; i < numOfActions; i++)
-            {
-                //found Courtesan's guild
-                if (actions[i] == "@(Guild of Courtesans effect)")
-                {
-                    //remove the item and return true
-                    for (int j = i; j < (numOfActions - 1); j++)
-                    {
-                        actions[j] = actions[j + 1];
-                    }
-
-                    numOfActions--;
-
-                    return true;
-                }
-            }
-            */
-
-            return false;
-        }
-
         public void executeActionNow(Card card)
         {
             Effect effect = card.effect;
@@ -448,27 +390,6 @@ namespace SevenWonders
             }
             // any other effects do not require immediate action, they will be dealt with at the end of the turn,
             // end of the age, or the end of the game.
-            /*
-            else if (
-                effect is ShipOwnersGuildEffect ||
-                effect is ScienceWildEffect ||
-                effect is PlayLastCardInAgeEffect ||
-                effect is CopyGuildFromNeighborEffect ||
-                effect is MilitaryEffect ||
-                effect is ScienceEffect ||
-                effect is FreeLeadersEffect
-                effect is PlatoEffect)
-            {
-                // nothing to do; this card will be included in the end of game point total, or
-                // - Military cards are used at the end of each age to resolve conflicts
-                // - Science cards are used at the end of the game.
-                // - Free Leaders effects are captured when the cards are put into play
-            }
-            else
-            {
-                throw new Exception("Unexpected effect type in executeActionNow()");
-            }
-            */
         }
 
         //Execute actions
@@ -532,7 +453,6 @@ namespace SevenWonders
         {
             int sum = 0;
 
-
             if (cpe.cardsConsidered == CoinsAndPointsEffect.CardsConsidered.PlayerAndNeighbors ||
                 cpe.cardsConsidered == CoinsAndPointsEffect.CardsConsidered.Neighbors)
             {
@@ -550,6 +470,19 @@ namespace SevenWonders
                 {
                     sum += (leftNeighbour.conflictTokenOne + leftNeighbour.conflictTokenTwo + leftNeighbour.conflictTokenThree) * cpe.victoryPointsAtEndOfGameMultiplier;
                     sum += (rightNeighbour.conflictTokenOne + rightNeighbour.conflictTokenTwo + rightNeighbour.conflictTokenThree) * cpe.victoryPointsAtEndOfGameMultiplier;
+                }
+
+                if (cpe.classConsidered == StructureType.Leader)
+                {
+                    // if either neighbor's leader was actually copied using the Courtesan's Guild, remove it from the total.
+                    // I'm just assuming that the Courtesan's Guild _acutally_ caused a leader to be copied here.  If it did not,
+                    // it would actually be incorrect to subtract this, as no leader was added to that players' list of built
+                    // leader structures.
+                    if (leftNeighbour.playedStructure.Exists(x => x.Id == CardId.Courtesans_Guild) ||
+                        rightNeighbour.playedStructure.Exists(x => x.Id == CardId.Courtesans_Guild))
+                    {
+                        sum -= 1;
+                    }
                 }
             }
 
