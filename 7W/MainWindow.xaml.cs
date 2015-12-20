@@ -635,8 +635,12 @@ namespace SevenWonders
                 {
                     Card lastPlayedCard = coordinator.FindCard(cardName);
 
-                    if (lastPlayedCard.Id == coordinator.copiedLeader.Id)
+                    if (coordinator.copiedLeader != null && coordinator.copiedLeader.Id == lastPlayedCard.Id)
                     {
+                        /*
+                        // Attempting to render the copied leader on top of the Courtesan's Guild icon.  Not working yet, so using
+                        // the tooltip for now.
+                        // update the Courtesan's Guild icon by adding the icon of the copied leader into it.
                         BitmapImage bmi_copied = new BitmapImage();
                         bmi_copied.BeginInit();
                         bmi_copied.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/Icons/" + coordinator.copiedLeader.iconName + ".png");
@@ -648,12 +652,19 @@ namespace SevenWonders
 
                         Image imgCourtesan = playerState[playerName].structuresBuilt[StructureType.Guild].Children[CourtesanUIElement] as Image;
 
-                        RenderTargetBitmap rndBmp = new RenderTargetBitmap( Convert.ToInt32(imgCourtesan.Width), Convert.ToInt32(imgCourtesan.Height), 96, 96, PixelFormats.Pbgra32);
+                        RenderTargetBitmap rndBmp = new RenderTargetBitmap( Convert.ToInt32(imgCourtesan.ActualWidth), Convert.ToInt32(imgCourtesan.ActualHeight), 96, 96, PixelFormats.Pbgra32);
 
                         rndBmp.Render(imgCourtesan);
                         rndBmp.Render(img_copied);
 
                         imgCourtesan.Source = rndBmp;
+                        */
+
+                        int CourtesanUIElement = playerState[playerName].structuresBuilt[StructureType.Guild].Children.Count - 1;
+
+                        Image uiCourtesan = playerState[playerName].structuresBuilt[StructureType.Guild].Children[CourtesanUIElement] as Image;
+
+                        uiCourtesan.ToolTip = string.Format("Courtesan: The copied leader is {0}", coordinator.copiedLeader.strName);
 
                         return;
                     }
@@ -661,11 +672,11 @@ namespace SevenWonders
                     if (playerState[playerName].lastCardPlayed != null)
                         playerState[playerName].lastCardPlayed.Effect = null;
 
-                    // Create a halo around the last card each player played to make it obvious.
+                    // Create a halo around the last card each player played to make it more clear which one was the last card played.
                     DropShadowEffect be = new DropShadowEffect();
                     be.ShadowDepth = 0;
                     be.BlurRadius = 25;
-                    be.Color = Colors.Blue;
+                    be.Color = Colors.OrangeRed;
 
                     BitmapImage bmi = new BitmapImage();
                     bmi.BeginInit();

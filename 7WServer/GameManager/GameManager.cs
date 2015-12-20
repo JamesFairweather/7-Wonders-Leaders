@@ -61,6 +61,10 @@ namespace SevenWonders
 
         public GamePhase phase { get; private set; }
 
+        // This is needed in case a recruited leader is used to build a wonder stage, which could then be used to do something else (e.g.
+        // play a card from the discard pile.  In that case, when we transition from to Roma B to Solomon, we should NOT update the previous
+        // phase.  i.e. only update the prevPhase to a non-special phase.  Non-special phases are LeaderDraft, LeaderRecruitment, and
+        // playing.  All other phases are special.
         private GamePhase prevPhase;
 
         /// <summary>
@@ -1082,14 +1086,14 @@ namespace SevenWonders
         {
             if (this.phase == specialPhase && p.phase == specialPhase)
             {
-                // Hmm, where to go next?
                 this.phase = this.prevPhase;
                 this.prevPhase = GamePhase.None;
                 p.phase = GamePhase.None;
             }
             else if (p.phase == specialPhase)
             {
-                this.prevPhase = this.phase;
+                if (this.phase == GamePhase.LeaderRecruitment || this.phase == GamePhase.LeaderDraft || this.phase == GamePhase.Playing)
+                    this.prevPhase = this.phase;
                 this.phase = specialPhase;
 
                 // we are in a special phase
@@ -1186,6 +1190,10 @@ namespace SevenWonders
                                 }
                             }
                             break;
+
+                    default:
+                        throw new Exception("specialPhase is false but phase is not LeaderDraft, LeaderRecruitment, or Playing.  Logic error somewhere...");
+                        break;
                     }
                 }
 

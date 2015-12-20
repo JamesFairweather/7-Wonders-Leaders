@@ -85,7 +85,7 @@ namespace SevenWonders
             // Start the TCP listener and listen for connections
             tcpListener.Start();
 
-            Console.WriteLine("Seven Wonders server ready.  Waiting for a client...");
+            Console.WriteLine("Seven Wonders server ready.  Listening for a connection at {0}", tcpListener.LocalEndpoint);
 
             try
             {
@@ -156,7 +156,6 @@ namespace SevenWonders
         /// <returns></returns>
         private IPAddress localIP()
         {
-            /*
             IPAddress localIP = null;
             IPHostEntry host;
 
@@ -166,8 +165,6 @@ namespace SevenWonders
                 if (ip.AddressFamily == AddressFamily.InterNetwork) localIP = ip;
 
             return localIP;
-            */
-            return IPAddress.Loopback;
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

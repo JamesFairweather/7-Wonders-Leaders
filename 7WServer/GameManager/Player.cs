@@ -556,9 +556,9 @@ namespace SevenWonders
             // The player can have up to two science wild cards: Babylon wonder and the Scientists' guild.
             // Try every possible combination of these cards and select the one that yields the highest score
             // for the science cards.
-            int nCompass = playedStructure.Where(x => x.structureType == StructureType.Science && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Compass).Count();
-            int nGear = playedStructure.Where(x => x.structureType == StructureType.Science && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Gear).Count();
-            int nTablet = playedStructure.Where(x => x.structureType == StructureType.Science && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Tablet).Count();
+            int nCompass = playedStructure.Where(x => x.effect is ScienceEffect && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Compass).Count();
+            int nGear = playedStructure.Where(x => x.effect is ScienceEffect && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Gear).Count();
+            int nTablet = playedStructure.Where(x => x.effect is ScienceEffect && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Tablet).Count();
 
             // if wild cards are in play, we choose the best combination of wilds to get the maximum overall
             // score, with Aristotle's bonus factored in.  In some cases, Aristotle's effect will mean it's

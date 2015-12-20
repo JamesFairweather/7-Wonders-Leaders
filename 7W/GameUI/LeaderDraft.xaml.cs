@@ -103,9 +103,7 @@ namespace SevenWonders
 
                 if (hand.Items.Count == 0)
                 {
-                    // if this was the 4th leader to be drafted, or the choice of leader for
-                    // the Courtesan's Guild was made, close the dialog box.
-                    coordinator.copiedLeader = coordinator.FindCard(entry.Name);
+                    // if this was the 4th leader to be drafted, close the dialog box.
                     Close();
                 }
             }

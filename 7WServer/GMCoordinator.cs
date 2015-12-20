@@ -35,7 +35,7 @@ namespace SevenWonders
         /// Have the server start listening for requests.
         /// Part of UC-01 R01
         /// </summary>
-            public GMCoordinator()
+        public GMCoordinator()
         {
             //create server
             host = new Server();

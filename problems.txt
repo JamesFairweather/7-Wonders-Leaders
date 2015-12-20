@@ -32,8 +32,6 @@ AI players
 
 Technical stories:
 
-- The courtesan's Guild still needs to be implemented.
-
 - There is a problem when Babylon B's power is activated and Halikarnassos builds a free build wonder stage
   with their 6th card.  Babylon B must play first, then Halikarnassos can play.  Will need to use a 2nd client
   to run through this logic.

@@ -266,14 +266,14 @@ namespace SevenWonders
             client = new Client(this, nickname);
             client.InitializeConnection(serverIP);
 
+            if (!client.Connected)
+                return;
+
             //set hasGame to true
             hasGame = true;
 
             //Display the non-host player version of TableUI
             sendToHost("J" + nickname);
-
-            //display the tableUI
-            //UC-02 R06
 
             tableUI = new TableUI(this);
             /*
@@ -284,6 +284,7 @@ namespace SevenWonders
             */
             tableUI.ShowDialog();
 
+            // create the leader draft window if the Leaders expansion is enabled.
             if (expansionSet == ExpansionSet.Leaders)
                 leaderDraftWindow = new LeaderDraft(this, false);
         }
