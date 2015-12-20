@@ -38,11 +38,10 @@ namespace SevenWonders
         {
             InitializeComponent();
 
-            //get the local IP address
-            yourIPAddressField.Text = local();
-
-            //set the coordinator
             coordinator = c;
+
+            //get the local IP address
+            yourIPAddressField.Text = coordinator.client.ipAddr.ToString();
 
             //empty the chatTextBox
             chatTextBox.Text = "";

@@ -36,18 +36,23 @@ namespace SevenWonders
          */
         public void btnJoin_Click(object sender, RoutedEventArgs e)
         {
-            //attempt to parse the IP address in field
             IPAddress ip;
-            if (IPAddress.TryParse(ipAddressText.Text, out ip))
+
+            if (!IPAddress.TryParse(ipAddressText.Text, out ip))
             {
-                // Close the dialog window
-                Close();
-            }
-            else
-            {
-                MessageBox.Show("That IP address is not valid");
+                MessageBox.Show("Invalid server IP address.");
                 return;
             }
+
+            if (textUser.Text == string.Empty)
+            {
+                MessageBox.Show("You must enter a name for your player.");
+
+                return;
+            }
+
+            // All user inputs are valid; close the dialog window
+            Close();
         }
 
         /*

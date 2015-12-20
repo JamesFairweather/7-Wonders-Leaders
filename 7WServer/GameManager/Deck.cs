@@ -37,12 +37,12 @@ namespace SevenWonders
             }
         }
 
-        //find and remove all unused cards Guild cards
+        // find and remove all unused cards Guild cards
         public void removeAge3Guilds(int nCardsToRemove)
         {
             //shuffle first to randomize the locations of the guild cards in the deck
             shuffle();
-            /*
+
             for (int i = cardList.Count - 1; i >= 0 && nCardsToRemove > 0; --i)
             {
                 if (cardList[i].structureType == StructureType.Guild)
@@ -51,7 +51,6 @@ namespace SevenWonders
                     --nCardsToRemove;
                 }
             }
-            */
         }
 
         //shuffle the cards in the deck

@@ -15,7 +15,6 @@ namespace SevenWonders
 {
     public class Client
     {
-
         //Keep the User's nickname
         public string nickname;
         public StreamWriter swSender;
@@ -34,8 +33,6 @@ namespace SevenWonders
             this.c = c;
             nickname = user;
         }
-
-
 
         /// <summary>
         /// Initialize a connection with the given Nickname
@@ -62,6 +59,7 @@ namespace SevenWonders
 
             // Helps us track whether we're connected or not
             Connected = true;
+            this.ipAddr = ipAddr;
 
             //Send the nickname. Await for permission.
             swSender.WriteLine(nickname);
