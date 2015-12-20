@@ -217,10 +217,6 @@ namespace SevenWonders
                 //changed by TableUI
                 else if (message[0] == 'm')
                 {
-                    //leaders mode checkbox enabled by host
-                    //clear all the AIs
-                    numOfAI = 0;
-
                     if (message[1] == 'L')
                     {
                         host.sendMessageToAll("#Leaders expansion pack enabled.");
@@ -231,8 +227,6 @@ namespace SevenWonders
                         host.sendMessageToAll("#All expansion packs are disabled.");
                         currentMode = ExpansionSet.Original;
                     }
-
-                    host.sendMessageToAll("#All AIs from previous mode cleared.");
                 }
                 //r: all player's countdowns are 
                 //tell the GameManager to update each player's game UI
