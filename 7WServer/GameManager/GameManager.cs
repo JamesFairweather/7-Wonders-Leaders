@@ -186,17 +186,17 @@ namespace SevenWonders
 
         public void sendBoardNames()
         {
-            string strMsg = string.Empty;
+            string strMsg = "SetBoard";
 
             foreach (Player p in player.Values)
             {
                 strMsg += string.Format("&{0}={1}/{2}", p.nickname, p.playerBoard.numOfStages, p.playerBoard.name);
             }
 
+            gmCoordinator.SendMessageToAll(strMsg);
+
             foreach (Player p in player.Values)
             {
-                gmCoordinator.sendMessage(p, "SetBoard" + strMsg);
-
                 p.executeAction();
             }
         }
@@ -262,10 +262,7 @@ namespace SevenWonders
                 strUpdateMilitaryTokens += string.Format("&{0}={1}/{2}/{3}", p.nickname, currentAge, nVictoryTokens, p.lossToken);
             }
 
-            foreach (Player p in player.Values)
-            {
-                gmCoordinator.sendMessage(p, strUpdateMilitaryTokens);
-            }
+            gmCoordinator.SendMessageToAll(strUpdateMilitaryTokens);
 
             // check that all players' hands are empty, and re-enable Olympia's Power (build a card for free, once per age),
             // if it has been activated.
@@ -414,10 +411,7 @@ namespace SevenWonders
                     s.Key, sc.military, sc.coins, sc.wonders, sc.civilian, sc.commerce, sc.guilds, sc.science, sc.leaders, sc.Total());
             }
 
-            foreach (Player p in player.Values)
-            {
-                gmCoordinator.sendMessage(p, strFinalScore);
-            }
+            gmCoordinator.SendMessageToAll(strFinalScore);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////

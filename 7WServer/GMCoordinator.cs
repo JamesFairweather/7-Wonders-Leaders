@@ -11,7 +11,7 @@ namespace SevenWonders
     {
         GameManager gameManager;
 
-        public Server host;
+        Server host;
 
         int numOfPlayers;
         int numOfAI;
@@ -83,6 +83,11 @@ namespace SevenWonders
         {
             if(!p.isAI)
                 host.sendMessageToUser(p.nickname, message);
+        }
+
+        public void SendMessageToAll(string msg)
+        {
+            host.sendMessageToAll(msg);
         }
 
         /// <summary>
