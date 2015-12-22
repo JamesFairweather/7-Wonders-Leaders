@@ -108,7 +108,7 @@ namespace SevenWonders
                 }
             }
 
-            coordinator.sendToHost(string.Format("BldStrct&Structure={0}", entry.Name));
+            coordinator.sendToHost(string.Format("####&Action={0}BldStrct&Structure={1}", BuildAction.BuildStructure, entry.Name));
         }
     }
 }

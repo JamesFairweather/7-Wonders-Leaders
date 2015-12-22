@@ -228,27 +228,6 @@ namespace SevenWonders
             sendToHost("ar");
         }
 
-        /*
-        //tell the GMCoordinator, which in turn tells the GameManager, to add AI
-        //UC-03 R01
-        public void newAIUI(char mode)
-        {
-            AIStrategy aistrategy = new AIStrategy(mode, this);
-            aistrategy.ShowDialog();
-        }
-
-        //display the Bilkis UI
-        public void bilkisUIActivate()
-        {
-            //create new Olympia UI
-            Application.Current.Dispatcher.Invoke(new Action(delegate
-            {
-                this.bilkisUI = new BilkisUI(this);
-                bilkisUI.ShowDialog();
-            }));
-        }
-        */
-
 #if TRUE
         /*
          * Send the Join Game request to the Server.
@@ -390,12 +369,6 @@ namespace SevenWonders
         /// <param name="e"></param>
         public void receiveMessage(string message)
         {
-            //First character | Meaning
-            //# --------------- chat message. E.g. "#John: I need some coins!" would print the string on the Chat
-            //# is also used to display a Player joining a table.
-            //J --------------- a player has joined the table. Add a player to the Game Manager
-            //S --------------- the all ready signal. 5 second count down, then the join table window closes.
-
             if (message.Length >= 8)
             {
                 bool messageHandled = false;
@@ -414,9 +387,9 @@ namespace SevenWonders
                         messageHandled = true;
                         break;
 
-                    case "Courtesn":        // Commerce data
+                    case "Courtesn":        // send which neighboring leader is being copied.
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
-                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
+
                         Application.Current.Dispatcher.Invoke(new Action(delegate
                         {
                             LeaderDraft leaderDraft = new LeaderDraft(this, true);
@@ -426,9 +399,8 @@ namespace SevenWonders
                         messageHandled = true;
                         break;
 
-                    case "EnableFB":
+                    case "EnableFB":    // Enable Free Build button
 
-                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
                         Application.Current.Dispatcher.Invoke(new Action(delegate
                         {
                             gameUI.btnBuildStructureForFree.Visibility = Visibility.Visible;
@@ -469,13 +441,10 @@ namespace SevenWonders
                     case "Military":
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
 
-                        foreach (string s in qcoll.Keys)
+                        Application.Current.Dispatcher.Invoke(new Action(delegate
                         {
-                            Application.Current.Dispatcher.Invoke(new Action(delegate
-                            {
-                                gameUI.updateMilitaryTokens(s, qcoll[s]);
-                            }));
-                        }
+                            gameUI.updateMilitaryTokens(qcoll);
+                        }));
                         messageHandled = true;
                         break;
 
@@ -493,7 +462,6 @@ namespace SevenWonders
                         else
                         {
                             //tell the server UI initialisation is done
-                            // sendToHost("r"); // JDF - moved to another location until after the gameUI is created.
 
                             // find out the number of players.
                             int nPlayers = int.Parse(message.Substring(8, 1));
@@ -555,11 +523,6 @@ namespace SevenWonders
             {
                 updateChatTextBox(message.Substring(1));
             }
-            //indicate to client to start timer
-            else if (message[0] == 't')
-            {
-                // startTimer();
-            }
             //enable Olympia power OR Rome power
             //activate the Olympia UI
             //receive the information on the current turn
@@ -577,22 +540,6 @@ namespace SevenWonders
                 tableUI.Close();
 
                 // displayJoinGameUI();
-            }
-            /*
-            //receive Courtesan's guild information
-            else if (message[0] == 'c')
-            {
-                Application.Current.Dispatcher.Invoke(new Action(delegate
-                {
-                    CourtesanUI courtUI = new CourtesanUI(this, message.Substring(1));
-                    courtUI.ShowDialog();
-                }));
-            }
-            */
-            //receive the end of game signal
-            else if (message[0] == 'e')
-            {
-                // timer.Stop();
             }
             else if (message[0] == '1')
             {

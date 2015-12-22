@@ -59,15 +59,5 @@ namespace SevenWonders.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap estebanpowerbutton {
-            get {
-                object obj = ResourceManager.GetObject("estebanpowerbutton", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
     }
 }

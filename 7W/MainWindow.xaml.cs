@@ -707,82 +707,87 @@ namespace SevenWonders
             }
         }
 
-        public void updateMilitaryTokens(string playerName, string strConflictData)
+        public void updateMilitaryTokens(NameValueCollection qcoll)
         {
-            // string should be age/victories in this age/total losses
-            string[] s = strConflictData.Split('/');
-
-            if (s.Length != 3)
-                throw new Exception();
-
-            int age = int.Parse(s[0]);
-            int victoriesInThisAge = int.Parse(s[1]);
-            int totalLossTokens = int.Parse(s[2]);
-            BitmapImage conflictImageSource = new BitmapImage();
-
-            if (victoriesInThisAge != 0)
+            foreach (string playerName in qcoll.Keys)
             {
-                switch (age)
+                // string should be age/victories in this age/total losses
+                string[] s = qcoll[playerName].Split('/');
+
+                PlayerState ps = playerState[playerName];
+
+                if (s.Length != 3)
+                    throw new Exception();
+
+                int age = int.Parse(s[0]);
+                int victoriesInThisAge = int.Parse(s[1]);
+                int totalLossTokens = int.Parse(s[2]);
+                BitmapImage conflictImageSource = new BitmapImage();
+
+                if (victoriesInThisAge != 0)
                 {
-                    case 1:
-                        conflictImageSource.BeginInit();
-                        conflictImageSource.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/ConflictAge1.png");
-                        conflictImageSource.EndInit();
+                    switch (age)
+                    {
+                        case 1:
+                            conflictImageSource.BeginInit();
+                            conflictImageSource.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/ConflictAge1.png");
+                            conflictImageSource.EndInit();
 
-                        for (int i = 0; i < victoriesInThisAge; ++i)
-                        {
-                            Image image = new Image();
-                            image.Source = conflictImageSource;
-                            image.Height = 22;
-                            playerState[playerName].state.ConflictTokens.Children.Add(image);
-                        }
-                        break;
+                            for (int i = 0; i < victoriesInThisAge; ++i)
+                            {
+                                Image image = new Image();
+                                image.Source = conflictImageSource;
+                                image.Height = 22;
+                                ps.state.ConflictTokens.Children.Add(image);
+                            }
+                            break;
 
-                    case 2:
-                        conflictImageSource.BeginInit();
-                        conflictImageSource.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/ConflictAge2.png");
-                        conflictImageSource.EndInit();
+                        case 2:
+                            conflictImageSource.BeginInit();
+                            conflictImageSource.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/ConflictAge2.png");
+                            conflictImageSource.EndInit();
 
-                        for (int i = 0; i < victoriesInThisAge; ++i)
-                        {
-                            Image image = new Image();
-                            image.Source = conflictImageSource;
-                            image.Height = 30;
-                            playerState[playerName].state.ConflictTokens.Children.Add(image);
-                        }
-                        break;
+                            for (int i = 0; i < victoriesInThisAge; ++i)
+                            {
+                                Image image = new Image();
+                                image.Source = conflictImageSource;
+                                image.Height = 30;
+                                ps.state.ConflictTokens.Children.Add(image);
+                            }
+                            break;
 
-                    case 3:
-                        conflictImageSource.BeginInit();
-                        conflictImageSource.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/ConflictAge3.png");
-                        conflictImageSource.EndInit();
+                        case 3:
+                            conflictImageSource.BeginInit();
+                            conflictImageSource.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/ConflictAge3.png");
+                            conflictImageSource.EndInit();
 
-                        for (int i = 0; i < victoriesInThisAge; ++i)
-                        {
-                            Image image = new Image();
-                            image.Source = conflictImageSource;
-                            image.Height = 38;
-                            playerState[playerName].state.ConflictTokens.Children.Add(image);
-                        }
-                        break;
+                            for (int i = 0; i < victoriesInThisAge; ++i)
+                            {
+                                Image image = new Image();
+                                image.Source = conflictImageSource;
+                                image.Height = 38;
+                                ps.state.ConflictTokens.Children.Add(image);
+                            }
+                            break;
+                    }
                 }
-            }
 
-            if (totalLossTokens != playerState[playerName].state.MilitaryLosses.Children.Count)
-            {
-                BitmapImage lossImageSource = new BitmapImage();
-
-                lossImageSource.BeginInit();
-                lossImageSource.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/ConflictLoss.png");
-                lossImageSource.EndInit();
-
-                for (int i = playerState[playerName].state.MilitaryLosses.Children.Count; i < totalLossTokens; ++i)
+                if (totalLossTokens != ps.state.MilitaryLosses.Children.Count)
                 {
-                    Image image = new Image();
-                    image.Source = lossImageSource;
-                    image.Height = 30;
+                    BitmapImage lossImageSource = new BitmapImage();
 
-                    playerState[playerName].state.MilitaryLosses.Children.Add(image);
+                    lossImageSource.BeginInit();
+                    lossImageSource.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/ConflictLoss.png");
+                    lossImageSource.EndInit();
+
+                    for (int i = ps.state.MilitaryLosses.Children.Count; i < totalLossTokens; ++i)
+                    {
+                        Image image = new Image();
+                        image.Source = lossImageSource;
+                        image.Height = 30;
+
+                        ps.state.MilitaryLosses.Children.Add(image);
+                    }
                 }
             }
         }

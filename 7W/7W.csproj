@@ -246,9 +246,6 @@
     <Resource Include="Resources\Images\papyrus.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Images\victory.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\coin.png" />
   </ItemGroup>
   <ItemGroup>
@@ -276,9 +273,6 @@
     <Resource Include="Resources\Images\leader.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Images\estebanpowerbutton.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\bilkispowerbutton.png" />
   </ItemGroup>
   <ItemGroup>
@@ -286,9 +280,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\bilkisbackgroundUI.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Images\romebackground.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\courtesan_bg.png" />
@@ -325,10 +316,10 @@
     <Resource Include="Resources\Images\Help.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Images\Commerce\1m.png" />
-    <Resource Include="Resources\Images\Commerce\1r.png" />
-    <Resource Include="Resources\Images\Commerce\2m.png" />
-    <Resource Include="Resources\Images\Commerce\2r.png" />
+    <Resource Include="Resources\Images\1m.png" />
+    <Resource Include="Resources\Images\1r.png" />
+    <Resource Include="Resources\Images\2m.png" />
+    <Resource Include="Resources\Images\2r.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\Icons\2VP.png" />

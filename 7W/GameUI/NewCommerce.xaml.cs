@@ -186,11 +186,11 @@ namespace SevenWonders
 
             //set the market images
             leftRawImage.Source = new BitmapImage(
-                new Uri("pack://application:,,,/7W;component/Resources/Images/Commerce/" + (leftRawMarket ? "1r.png" : "2r.png")));
+                new Uri("pack://application:,,,/7W;component/Resources/Images/" + (leftRawMarket ? "1r.png" : "2r.png")));
             rightRawImage.Source = new BitmapImage(
-                new Uri("pack://application:,,,/7W;component/Resources/Images/Commerce/" + (rightRawMarket ? "1r.png" : "2r.png")));
+                new Uri("pack://application:,,,/7W;component/Resources/Images/" + (rightRawMarket ? "1r.png" : "2r.png")));
             leftManuImage.Source = rightManuImage.Source = new BitmapImage(
-                new Uri("pack://application:,,,/7W;component/Resources/Images/Commerce/" + (marketplace ? "1m.png" : "2m.png")));
+                new Uri("pack://application:,,,/7W;component/Resources/Images/" + (marketplace ? "1m.png" : "2m.png")));
 
             if (leaderDiscountCardId != null)
             {
