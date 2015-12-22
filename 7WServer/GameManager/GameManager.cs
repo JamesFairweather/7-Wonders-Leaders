@@ -626,6 +626,9 @@ namespace SevenWonders
             {
                 p.draftedLeaders.Add(c);
 
+                if (!isAI)
+                    turnTaken();
+
                 // Nothing else to do during the leader draft phase
                 return;
             }
@@ -635,8 +638,12 @@ namespace SevenWonders
                 // give 3 coins.
                 p.addTransaction(3);
 
-                //add the card to the discard pile for Halikarnassos or Solomon.
-                discardPile.Add(c);
+                if (c.structureType != StructureType.Leader)
+                {
+                    // add the card to the discard pile for Halikarnassos or Solomon, unless it's a leader
+                    // card.  Leader cards cannot be built from the discard pile.
+                    discardPile.Add(c);
+                }
 
                 // Not sure whether I need to do this or not.
                 if (p.hand.Count == 1)
@@ -1025,6 +1032,7 @@ namespace SevenWonders
                 // TODO: should I send a message to the others players about what they're waiting for when there's a post-build phase?
 
                 //send the timer signal if the current Age is less than 4 (i.e. game is still going)
+                /*
                 if (gameConcluded == false)
                 {
                     gmCoordinator.sendMessage(p, "t");
@@ -1033,6 +1041,7 @@ namespace SevenWonders
                 {
                     gmCoordinator.sendMessage(p, "e");
                 }
+                */
             }
 
             if (gameConcluded)

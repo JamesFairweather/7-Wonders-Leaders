@@ -64,5 +64,11 @@ namespace SevenWonders
         public string userName { get { return textUser.Text; } }
 
         public string ipAddressAsText{ get { return ipAddressText.Text; } }
+
+        private void textUser_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                Close();
+        }
     }
 }

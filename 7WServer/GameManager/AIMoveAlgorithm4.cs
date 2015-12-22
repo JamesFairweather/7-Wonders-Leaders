@@ -87,8 +87,9 @@ namespace SevenWonders
                 return;
             }
 
-            // Build Guild cards in the 3rd age
-            Card c = player.hand.Find(x => x.structureType == StructureType.Guild && player.isCardBuildable(x) == Buildable.True);
+            // Build Guild cards in the 3rd age (except for the Courtesan's Guild, which requires entering a special Game Phase
+            // that the AI has not been programmed to think about.
+            Card c = player.hand.Find(x => x.structureType == StructureType.Guild && x.Id != CardId.Courtesans_Guild && player.isCardBuildable(x) == Buildable.True);
 
             if (c == null)
             {
