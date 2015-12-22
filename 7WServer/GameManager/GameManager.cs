@@ -220,6 +220,8 @@ namespace SevenWonders
                 p.storeCardEffect(p.playerBoard.startingResourceCard);
             }
 
+            sendBoardNames();
+
             for (int i = 0; i < 4; i++)
             {
                 //deck[1] is age 1. deck[2] is age 2 ....

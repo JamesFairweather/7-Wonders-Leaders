@@ -100,14 +100,25 @@ namespace SevenWonders
                 { SeatA, SeatH, SeatF, SeatE, SeatD, SeatB, null, null },   // 6 players
                 { SeatA, SeatH, SeatG, SeatF, SeatD, SeatC, SeatB, null},   // 7 players
                 { SeatA, SeatH, SeatG, SeatF, SeatE, SeatD, SeatC, SeatB }, // 8 players
-           };
+            };
+
+            int playerIndex = 0;
+
+            // each player should see the "A" position for his cards.  Find our index.  Will be 0 for the
+            // first player (the game creator), 1 for the 2nd player, 2 for the 3rd, etc.
+            while (coordinator.playerNames[playerIndex] != coordinator.nickname)
+                playerIndex++;
 
             for (int i = 0; i < coordinator.playerNames.Length; ++i)
             {
-                playerState.Add(coordinator.playerNames[i], new PlayerState(seatMap[coordinator.playerNames.Length - 3, i], coordinator.playerNames[i]));
+                playerState.Add(coordinator.playerNames[playerIndex],
+                    new PlayerState(seatMap[coordinator.playerNames.Length - 3, i], coordinator.playerNames[playerIndex]));
+                ++playerIndex;
+                if (playerIndex == coordinator.playerNames.Length)
+                    playerIndex = 0;
             }
 
-            coordinator.sendToHost("U");
+            // coordinator.sendToHost("U");
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////
