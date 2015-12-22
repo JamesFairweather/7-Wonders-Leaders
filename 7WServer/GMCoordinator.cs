@@ -104,7 +104,6 @@ namespace SevenWonders
             //therefore could use some optimisation
             lock (typeof(GMCoordinator))
             {
-
                 //This is the nickname of the player that sent the message
                 String nickname = e.nickname;
 
@@ -113,31 +112,12 @@ namespace SevenWonders
 
                 Console.WriteLine("Message received.  From: {0}; Message={1}", nickname, message);
 
-                bool MessageHandled = false;
-                NameValueCollection qscoll;
-
-                if (message.Length >= 8)
+                if (message.Length >= 4 && message.Substring(0, 4) == "####")
                 {
-                    switch (message.Substring(0, 8))
-                    {
-                        case "BldStrct":
-                            qscoll = HttpUtility.ParseQueryString(message.Substring(9));
-                            gameManager.buildStructureFromHand(nickname, qscoll);
-                            MessageHandled = true;
-                            break;
-
-                            // TODO: merge this into the one above
-                        case "Discards":
-                            qscoll = HttpUtility.ParseQueryString(message.Substring(9));
-                            gameManager.discardCardForThreeCoins(nickname, qscoll["Structure"]);
-                            MessageHandled = true;
-                            break;
-                    }
-                }
-
-                if (MessageHandled)
+                    gameManager.playClientCard(nickname, HttpUtility.ParseQueryString(message.Substring(5)));
                     return;
-
+                }
+                
                 //#: Chat string.
                 if (message[0] == '#')
                 {
@@ -204,13 +184,6 @@ namespace SevenWonders
                         }
                     }
                 }
-                /*
-                else if (message[0] == 'U')
-                {
-                    // main UI on client-side is ready; send board information to each one and initial actions
-                    gameManager.sendBoardNames();
-                }
-                */
                 //m: game mode options
                 //changed by TableUI
                 else if (message[0] == 'm')
@@ -239,56 +212,6 @@ namespace SevenWonders
                         gameManager.updateAllGameUI();
                     }
                 }
-                //O: player hits the Olympia power button
-                else if (message[0] == 'O')
-                {
-                    throw new Exception();
-                    //handle the Olympia button
-                    //prepare to send Olympia UI information to the player
-                    // gameManager.sendOlympiaInformation(nickname);
-                }
-                //o: player makes a selection in the Olympia UI
-                else if (message[0] == 'o')
-                {
-                    throw new Exception();
-                    //o(id)
-                    //play the card for free from hand
-                    // gameManager.playCardForFreeWithOlympia(nickname, message.Substring(1));
-                    //Update the Played card panel
-                    //gameManager.updatePlayedCardPanel(nickname);
-                }
-                //h: player asks for halicarnassus information
-                else if (message[0] == 'h')
-                {
-                    throw new Exception();
-                    //get the halicarnassus information and send it to the player
-                    // gameManager.sendHalicarnassusInformation(nickname);
-                }
-                //H: player makes selection in Halicarnassus UI
-                else if (message[0] == 'H')
-                {
-                    throw new Exception();
-                    /*
-                    //H(id)
-                    //play the card for free from discard pile
-                    gameManager.playCardForFreeWithHalicarnassus(nickname, message.Substring(1));
-                    //Update the Played card panel
-                    gameManager.updatePlayedCardPanel(nickname);
-                    */
-                }
-                //b: player asks for babylon information
-                else if (message[0] == 'b')
-                {
-                    throw new Exception("Babylon UI is no longer used.");
-                    // gameManager.sendBabylonInformation(nickname);
-                }
-                //t: player has taken an action for the turn
-                /*
-                else if (message[0] == 't')
-                {
-                    gameManager.turnTaken(nickname);
-                }
-                */
                 //"L" for leave a game
                 else if (message[0] == 'L')
                 {

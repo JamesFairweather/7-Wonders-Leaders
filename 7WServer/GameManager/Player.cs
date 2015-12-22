@@ -1083,10 +1083,7 @@ namespace SevenWonders
         /// </summary>
         public void makeMove()
         {
-            if (AIBehaviour != null)
-            {
-                AIBehaviour.makeMove(this, gm);
-            }
+            AIBehaviour.makeMove(this, gm);
         }
     }
 }

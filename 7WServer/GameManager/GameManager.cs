@@ -530,12 +530,14 @@ namespace SevenWonders
             return randomBoard.Value;
         }
 
-        public void buildStructureFromHand(string playerNickname, NameValueCollection qscoll)
+        public void playClientCard(string playerNickname, NameValueCollection qscoll)
         {
             string strLeftCoins = qscoll["leftCoins"];
             string strRightCoins = qscoll["rightCoins"];
 
             Player p = player[playerNickname];
+
+            BuildAction buildAction = (BuildAction)Enum.Parse(typeof(BuildAction), qscoll["Action"]);
 
             CardId cardId = Card.CardNameFromStringName(qscoll["Structure"]);
 
@@ -557,7 +559,6 @@ namespace SevenWonders
 
                 if (phase == GamePhase.Solomon && p.phase != GamePhase.Solomon)
                     throw new Exception("Solomon: received a message from a player who is not in the Solomon phase.");
-
 
                 c = discardPile.Find(x => x.Id == cardId);
             }
@@ -588,13 +589,13 @@ namespace SevenWonders
             if (strRightCoins != null)
                 nRightCoins = int.Parse(strRightCoins);
 
-            buildStructureFromHand(p, c, qscoll["BuildWonderStage"] != null, false, qscoll["FreeBuild"] != null, nLeftCoins, nRightCoins, qscoll["Bilkis"] != null);
+            playCard(p, c, buildAction, false, qscoll["FreeBuild"] != null, nLeftCoins, nRightCoins, qscoll["Bilkis"] != null);
         }
 
         /// <summary>
         /// build a structure from hand, given the Card id number and the Player
         /// </summary>
-        public void buildStructureFromHand(Player p, Card c, bool wonderStage, bool isAI, bool freeBuild = false, int nLeftCoins = 0, int nRightCoins = 0, bool usedBilkis = false)
+        public void playCard(Player p, Card c, BuildAction buildAction, bool isAI, bool freeBuild = false, int nLeftCoins = 0, int nRightCoins = 0, bool usedBilkis = false)
         {
             bool bFound = false;
 
@@ -629,7 +630,31 @@ namespace SevenWonders
                 return;
             }
 
-            if (wonderStage)
+            if (buildAction == BuildAction.Discard)
+            {
+                // give 3 coins.
+                p.addTransaction(3);
+
+                //add the card to the discard pile for Halikarnassos or Solomon.
+                discardPile.Add(c);
+
+                // Not sure whether I need to do this or not.
+                if (p.hand.Count == 1)
+                {
+                    // discard the unplayed card, unless the player is Babylon (B) and their Power is enabled (the 2nd wonder stage)
+                    if (!p.babylonPowerEnabled)
+                    {
+                        discardPile.Add(p.hand.First());
+                        p.hand.Clear();
+                    }
+                }
+
+                if (!isAI)
+                    turnTaken();
+
+                return;
+            }
+            else if (buildAction == BuildAction.BuildWonderStage)
             {
                 if (p.currentStageOfWonder >= p.playerBoard.numOfStages)
                 {
@@ -727,68 +752,6 @@ namespace SevenWonders
                 turnTaken();
         }
 
-        public void discardCardForThreeCoins(string nickname, string name)
-        {
-            Player p = player[nickname];
-
-            CardId cardId = Card.CardNameFromStringName(name);
-
-            Card c = null;
-            if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
-            {
-                c = p.draftedLeaders.Find(x => x.Id == cardId);
-            }
-            else
-            {
-                c = p.hand.Find(x => x.Id == cardId);
-            }
-
-            if (c == null)
-                throw new Exception("Could not find card");
-
-            discardCardForThreeCoins(p, c, false);
-        }
-
-        /// <summary>
-        /// discard a given card's id for three coins
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="p"></param>
-        public void discardCardForThreeCoins(Player p, Card c, bool isAI)
-        {
-            // give 3 coins.
-            p.addTransaction(3);
-
-            //Find the card with the id number and find its effects
-            if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
-            {
-                p.draftedLeaders.Remove(c);
-                // Nothing else to do for leaders; discarded leaders cannot be put back into play.
-            }
-            else
-            {
-                p.hand.Remove(c);
-
-                //add the card to the discard pile for Halikarnassos or Solomon.
-                discardPile.Add(c);
-
-                if (p.hand.Count == 1)
-                {
-                    // discard the unplayed card, unless the player is Babylon (B) and their Power is enabled (the 2nd wonder stage)
-                    if (!p.babylonPowerEnabled)
-                    {
-                        discardPile.Add(p.hand.First());
-                        p.hand.Clear();
-                    }
-                }
-            }
-
-            if (!isAI)
-                turnTaken();
-        }
-
-
-
         /// <summary>
         /// Pass remaining cards to neighbour
         /// </summary>
@@ -834,7 +797,10 @@ namespace SevenWonders
             if (phase == GamePhase.LeaderDraft || phase == GamePhase.LeaderRecruitment || phase == GamePhase.Playing)
             {
                 //make AI moves
-                executeAIActions();
+                foreach (Player p in player.Values)
+                {
+                    if (p.isAI) p.makeMove();
+                }
             }
 
             if (phase == GamePhase.LeaderDraft)
@@ -852,14 +818,6 @@ namespace SevenWonders
                     discardPile.Add(p.hand.First());
                     p.hand.Clear();
                 }
-            }
-        }
-
-        private void executeAIActions()
-        {
-            foreach (Player p in player.Values)
-            {
-                if (p.isAI) p.makeMove();
             }
         }
 

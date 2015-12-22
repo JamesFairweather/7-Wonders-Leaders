@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BuildAction.cs" />
     <Compile Include="Card.cs" />
     <Compile Include="ResourceManager.cs" />
     <Compile Include="ParseParams.cs" />

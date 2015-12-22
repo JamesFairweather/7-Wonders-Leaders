@@ -18,58 +18,9 @@ namespace SevenWonders
         // Also the Secret Warehouse and Black Market are in there somewhere.
         List<ResourceEffect> resources = new List<ResourceEffect>();
 
-        public bool hasTemp = false;
-
-        /*
-        //Bilkis: add a temporary resource
-        //This temporary resource will be wiped after every turn
-        //Whenever add() is called, we know we have reached another turn
-        public void addTemp(char temp)
-        {
-            char[] tempResource = new char[1];
-            tempResource[0] = temp;
-
-            //add a temp resource
-            if (hasTemp == false)
-            {
-                hasTemp = true;
-            }
-            //remove the existing temp resource
-            else
-            {
-                graph.RemoveAt(graph.Count - 1);
-            }
-
-            graph.Add(tempResource);
-        }
-
-        /// <summary>
-        /// Remove the temporary resource added by Bilkis if it is there
-        /// </summary>
-        public void removeTemp()
-        {
-            if (hasTemp == true)
-            {
-                hasTemp = false;
-                graph.RemoveAt(graph.Count - 1);
-            }
-        }
-        */
-
         //Add an OR resource
         public void add(ResourceEffect s)
         {
-            /*
-            char[] newInput = s.ToCharArray();
-            //when there is a temp resource, insert into a non-last position so that the removal of temp resource works later
-            if (hasTemp == true)
-            {
-                graph.Insert(0, newInput);
-            }
-            else
-            {
-            */
-       
             // resource effect list is ordered.  First are resources which provide a single resource.
             // Then double resource structures, then either/or with a choice of two, and lastly one of
             // 3, 4 or 7.
@@ -117,42 +68,6 @@ namespace SevenWonders
 
             resources.Insert(insertionIndex+1, s);
         }
-
-        /*
-        /// <summary>
-        /// Generate and return a List of all possible sequences from the DAG
-        /// </summary>
-        /// <returns>List of strings</returns>
-        public List<string> generateStrings()
-        {
-            // Not quite sure what this was doing.
-            List<string> generated = new List<string>();
-
-            generated.Add(" ");
-
-            for (int i = 0; i < graph.Count; i++)
-            {
-                //Create new temp ArrayList at each depth level
-                List<string> temp = new List<string>();
-
-                //go through each existing string
-                for (int j = 0; j < generated.Count; j++)
-                {
-
-                    //add each letter at the depth level
-                    for (int k = 0; k < graph[i].Length; k++)
-                    {
-                        temp.Add(generated[j] + graph[i][k]);
-                    }
-                }
-
-                //replace old arrayList with new one
-                generated = temp;
-            }
-
-            return generated;
-        }
-        */
 
         public IEnumerable<ResourceEffect> getResourceList(bool isSelf)
         {

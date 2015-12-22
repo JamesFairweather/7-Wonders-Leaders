@@ -460,7 +460,7 @@ namespace SevenWonders
             ((Button)sender).IsEnabled = false;
             btnBuildStructureForFree_isEnabled = false;
             playerPlayedHisTurn = true;
-            coordinator.sendToHost(string.Format("BldStrct&FreeBuild=&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
+            coordinator.sendToHost(string.Format("####&Action={0}&FreeBuild=&Structure={1}", BuildAction.BuildStructure, hand[handPanel.SelectedIndex].Key.Id));
         }
 
         private void btnBuildStructure_Click(object sender, RoutedEventArgs e)
@@ -472,7 +472,7 @@ namespace SevenWonders
             {
                 ((Button)sender).IsEnabled = false;
                 playerPlayedHisTurn = true;
-                coordinator.sendToHost(string.Format("BldStrct&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
+                coordinator.sendToHost(string.Format("####&Action={0}&Structure={1}", BuildAction.BuildStructure, hand[handPanel.SelectedIndex].Key.Id));
             }
             else
             {
@@ -504,7 +504,7 @@ namespace SevenWonders
             {
                 ((Button)sender).IsEnabled = false;
                 playerPlayedHisTurn = true;
-                coordinator.sendToHost(string.Format("BldStrct&BuildWonderStage=&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
+                coordinator.sendToHost(string.Format("####&Action={0}&Structure={1}", BuildAction.BuildWonderStage, hand[handPanel.SelectedIndex].Key.Id));
             }
             else
             {
@@ -534,7 +534,7 @@ namespace SevenWonders
 
             ((Button)sender).IsEnabled = false;
             playerPlayedHisTurn = true;
-            coordinator.sendToHost(string.Format("Discards&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
+            coordinator.sendToHost(string.Format("####&Action={0}&Structure={1}", BuildAction.Discard, hand[handPanel.SelectedIndex].Key.Id));
 
             if (hand[handPanel.SelectedIndex].Key.structureType == StructureType.Leader)
             {
