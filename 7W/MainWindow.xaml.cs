@@ -460,10 +460,7 @@ namespace SevenWonders
             ((Button)sender).IsEnabled = false;
             btnBuildStructureForFree_isEnabled = false;
             playerPlayedHisTurn = true;
-            // bilkisButton.IsEnabled = false;
             coordinator.sendToHost(string.Format("BldStrct&FreeBuild=&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
-            coordinator.endTurn();
-
         }
 
         private void btnBuildStructure_Click(object sender, RoutedEventArgs e)
@@ -475,9 +472,7 @@ namespace SevenWonders
             {
                 ((Button)sender).IsEnabled = false;
                 playerPlayedHisTurn = true;
-                // bilkisButton.IsEnabled = false;
                 coordinator.sendToHost(string.Format("BldStrct&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
-                coordinator.endTurn();
             }
             else
             {
@@ -509,9 +504,7 @@ namespace SevenWonders
             {
                 ((Button)sender).IsEnabled = false;
                 playerPlayedHisTurn = true;
-                // bilkisButton.IsEnabled = false;
                 coordinator.sendToHost(string.Format("BldStrct&BuildWonderStage=&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
-                coordinator.endTurn();
             }
             else
             {
@@ -541,9 +534,7 @@ namespace SevenWonders
 
             ((Button)sender).IsEnabled = false;
             playerPlayedHisTurn = true;
-            // bilkisButton.IsEnabled = false;
             coordinator.sendToHost(string.Format("Discards&Structure={0}", hand[handPanel.SelectedIndex].Key.Id));
-            coordinator.endTurn();
 
             if (hand[handPanel.SelectedIndex].Key.structureType == StructureType.Leader)
             {

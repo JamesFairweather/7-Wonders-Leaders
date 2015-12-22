@@ -132,15 +132,6 @@ namespace SevenWonders
                             gameManager.discardCardForThreeCoins(nickname, qscoll["Structure"]);
                             MessageHandled = true;
                             break;
-
-                        case "SendComm":
-                            /*
-                            qscoll = HttpUtility.ParseQueryString(message.Substring(9));
-                            gameManager.updateCommercePanel(nickname, qscoll["Structure"], qscoll["BuildWonderStage"]);
-                            MessageHandled = true;
-                            break;
-                            */
-                            throw new Exception("Server shouldn't be getting commerce data requests from the client any more.");
                     }
                 }
 
@@ -292,10 +283,12 @@ namespace SevenWonders
                     // gameManager.sendBabylonInformation(nickname);
                 }
                 //t: player has taken an action for the turn
+                /*
                 else if (message[0] == 't')
                 {
                     gameManager.turnTaken(nickname);
                 }
+                */
                 //"L" for leave a game
                 else if (message[0] == 'L')
                 {

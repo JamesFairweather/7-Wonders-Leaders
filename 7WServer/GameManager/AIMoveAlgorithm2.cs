@@ -20,7 +20,7 @@ namespace SevenWonders
 
             if (c != null)
             {
-                gm.buildStructureFromHand(player, c, false);
+                gm.buildStructureFromHand(player, c, false, true);
                 return;
             }
            
@@ -31,7 +31,7 @@ namespace SevenWonders
 
             if (c != null)
             {
-                gm.buildStructureFromHand(player, c, false);
+                gm.buildStructureFromHand(player, c, false, true);
                 return;
             }
 
@@ -44,18 +44,18 @@ namespace SevenWonders
                     char resource = e.resourceTypes[0];
                     int numOfResource = e.IsDoubleResource() ? 2 : 1;
 
-                    if (resource == 'B' && numOfResource + player.brick < maxResourcesRequired ) { gm.buildStructureFromHand(player, card, false); return; }
-                    else if (resource == 'O' && numOfResource + player.ore < maxResourcesRequired) { gm.buildStructureFromHand(player, card, false); return; }
-                    else if (resource == 'T' && numOfResource + player.stone < maxResourcesRequired) { gm.buildStructureFromHand(player, card, false); return; }
-                    else if (resource == 'W' && numOfResource + player.wood < maxResourcesRequired) { gm.buildStructureFromHand(player, card, false); return; }
-                    else if (resource == 'G' && numOfResource + player.glass < maxResourcesRequired) { gm.buildStructureFromHand(player, card, false); return; }
-                    else if (resource == 'L' && numOfResource + player.loom < maxResourcesRequired) { gm.buildStructureFromHand(player, card, false); return; }
-                    else if (resource == 'P' && numOfResource + player.papyrus < maxResourcesRequired) { gm.buildStructureFromHand(player, card, false); return; }
+                    if (resource == 'B' && numOfResource + player.brick < maxResourcesRequired ) { gm.buildStructureFromHand(player, card, false, true); return; }
+                    else if (resource == 'O' && numOfResource + player.ore < maxResourcesRequired) { gm.buildStructureFromHand(player, card, false, true); return; }
+                    else if (resource == 'T' && numOfResource + player.stone < maxResourcesRequired) { gm.buildStructureFromHand(player, card, false, true); return; }
+                    else if (resource == 'W' && numOfResource + player.wood < maxResourcesRequired) { gm.buildStructureFromHand(player, card, false, true); return; }
+                    else if (resource == 'G' && numOfResource + player.glass < maxResourcesRequired) { gm.buildStructureFromHand(player, card, false, true); return; }
+                    else if (resource == 'L' && numOfResource + player.loom < maxResourcesRequired) { gm.buildStructureFromHand(player, card, false, true); return; }
+                    else if (resource == 'P' && numOfResource + player.papyrus < maxResourcesRequired) { gm.buildStructureFromHand(player, card, false, true); return; }
                 }
             }
 
             //discard card[0]
-            gm.discardCardForThreeCoins(player, player.hand[0]);
+            gm.discardCardForThreeCoins(player, player.hand[0], true);
         }
     }
 }

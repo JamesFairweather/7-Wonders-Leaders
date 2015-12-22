@@ -178,12 +178,6 @@ namespace SevenWonders
             //If the client is a server, send the 
         }
 
-        public void endTurn()
-        {
-            // timer.Stop();
-            sendToHost("t");
-        }
-
         /// <summary>
         /// Sends a message to the server telling it to start a game of vanilla or leaders
         /// send Rv for vanilla

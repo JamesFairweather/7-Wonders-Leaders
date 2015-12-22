@@ -588,13 +588,13 @@ namespace SevenWonders
             if (strRightCoins != null)
                 nRightCoins = int.Parse(strRightCoins);
 
-            buildStructureFromHand(p, c, qscoll["BuildWonderStage"] != null, qscoll["FreeBuild"] != null, nLeftCoins, nRightCoins, qscoll["Bilkis"] != null);
+            buildStructureFromHand(p, c, qscoll["BuildWonderStage"] != null, false, qscoll["FreeBuild"] != null, nLeftCoins, nRightCoins, qscoll["Bilkis"] != null);
         }
 
         /// <summary>
         /// build a structure from hand, given the Card id number and the Player
         /// </summary>
-        public void buildStructureFromHand(Player p, Card c, bool wonderStage, bool freeBuild = false, int nLeftCoins = 0, int nRightCoins = 0, bool usedBilkis = false)
+        public void buildStructureFromHand(Player p, Card c, bool wonderStage, bool isAI, bool freeBuild = false, int nLeftCoins = 0, int nRightCoins = 0, bool usedBilkis = false)
         {
             bool bFound = false;
 
@@ -652,7 +652,7 @@ namespace SevenWonders
 
             if (freeBuild)
             {
-                // check that the player
+                // check that the player has the Olympia Power (build a card without paying its resource cost, once per age)
                 if (p.olympiaPowerAvailable)
                 {
                     p.olympiaPowerAvailable = false;
@@ -722,6 +722,9 @@ namespace SevenWonders
 
                 p.addTransaction(2);        // TODO: log this.  Would be nice to show a visual representation on the screen as well.
             }
+
+            if (!isAI)
+                turnTaken();
         }
 
         public void discardCardForThreeCoins(string nickname, string name)
@@ -743,7 +746,7 @@ namespace SevenWonders
             if (c == null)
                 throw new Exception("Could not find card");
 
-            discardCardForThreeCoins(p, c);
+            discardCardForThreeCoins(p, c, false);
         }
 
         /// <summary>
@@ -751,7 +754,7 @@ namespace SevenWonders
         /// </summary>
         /// <param name="id"></param>
         /// <param name="p"></param>
-        public void discardCardForThreeCoins(Player p, Card c)
+        public void discardCardForThreeCoins(Player p, Card c, bool isAI)
         {
             // give 3 coins.
             p.addTransaction(3);
@@ -779,6 +782,9 @@ namespace SevenWonders
                     }
                 }
             }
+
+            if (!isAI)
+                turnTaken();
         }
 
 
@@ -1098,15 +1104,8 @@ namespace SevenWonders
             return false;
         }
 
-        /*
-         * Player sends "t" message (turn complete) to the GameManager
-         * Increment the amount of players that have taken their turn
-         * If it is equal to the number of players, then go to the next turn
-         */
-        public void turnTaken(String nickname)
+        public void turnTaken()
         {
-            Player p = player[nickname];
-
             numOfPlayersThatHaveTakenTheirTurn++;
 
             if ((numOfPlayersThatHaveTakenTheirTurn == numOfPlayers) || phase == GamePhase.Babylon || phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon || phase == GamePhase.RomaB || phase == GamePhase.Courtesan)
@@ -1116,24 +1115,32 @@ namespace SevenWonders
 
                 executeActionsAtEndOfTurn();
 
-                if (currentTurn == 6 && p.babylonPowerEnabled)
-                    p.phase = GamePhase.Babylon;
+                bool bSpecialPhase = false;
 
-                // do this action first, so that if they discard their other card, Halikarnassos could built it if they
-                // are building from the discard pile.
-                bool bSpecialPhase = SetSpecialPhase(p, GamePhase.Babylon);
+                foreach (Player p in player.Values)
+                {
+                    if (currentTurn == 6)
+                    {
+                        if (p.babylonPowerEnabled)
+                            p.phase = GamePhase.Babylon;
+                    }
 
-                // I will need to go through this logic carefully.  Babylon (B) must play or discard their last
-                // card _before_ Halikarnassos looks at the discard pile.  Will need to connect a 2nd client first,
-                // though.  Basically the GameManager has to get Babylon's choice before Halikarnassos can choose
-                // a card from the discard pile.  Note.  I _think_ I may be able to just add an "else" before the
-                // "if" here.  That way the game manager will do the Babylon extra card first, and only after that's
-                // done, do Halikarnassos.  Or maybe I'll need to add a game manager state to control this, rather
-                // than using booleans to control the logic.
-                if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Halikarnassos);
-                if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Solomon);
-                if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.RomaB);
-                if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Courtesan);
+                    // do this action first, so that if they discard their other card, Halikarnassos could built it if they
+                    // are building from the discard pile.
+                    bSpecialPhase = SetSpecialPhase(p, GamePhase.Babylon);
+
+                    // I will need to go through this logic carefully.  Babylon (B) must play or discard their last
+                    // card _before_ Halikarnassos looks at the discard pile.  Will need to connect a 2nd client first,
+                    // though.  Basically the GameManager has to get Babylon's choice before Halikarnassos can choose
+                    // a card from the discard pile.  Note.  I _think_ I may be able to just add an "else" before the
+                    // "if" here.  That way the game manager will do the Babylon extra card first, and only after that's
+                    // done, do Halikarnassos.  Or maybe I'll need to add a game manager state to control this, rather
+                    // than using booleans to control the logic.
+                    if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Halikarnassos);
+                    if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Solomon);
+                    if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.RomaB);
+                    if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Courtesan);
+                }
 
                 //all players have completed their turn
                 if (!bSpecialPhase)

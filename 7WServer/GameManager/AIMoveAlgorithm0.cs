@@ -10,7 +10,7 @@ namespace SevenWonders
     {
         public void makeMove(Player player, GameManager gm)
         {
-            gm.discardCardForThreeCoins(player, player.hand[0]);
+            gm.discardCardForThreeCoins(player, player.hand[0], true);
         }
     }
 }

@@ -16,12 +16,12 @@ namespace SevenWonders
             {
                 if (p.isCardBuildable(c) == Buildable.True)
                 {
-                    gm.buildStructureFromHand(p, c, false);
+                    gm.buildStructureFromHand(p, c, false, true);
                     return;
                 }
             }
 
-            gm.discardCardForThreeCoins(p, p.hand[0]);
+            gm.discardCardForThreeCoins(p, p.hand[0], true);
         }
     }
 }

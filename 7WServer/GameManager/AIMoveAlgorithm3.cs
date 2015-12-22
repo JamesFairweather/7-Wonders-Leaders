@@ -80,7 +80,7 @@ namespace SevenWonders
                     if (card.structureType == StructureType.Military && player.isCardBuildable(card) != Buildable.True)
                     {
                         Console.WriteLine(player.nickname + " Action: Discard {0}", card.Id);
-                        gm.discardCardForThreeCoins(player, card);
+                        gm.discardCardForThreeCoins(player, card, true);
                         return;
                     }
                 }
@@ -89,13 +89,13 @@ namespace SevenWonders
             if (c != null)
             {
                 Console.WriteLine(player.nickname + " Action: Construct {0}", c.Id);
-                gm.buildStructureFromHand(player, c, false);
+                gm.buildStructureFromHand(player, c, false, true);
             }
             else
             {
                 c = player.hand[0];
                 Console.WriteLine(player.nickname + " Action: Discard {0}", c.Id);
-                gm.discardCardForThreeCoins(player, c);
+                gm.discardCardForThreeCoins(player, c, true);
             }
         }
     }

@@ -579,9 +579,6 @@ namespace SevenWonders
                 }
                 coordinator.sendToHost(strResponse);
 
-                //end turn
-                coordinator.endTurn();
-
                 //signify to MainWindow that turn has been played
                 coordinator.gameUI.playerPlayedHisTurn = true;
 
