@@ -1115,20 +1115,22 @@ namespace SevenWonders
 
                 executeActionsAtEndOfTurn();
 
-                bool bSpecialPhase = false;
-
-                foreach (Player p in player.Values)
+                if (currentTurn == 6)
                 {
-                    if (currentTurn == 6)
+                    foreach (Player p in player.Values)
                     {
                         if (p.babylonPowerEnabled)
                             p.phase = GamePhase.Babylon;
                     }
+                }
+
+                bool bSpecialPhase = false;
+
+                foreach (Player p in player.Values)
+                {
 
                     // do this action first, so that if they discard their other card, Halikarnassos could built it if they
                     // are building from the discard pile.
-                    bSpecialPhase = SetSpecialPhase(p, GamePhase.Babylon);
-
                     // I will need to go through this logic carefully.  Babylon (B) must play or discard their last
                     // card _before_ Halikarnassos looks at the discard pile.  Will need to connect a 2nd client first,
                     // though.  Basically the GameManager has to get Babylon's choice before Halikarnassos can choose
@@ -1136,10 +1138,15 @@ namespace SevenWonders
                     // "if" here.  That way the game manager will do the Babylon extra card first, and only after that's
                     // done, do Halikarnassos.  Or maybe I'll need to add a game manager state to control this, rather
                     // than using booleans to control the logic.
+
+                    if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Babylon);
                     if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Halikarnassos);
                     if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Solomon);
                     if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.RomaB);
                     if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Courtesan);
+
+                    if (bSpecialPhase)
+                        break;
                 }
 
                 //all players have completed their turn
