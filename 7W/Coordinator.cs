@@ -377,6 +377,15 @@ namespace SevenWonders
 
                 switch (message.Substring(0, 8))
                 {
+                    case "AddPlayr":
+                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
+                        Application.Current.Dispatcher.Invoke(new Action(delegate
+                        {
+                            tableUI.AddPlayer(qcoll["Name"]);
+                        }));
+
+                        messageHandled = true;
+                        break;
                     case "UpdateUI":
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
 
@@ -522,6 +531,8 @@ namespace SevenWonders
             if (message[0] == '#')
             {
                 updateChatTextBox(message.Substring(1));
+
+
             }
             //enable Olympia power OR Rome power
             //activate the Olympia UI

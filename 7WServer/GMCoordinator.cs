@@ -130,7 +130,7 @@ namespace SevenWonders
                     //store the player's nickname and increase the number of players
                     playerNicks[numOfPlayers++] = nickname;
 
-                    host.sendMessageToAll("#" + nickname + " has joined the table.");
+                    host.sendMessageToAll(string.Format("AddPlayr&Name={0}", nickname));
                 }
                 //R: Player hits the Ready button
                 //increment the numOfReadyPlayers
@@ -235,7 +235,7 @@ namespace SevenWonders
                         {
                             AIStrats[numOfAI++] = message[2];
                             host.updateAIPlayer(true);
-                            host.sendMessageToAll("#AI added. There are currently " + numOfAI + " AI(s).");
+                            host.sendMessageToAll(string.Format("AddPlayr&Name=AI{0}", numOfAI));
                         }
                         else
                         {

@@ -11,8 +11,8 @@
         </Grid.Background>
         <Label Content="Server IP" Height="28" VerticalAlignment="Top" Margin="12,10,0,0" HorizontalAlignment="Left" Width="62" />
         <Label Content="User Name" Height="30" HorizontalAlignment="Left" Margin="12,42,0,0" VerticalAlignment="Top" Width="74" />
-        <TextBox Height="28" HorizontalAlignment="Left" Margin="93,10,0,0" Name="ipAddressText" VerticalAlignment="Top" Width="172" Text="192.168.0.11" />
-        <TextBox Height="28" HorizontalAlignment="Left" Margin="93,43,0,0" Name="textUser" VerticalAlignment="Top" Width="172" />
-        <Button Height="23" HorizontalAlignment="Left" Margin="198,84,0,10" Width="67" Click="btnJoin_Click" Content="OK" />
+        <TextBox Height="28" HorizontalAlignment="Left" Margin="93,10,0,0" Name="ipAddressText" VerticalAlignment="Top" Width="172" Text="10.10.30.124" />
+        <TextBox Height="28" HorizontalAlignment="Left" Margin="93,43,0,0" Name="textUser" VerticalAlignment="Top" Width="172" KeyDown="textUser_KeyDown"/>
+        <Button Height="23" HorizontalAlignment="Left" Margin="198,84,0,10" Width="67" Click="btnJoin_Click" Content="OK"/>
     </Grid>
 </Window>

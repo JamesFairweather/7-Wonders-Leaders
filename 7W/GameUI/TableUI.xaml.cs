@@ -85,6 +85,11 @@ namespace SevenWonders
             if (e.Key == Key.Return) coordinator.sendChat(); 
         }
 
+        public void AddPlayer(string name)
+        {
+            players.Add(name);
+        }
+
         /// <summary>
         /// UI Element that displays current Players at the table
         /// </summary>
@@ -118,7 +123,6 @@ namespace SevenWonders
             // Add "difficult" AI
             coordinator.sendToHost("aa4");
 
-            players.Add("aslkjasdf");
             /*
             JDF commented out in the interests of speeding up the game start.
             //Add a Leaders AI
@@ -142,68 +146,6 @@ namespace SevenWonders
         private void removeAIButton_Click(object sender, RoutedEventArgs e)
         {
             coordinator.removeAI();
-        }
-
-        /// <summary>
-        /// Checking the Leaders checkbox, which should change game mode to Leaders.
-        /// Sends to GMCoordinator the message to change to Leaders mode.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void leaders_Checked(object sender, RoutedEventArgs e)
-        {
-            if (leaders_Checkbox.IsChecked == true)
-            {
-                coordinator.sendToHost("mL");
-            }
-            else
-            {
-                throw new Exception();
-            }
-        }
-
-        /// <summary>
-        /// Unchecking the Leaders checkbox, which should change game mode back to Vanilla.
-        /// Sends to GMCoordinator the message to change to Vanilla mode.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void leaders_Checkbox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (leaders_Checkbox.IsChecked == false)
-            {
-                coordinator.sendToHost("mV");
-            }
-            else
-            {
-                throw new Exception();
-            }
-        }
-
-        /// <summary>
-        /// Return the local IP Address
-        /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        private String local()
-        {
-            /*
-            String localIP = "";
-            IPHostEntry host;
-
-            host = Dns.GetHostEntry(Dns.GetHostName());
-
-            foreach (IPAddress ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    localIP = ip.ToString();
-                }
-            }
-            return localIP;
-            */
-
-            return IPAddress.Loopback.ToString();
         }
 
         private void leaders_Checkbox_Click(object sender, RoutedEventArgs e)
