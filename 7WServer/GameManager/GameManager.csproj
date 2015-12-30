@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="BuildAction.cs" />
     <Compile Include="Card.cs" />
+    <Compile Include="GamePhase.cs" />
     <Compile Include="ResourceManager.cs" />
     <Compile Include="ParseParams.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

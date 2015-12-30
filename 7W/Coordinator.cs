@@ -53,12 +53,11 @@ namespace SevenWonders
         //current turn
         int currentTurn;
 
-        //Leaders
-        // BilkisUI bilkisUI;
-
         List<Card> fullCardList = new List<Card>();
 
         public Card copiedLeader;
+
+        public bool isFreeBuildButtonEnabled;
 
         public Coordinator(MainWindow gameUI)
         {
@@ -67,6 +66,8 @@ namespace SevenWonders
             nickname = "";
 
             hasGame = false;
+
+            isFreeBuildButtonEnabled = false;
 
             /*
             //prepare the timer
@@ -408,13 +409,8 @@ namespace SevenWonders
                         messageHandled = true;
                         break;
 
-                    case "EnableFB":    // Enable Free Build button
-
-                        Application.Current.Dispatcher.Invoke(new Action(delegate
-                        {
-                            gameUI.btnBuildStructureForFree.Visibility = Visibility.Visible;
-                            gameUI.btnBuildStructureForFree_isEnabled = true;
-                        }));
+                    case "EnableFB":
+                        isFreeBuildButtonEnabled = true;
                         messageHandled = true;
                         break;
 
