@@ -539,47 +539,19 @@ namespace SevenWonders
 
             BuildAction buildAction = (BuildAction)Enum.Parse(typeof(BuildAction), qscoll["Action"]);
 
+            // The structure name & the age must match (structure name is not enough as Loom, Glassworks, and Press
+            // have versions in Age 1 and in Age 2)
+            Card c = null;
             CardId cardId = Card.CardNameFromStringName(qscoll["Structure"]);
 
-            Card c = null;
-            if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
+            if (cardId == CardId.Loom || cardId == CardId.Press || cardId == CardId.Glassworks)
             {
-                // Leader Recruitment is not a special phase, so the players' phase state is
-                // not set to this value and it's valid to receive meessages in any order.
-
-                if (phase == GamePhase.RomaB && p.phase != GamePhase.RomaB)
-                    throw new Exception("RomaB: received a message from a player who is not in the RomaB phase.");
-
-                c = p.draftedLeaders.Find(x => x.Id == cardId);
-            }
-            else if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
-            {
-                if (phase == GamePhase.Halikarnassos && p.phase != GamePhase.Halikarnassos)
-                    throw new Exception("Halikarnassos: received a message from a player who is not in the Halikarnassos phase.");
-
-                if (phase == GamePhase.Solomon && p.phase != GamePhase.Solomon)
-                    throw new Exception("Solomon: received a message from a player who is not in the Solomon phase.");
-
-                c = discardPile.Find(x => x.Id == cardId);
-            }
-            else if (phase == GamePhase.Courtesan)
-            {
-                if (p.phase != GamePhase.Courtesan)
-                    throw new Exception("Courtesan phase: received a message from a player who is not in the Courtesan phase.");
-
-                c = p.leftNeighbour.playedStructure.Find(x => x.Id == cardId);
-
-                if (c == null)
-                    c = p.rightNeighbour.playedStructure.Find(x => x.Id == cardId);
+                c = fullCardList.Find(x => x.Id == cardId && (x.age == currentAge));
             }
             else
             {
-                // Normal turn
-                c = p.hand.Find(x => x.Id == cardId);
+                c = fullCardList.Find(x => x.Id == cardId);
             }
-
-            if (c == null)
-                throw new Exception("Received a message from the client to build a card that wasn't in the player's hand.");
 
             int nLeftCoins = 0, nRightCoins = 0;
 
@@ -589,7 +561,8 @@ namespace SevenWonders
             if (strRightCoins != null)
                 nRightCoins = int.Parse(strRightCoins);
 
-            playCard(p, c, buildAction, false, qscoll["FreeBuild"] != null, nLeftCoins, nRightCoins, qscoll["Bilkis"] != null);
+            playCard(p, c, buildAction, false, qscoll["FreeBuild"] != null,
+                nLeftCoins, nRightCoins, qscoll["Bilkis"] != null);
         }
 
         /// <summary>
@@ -601,14 +574,29 @@ namespace SevenWonders
 
             if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
             {
+                // Leader Recruitment is not a special phase, so the players' phase state is
+                // not set to this value and it's valid to receive meessages in any order.
+
+                if (phase == GamePhase.RomaB && p.phase != GamePhase.RomaB)
+                    throw new Exception("RomaB: received a message from a player who is not in the RomaB phase.");
+
                 bFound = p.draftedLeaders.Remove(c);
             }
             else if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
             {
+                if (phase == GamePhase.Halikarnassos && p.phase != GamePhase.Halikarnassos)
+                    throw new Exception("Halikarnassos: received a message from a player who is not in the Halikarnassos phase.");
+
+                if (phase == GamePhase.Solomon && p.phase != GamePhase.Solomon)
+                    throw new Exception("Solomon: received a message from a player who is not in the Solomon phase.");
+
                 bFound = discardPile.Remove(c);
             }
             else if (phase == GamePhase.Courtesan)
             {
+                if (p.phase != GamePhase.Courtesan)
+                    throw new Exception("Courtesan phase: received a message from a player who is not in the Courtesan phase.");
+
                 bFound = p.leftNeighbour.playedStructure.Exists(x => x.Id == c.Id);
 
                 if (!bFound)
@@ -616,6 +604,8 @@ namespace SevenWonders
             }
             else
             {
+                // Normal turn
+
                 bFound = p.hand.Remove(c);
             }
 
