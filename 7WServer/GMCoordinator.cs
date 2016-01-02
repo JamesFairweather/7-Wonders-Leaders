@@ -4,23 +4,34 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Web;
+using System.Net;
 
 namespace SevenWonders
 {
+    public class PlayerInfo
+    {
+        public string name;
+        public IPAddress ipAddress;
+        public bool isAI;
+        public bool isReady;
+    }
+
     public class GMCoordinator
     {
         GameManager gameManager;
 
         Server host;
 
-        int numOfPlayers;
-        int numOfAI;
+        //int numOfPlayers;
+        //int numOfAI;
 
-        int numOfCountdownsFinished;
-        int numOfReadyPlayers;
+        //int numOfCountdownsFinished;
+        //int numOfReadyPlayers;
 
-        string[] playerNicks = new string[7];
-        char[] AIStrats = new char[6];
+        List<PlayerInfo> players = new List<PlayerInfo>();
+
+        // string[] playerNicks = new string[7];
+        // char[] AIStrats = new char[6];
 
         int numOfPlayersThatHaveTakenTheirTurn { get; set; }
 
@@ -48,10 +59,10 @@ namespace SevenWonders
         public void ResetGMCoordinator()
         {
             //keep track of information at table UI
-            numOfAI = 0;
-            numOfPlayers = 0;
-            numOfReadyPlayers = 0;
-            numOfCountdownsFinished = 0;
+            // numOfAI = 0;
+            //numOfPlayers = 0;
+            //numOfReadyPlayers = 0;
+            //numOfCountdownsFinished = 0;
             numOfPlayersThatHaveTakenTheirTurn = 0;
 
             // default mode is no expansion packs
@@ -59,6 +70,7 @@ namespace SevenWonders
 
             gameManager = null;
 
+            /*
             for (int i = 0; i < AIStrats.Length; ++i)
             {
                 AIStrats[i] = '\0';
@@ -68,8 +80,27 @@ namespace SevenWonders
             {
                 playerNicks[i] = null;
             }
+            */
         }
 
+        public void SendUpdatedPlayers()
+        {
+            string strPlayerNames = "&Names=";
+            string strPlayerIPs = "&ipAddrs=";
+            string strAIs = "&isAI=";
+            string strPlayerStates = "&isReady=";
+
+            foreach (PlayerInfo pi in players)
+            {
+                strPlayerNames += pi.name + ",";
+                strPlayerIPs += pi.ipAddress + ",";
+                strAIs += pi.isAI + ",";
+                strPlayerStates += pi.isReady + ",";
+            }
+
+            host.sendMessageToAll("PlyrInfo" + strPlayerNames.TrimEnd(',') + strPlayerIPs.TrimEnd(',') +
+                strAIs.TrimEnd(',') + strPlayerStates.TrimEnd(','));
+        }
 
         /////////////////////////////////////////////////////////////////////////////////////////
         /// Networking functionalities
@@ -127,16 +158,32 @@ namespace SevenWonders
                 //increment the numOfPlayers
                 else if (message[0] == 'J')
                 {
-                    //store the player's nickname and increase the number of players
-                    playerNicks[numOfPlayers++] = nickname;
+                    PlayerInfo p = new PlayerInfo();
 
-                    host.sendMessageToAll(string.Format("AddPlayr&Name={0}", nickname));
+                    p.name = nickname;
+                    p.isAI = false;
+                    p.isReady = false;
+
+                    players.Add(p);
+
+                    //store the player's nickname and increase the number of players
+                    // playerNicks[numOfPlayers++] = nickname;
+
+                    SendUpdatedPlayers();
+
                 }
                 //R: Player hits the Ready button
                 //increment the numOfReadyPlayers
                 //if all players are ready then send the Start signal
                 else if (message[0] == 'R')
                 {
+                    PlayerInfo pi = players.Find(x => x.name == nickname);
+
+                    pi.isReady = true;
+
+                    SendUpdatedPlayers();
+
+                    /*
                     //server returns an error in the chat if there are not enough players in the game
                     //Sends the signal to re-enable the Ready buttons
                     if (numOfPlayers + numOfAI < 3)
@@ -145,22 +192,24 @@ namespace SevenWonders
                         host.sendMessageToAll("S0");
                     }
                     else
+                    */
                     {
+
                         //Increase the number of ready players
-                        numOfReadyPlayers++;
+                        // numOfReadyPlayers++;
 
                         //inform all that the player is ready
-                        host.sendMessageToAll("#" + nickname + " is ready.");
+                        // host.sendMessageToAll("#" + nickname + " is ready.");
 
                         //if all players are ready, then initialise the GameManager
-                        if (numOfReadyPlayers == numOfPlayers)
+                        if (players.Exists(x => x.isReady == false) == false)
                         {
                             //Do not accept any more players
                             host.acceptClient = false;
 
-                            Console.WriteLine("All players have hit Ready.  Game is starting now with {0} AI players", numOfAI);
+                            Console.WriteLine("All players have hit Ready.  Game is starting now with {0} AI players", players.Where(x => x.isAI == true).Count());
 
-                            gameManager = new GameManager(this, numOfPlayers, playerNicks, numOfAI, AIStrats);
+                            gameManager = new GameManager(this, players);
 
                             //S[n], n = number of players in this game
 
@@ -180,7 +229,8 @@ namespace SevenWonders
                             gameManager.beginningOfSessionActions();
 
                             //set the number of countdowns finished
-                            numOfCountdownsFinished = 0;
+                            //numOfCountdownsFinished = 0;
+                            gameManager.updateAllGameUI();
                         }
                     }
                 }
@@ -190,15 +240,16 @@ namespace SevenWonders
                 {
                     if (message[1] == 'L')
                     {
-                        host.sendMessageToAll("#Leaders expansion pack enabled.");
                         currentMode = ExpansionSet.Leaders;
                     }
                     else if (message[1] == 'V')
                     {
-                        host.sendMessageToAll("#All expansion packs are disabled.");
                         currentMode = ExpansionSet.Original;
                     }
+
+                    host.sendMessageToAll(string.Format("ChngMode&Mode={0}", currentMode));
                 }
+#if FALSE
                 //r: all player's countdowns are 
                 //tell the GameManager to update each player's game UI
                 else if (message[0] == 'r')
@@ -207,11 +258,12 @@ namespace SevenWonders
                     numOfCountdownsFinished++;
                     //everyone's countdown is finished
                     //display the first table UI for the first turn
-                    if (numOfCountdownsFinished == numOfPlayers)
+                    if (numOfCountdownsFinished == 1 /*numOfPlayers*/)
                     {
                         gameManager.updateAllGameUI();
                     }
                 }
+#endif
                 //"L" for leave a game
                 else if (message[0] == 'L')
                 {
@@ -230,10 +282,20 @@ namespace SevenWonders
                     //"aa": add AI in the GameManager
                     if (message[1] == 'a')
                     {
+                        PlayerInfo pi = new PlayerInfo();
+
+                        pi.name = "AI" + players.Where(x => x.isAI == true).Count();
+                        pi.isAI = true;
+                        pi.isReady = true;
+
+                        players.Add(pi);
+
+                        SendUpdatedPlayers();
+                        /*
                         //increase the number of players
                         if ((numOfPlayers + numOfAI) < 7)
                         {
-                            AIStrats[numOfAI++] = message[2];
+                            // AIStrats[numOfAI++] = message[2];
                             host.updateAIPlayer(true);
                             host.sendMessageToAll(string.Format("AddPlayr&Name=AI{0}", numOfAI));
                         }
@@ -241,10 +303,13 @@ namespace SevenWonders
                         {
                             host.sendMessageToAll("#There are " + numOfPlayers + " human players and " + numOfAI + " AI(s) already at the table.");
                         }
+                        */
+                        // host.updateAIPlayer(true);
                     }
                     //"ar": remove AI in the GameManager
                     else if (message[1] == 'r')
                     {
+                        /*
                         if (numOfAI > 0)
                         {
                             numOfAI--;
@@ -256,6 +321,16 @@ namespace SevenWonders
                             //send back to the host, telling him AI cannot be removed, since there are none
                             host.sendMessageToUser(nickname, "#No AI is currently at the table.");
                         }
+                        */
+
+                        // Remove the last AI player.  Do nothing if there are no AI players.
+                        for (int i = players.Count - 1; i != 0; i--)
+                        {
+                            if (players[i].isAI)
+                                players.Remove(players[i]);
+                        }
+
+                        SendUpdatedPlayers();
                     }
                 }
                 else

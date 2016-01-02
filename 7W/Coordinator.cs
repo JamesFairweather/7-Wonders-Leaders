@@ -379,12 +379,14 @@ namespace SevenWonders
                 switch (message.Substring(0, 8))
                 {
                     case "AddPlayr":
+                        /*
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
                         Application.Current.Dispatcher.Invoke(new Action(delegate
                         {
                             tableUI.AddPlayer(qcoll["Name"]);
                         }));
-
+                        */
+                        throw new Exception("Unhandled message received from the server.");
                         messageHandled = true;
                         break;
                     case "UpdateUI":
@@ -393,6 +395,25 @@ namespace SevenWonders
                         Application.Current.Dispatcher.Invoke(new Action(delegate
                         {
                             gameUI.updateCoinsAndCardsPlayed(qcoll);
+                        }));
+                        messageHandled = true;
+                        break;
+
+                    case "ChngMode":
+                        // Basic/Leaders/Cities
+                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
+
+                        expansionSet = (ExpansionSet)Enum.Parse(typeof(ExpansionSet), qcoll["Mode"]);
+                        Application.Current.Dispatcher.Invoke(new Action(delegate
+                        {
+                            if (expansionSet == ExpansionSet.Original)
+                            {
+                                tableUI.leaders_Checkbox.IsChecked = false;
+                            }
+                            else
+                            {
+                                tableUI.leaders_Checkbox.IsChecked = true;
+                            }
                         }));
                         messageHandled = true;
                         break;
@@ -453,6 +474,16 @@ namespace SevenWonders
                         messageHandled = true;
                         break;
 
+                    case "PlyrInfo":
+                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
+                        Application.Current.Dispatcher.Invoke(new Action(delegate
+                        {
+                            tableUI.SetPlayerInfo(qcoll);
+                        }));
+
+                        messageHandled = true;
+                        break;
+
                     case "StrtGame":
                         //Handle when game cannot start
                         if (message[1] == '0')
@@ -502,7 +533,7 @@ namespace SevenWonders
 
                         // Tell game server this client is ready to receive its first UI update, which will
                         // include coins and hand of cards.
-                        sendToHost("r");
+                        // sendToHost("r");
 
                         messageHandled = true;
                         break;

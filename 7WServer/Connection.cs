@@ -25,17 +25,17 @@ namespace SevenWonders
 
         public string strResponse;
 
-        public int numberOFAI;
+        // public int numberOFAI;
 
         Server host;
 
-        public Connection(TcpClient tcpCon, int numb, Server h)
+        public Connection(TcpClient tcpCon, Server h)
         {
             tcpClient = tcpCon;
 
             host = h;
 
-            numberOFAI = numb;
+            // numberOFAI = numb;
             // Check if the User has sent the right information
             senderThread = new Thread(AcceptClient);
 
@@ -85,7 +85,7 @@ namespace SevenWonders
                     return;
                 }
                 // The table is full. There are already 7 Connected Users.
-                else if (host.htUsers.Count == (7 - numberOFAI))
+                else if (host.htUsers.Count == 7)
                 {
                     // 0 means not connected
                     swSender.WriteLine("0|Table is full.");

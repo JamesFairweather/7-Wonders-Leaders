@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
@@ -85,9 +86,14 @@ namespace SevenWonders
             if (e.Key == Key.Return) coordinator.sendChat(); 
         }
 
-        public void AddPlayer(string name)
+        public void SetPlayerInfo(NameValueCollection qscoll)
         {
-            players.Add(name);
+            players.Clear();
+
+            foreach (string s in qscoll["Names"].Split(','))
+            {
+                players.Add(s);
+            }
         }
 
         /// <summary>

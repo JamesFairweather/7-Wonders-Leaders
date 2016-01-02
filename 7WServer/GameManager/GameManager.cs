@@ -50,14 +50,21 @@ namespace SevenWonders
         /// Common begin of game tasks that are shared amongst all versions of 7W
         /// </summary>
         /// <param name="gmCoordinator"></param>
-        public GameManager(GMCoordinator gmCoordinator, int numOfPlayers, String []playerNicks, int numOfAI, char []AIStrats)
+        public GameManager(GMCoordinator gmCoordinator, List<PlayerInfo> players)
         {
             this.gmCoordinator = gmCoordinator;
 
-            //set the maximum number of players in the game to numOfPlayers + numOfAI
-            this.numOfPlayers = numOfPlayers;
-            this.numOfAI = numOfAI;
-            this.playerNicks = playerNicks;
+            // set the maximum number of players in the game to numOfPlayers + numOfAI
+            // this.numOfPlayers = numOfPlayers;
+            this.numOfPlayers = players.Where(x => x.isAI == false).Count();
+            // this.numOfAI = numOfAI;
+            this.numOfAI = players.Where(x => x.isAI == true).Count();
+            // this.playerNicks = playerNicks;
+            this.playerNicks = new string[players.Count];
+            for (int i = 0; i < players.Count; ++i)
+            {
+                this.playerNicks[i] = players[i].name;
+            }
 
             //set the game to not finished, since we are just starting
             gameConcluded = false;
@@ -105,7 +112,7 @@ namespace SevenWonders
             for (int i = numOfPlayers; i < numOfAI + numOfPlayers; i++)
             {
                 playerNicks[i] = "AI" + (i + 1);
-                player.Add(playerNicks[i], createAI(playerNicks[i], AIStrats[i-numOfPlayers]));
+                player.Add(playerNicks[i], createAI(playerNicks[i], '4'));
             }
 
             // set each Player's left and right neighbours
