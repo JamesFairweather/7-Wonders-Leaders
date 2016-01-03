@@ -798,12 +798,12 @@ namespace SevenWonders
             }
         }
 
+#if FALSE
         private void chatTextField_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Return) coordinator.sendChat(); 
         }
 
-#if FALSE
         private void joinGameIcon_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             coordinator.displayJoinGameUI();

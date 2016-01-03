@@ -44,9 +44,6 @@ namespace SevenWonders
             //get the local IP address
             yourIPAddressField.Text = coordinator.client.ipAddr.ToString();
 
-            //empty the chatTextBox
-            chatTextBox.Text = "";
-
             playerList.ItemsSource = players;
         }
 
@@ -59,31 +56,14 @@ namespace SevenWonders
         {
             //Close the connection if the ready button is enabled
             //I.e. if the Ready button was not pressed.
-            if (readyButton.IsEnabled == true)
+            /* JDF not sure what this logic is supposed to do.  Perhaps this is for handling the situation when the server terminates unexpectedly?
+            if (btnReady.IsEnabled == true)
             {
                 coordinator.hasGame = false;
 
                 coordinator.client.CloseConnection();
             }
-        }
-
-        /// <summary>
-        /// Event handler for using the Send button on the chat
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void sendButton_Click(object sender, RoutedEventArgs e)
-        {
-            coordinator.sendChat();
-        }
-        /// <summary>
-        /// Event handler for the Enter button on the Chat
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void textBox1_PreviewKeyDown(object sender, KeyEventArgs e)
-        { 
-            if (e.Key == Key.Return) coordinator.sendChat(); 
+            */
         }
 
         public void SetPlayerInfo(NameValueCollection qscoll)
@@ -94,6 +74,8 @@ namespace SevenWonders
             {
                 players.Add(s);
             }
+
+            btnReady.IsEnabled = players.Count >= 3;
         }
 
         /// <summary>
@@ -154,9 +136,14 @@ namespace SevenWonders
             coordinator.removeAI();
         }
 
-        private void leaders_Checkbox_Click(object sender, RoutedEventArgs e)
+        private void expansions_Checkbox_Click(object sender, RoutedEventArgs e)
         {
-            if ((bool)leaders_Checkbox.IsChecked)
+            if ((bool)cities_Checkbox.IsChecked)
+            {
+                coordinator.expansionSet = ExpansionSet.Cities;
+                coordinator.sendToHost("mC");       // mode Cities
+            }
+            else if ((bool)leaders_Checkbox.IsChecked)
             {
                 coordinator.expansionSet = ExpansionSet.Leaders;
                 coordinator.sendToHost("mL");       // mode Leaders

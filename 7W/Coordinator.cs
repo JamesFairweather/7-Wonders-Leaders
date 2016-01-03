@@ -51,7 +51,7 @@ namespace SevenWonders
         // private System.Windows.Threading.DispatcherTimer timer;
 
         //current turn
-        int currentTurn;
+        // int currentTurn;
 
         List<Card> fullCardList = new List<Card>();
 
@@ -145,7 +145,7 @@ namespace SevenWonders
         }
 #endif
 
-
+        /*
         /// <summary>
         /// Update the Chat logs
         /// </summary>
@@ -163,6 +163,7 @@ namespace SevenWonders
                 tableUI.scroll.ScrollToEnd();
             }));
         }
+        */
 
         /// <summary>
         /// User quits the Client program
@@ -190,12 +191,13 @@ namespace SevenWonders
             // Disable the ready button now that we've indicated we are ready to start.
             Application.Current.Dispatcher.Invoke(new Action(delegate
             {
-                tableUI.readyButton.IsEnabled = false;
+                tableUI.btnReady.IsEnabled = false;
             }));
 
             sendToHost("R");
         }
 
+        /*
         public void sendChat()
         {
             string message;
@@ -222,6 +224,7 @@ namespace SevenWonders
             // gameUI.chatTextField.Text = "";
             tableUI.chatTextField.Text = "";
         }
+        */
 
         public void removeAI()
         {
@@ -491,7 +494,7 @@ namespace SevenWonders
                             //re-enable the ready button
                             Application.Current.Dispatcher.Invoke(new Action(delegate
                             {
-                                tableUI.readyButton.IsEnabled = true;
+                                tableUI.btnReady.IsEnabled = true;
                             }));
                         }
                         //game is starting
@@ -555,19 +558,13 @@ namespace SevenWonders
             }
 
             //chat
-            if (message[0] == '#')
-            {
-                updateChatTextBox(message.Substring(1));
-
-
-            }
             //enable Olympia power OR Rome power
             //activate the Olympia UI
             //receive the information on the current turn
-            else if (message[0] == 'T')
+            if (message[0] == 'T')
             {
                 //get the current turn information
-                currentTurn = int.Parse(message[1] + "");
+                //currentTurn = int.Parse(message[1] + "");
             }
             //received an unable to join message from the server
             //UC-02 R07
