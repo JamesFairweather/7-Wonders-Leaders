@@ -79,8 +79,14 @@ namespace SevenWonders
             //make graphics better
             RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.Fant);
 
-            JoinTableUI joinGameDlg = new JoinTableUI(coordinator);
-            joinGameDlg.ShowDialog();
+            JoinTableUI joinGameDlg = new JoinTableUI();
+            bool succeeded = (bool)joinGameDlg.ShowDialog();
+
+            if (!succeeded)
+            {
+                Close();
+                return;
+            }
 
             // Maybe I should have the ability to choose between Joining and Creating?
             // Original code allowed the creator to add AI and select the leaders.

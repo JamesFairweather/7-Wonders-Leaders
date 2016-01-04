@@ -34,6 +34,7 @@ namespace SevenWonders
         public NewCommerce commerceUI;
         //JoinTableUI joinTableUI;
         LeaderDraft leaderDraftWindow;
+        FinalScore finalScoreUI;
 
         //The client that the application will use to interact with the server.
         public Client client { get; private set; }
@@ -170,14 +171,8 @@ namespace SevenWonders
         /// </summary>
         public void quit()
         {
-            //If the client is not a server, then send to the host the close connection signal.
-            //if (gmCoordinator != null)
-            {
-                sendToHost("L");
-                client.CloseConnection();
-            }
-
-            //If the client is a server, send the 
+            sendToHost("L");
+            client.CloseConnection();
         }
 
         /// <summary>
@@ -442,8 +437,8 @@ namespace SevenWonders
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
                         Application.Current.Dispatcher.Invoke(new Action(delegate
                         {
-                            FinalScore fs = new FinalScore(qcoll);
-                            fs.Show();
+                            finalScoreUI = new FinalScore(gameUI, qcoll);
+                            finalScoreUI.Show();
                         }));
                         messageHandled = true;
                         break;

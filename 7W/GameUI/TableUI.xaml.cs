@@ -42,7 +42,7 @@ namespace SevenWonders
             coordinator = c;
 
             //get the local IP address
-            yourIPAddressField.Text = coordinator.client.ipAddr.ToString();
+            yourIPAddressField.Content = coordinator.client.ipAddr.ToString();
 
             playerList.ItemsSource = players;
         }
@@ -56,14 +56,12 @@ namespace SevenWonders
         {
             //Close the connection if the ready button is enabled
             //I.e. if the Ready button was not pressed.
-            /* JDF not sure what this logic is supposed to do.  Perhaps this is for handling the situation when the server terminates unexpectedly?
-            if (btnReady.IsEnabled == true)
+            if (btnReady.IsEnabled == false)
             {
                 coordinator.hasGame = false;
 
                 coordinator.client.CloseConnection();
             }
-            */
         }
 
         public void SetPlayerInfo(NameValueCollection qscoll)
@@ -110,20 +108,6 @@ namespace SevenWonders
         {
             // Add "difficult" AI
             coordinator.sendToHost("aa4");
-
-            /*
-            JDF commented out in the interests of speeding up the game start.
-            //Add a Leaders AI
-            if (leaders_Checkbox.IsChecked == true)
-            {
-                coordinator.newAIUI('L');
-            }
-            //Add a Vanilla AI
-            else
-            {
-                coordinator.newAIUI('V');
-            }
-            */
         }
 
         /// <summary>
