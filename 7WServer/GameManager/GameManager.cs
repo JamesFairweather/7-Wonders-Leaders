@@ -1019,9 +1019,6 @@ namespace SevenWonders
                 }
                 */
             }
-
-            if (gameConcluded)
-                endOfSessionActions();
         }
 
         protected int numOfPlayersThatHaveTakenTheirTurn = 0;
@@ -1145,11 +1142,13 @@ namespace SevenWonders
 
                     default:
                         throw new Exception("specialPhase is false but phase is not LeaderDraft, LeaderRecruitment, or Playing.  Logic error somewhere...");
-                        break;
                     }
                 }
 
                 updateAllGameUI();
+
+                if (gameConcluded)
+                    endOfSessionActions();
             }
         }
     }

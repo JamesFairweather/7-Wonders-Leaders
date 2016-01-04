@@ -690,25 +690,16 @@ namespace SevenWonders
 
                                 if (copiedGuild == CardId.Scientists_Guild)
                                 {
-                                    // If the copied guild is the Scientist's Guild, update the overall 
-                                    // This gets really messy because we're trying for the overall maximum score while breaking out
-                                    // which parts of that score came from different components.  What needs to happen is for the returned
-                                    // science score 
+                                    // If the copied guild is the Scientists' Guild, the copied wonder will be added to this player's
+                                    // science score.
                                     scienceScore = tmpScienceScore;
-                                }
-
-                                /*
-                                if (maxPoints != 0)
-                                {
-                                    Console.WriteLine("Olympia B's 3rd wonder has a maximum value of {0} points.  Guild copied: {1}", maxPoints, copiedGuild);
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Neither of Olympia's neighbors built any guilds that were worth any value to Olympia.  0 points scored for this wonder stage.");
+                                    // If the copied guild is any other card, the score for that guild is added to the wonder score for
+                                    // Olympia.
+                                    score.wonders += maxPoints;
                                 }
-                                */
-
-                                score.wonders += maxPoints;
                             }
                             break;
 
