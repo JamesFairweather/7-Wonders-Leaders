@@ -10,13 +10,15 @@ using System.Threading;
 using System.IO;
 
 namespace SevenWonders
-{ 
+{
+    /* 
     struct CoinCost
     {
         int bank;
         int leftNeighbor;
         int rightNeighbor;
     };
+    */
 
     class Program
     {

@@ -2,10 +2,10 @@
 Added by James Fairweather
 UI problems:
   - UI is too crowded.  Change it to be a scrollable horizontal panel with one player state in each panel that's much larger.  Should be large enough to show complete state of plus both neighbors.
-  - Can we use other nicknames?
   - it would be nice if PlayerStatePanels were created dynamically so we maximized our use of space on the Main Window.
     The current behavior is that all 8 panels are created statically and only the ones in use are activated.
   - The UI needs to make it more obvious after the player has played his card for that turn.
+  - It would be nice to make a notification when someone pays you for using your resources
 
 Commerce issues:
 	- I am not sure that the either/or first age cards are working correctly.  I need to do a detailed analysis of how the resources are walked.  The algorithm should look like:

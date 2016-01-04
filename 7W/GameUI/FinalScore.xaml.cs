@@ -20,9 +20,13 @@ namespace SevenWonders
     /// </summary>
     public partial class FinalScore : Window
     {
-        public FinalScore(NameValueCollection scores)
+        MainWindow mainWindow;
+
+        public FinalScore(MainWindow mw, NameValueCollection scores)
         {
             InitializeComponent();
+
+            mainWindow = mw;
 
             FontFamily ourFont = new FontFamily("Lucida Handwriting");
 
@@ -70,6 +74,11 @@ namespace SevenWonders
 
                 ++column;
             }
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            mainWindow.Close();
         }
     }
 }

@@ -34,6 +34,7 @@ namespace SevenWonders
         public NewCommerce commerceUI;
         //JoinTableUI joinTableUI;
         LeaderDraft leaderDraftWindow;
+        FinalScore finalScoreUI;
 
         //The client that the application will use to interact with the server.
         public Client client { get; private set; }
@@ -51,14 +52,13 @@ namespace SevenWonders
         // private System.Windows.Threading.DispatcherTimer timer;
 
         //current turn
-        int currentTurn;
-
-        //Leaders
-        // BilkisUI bilkisUI;
+        // int currentTurn;
 
         List<Card> fullCardList = new List<Card>();
 
         public Card copiedLeader;
+
+        public bool isFreeBuildButtonEnabled;
 
         public Coordinator(MainWindow gameUI)
         {
@@ -67,6 +67,8 @@ namespace SevenWonders
             nickname = "";
 
             hasGame = false;
+
+            isFreeBuildButtonEnabled = false;
 
             /*
             //prepare the timer
@@ -144,7 +146,7 @@ namespace SevenWonders
         }
 #endif
 
-
+        /*
         /// <summary>
         /// Update the Chat logs
         /// </summary>
@@ -162,20 +164,15 @@ namespace SevenWonders
                 tableUI.scroll.ScrollToEnd();
             }));
         }
+        */
 
         /// <summary>
         /// User quits the Client program
         /// </summary>
         public void quit()
         {
-            //If the client is not a server, then send to the host the close connection signal.
-            //if (gmCoordinator != null)
-            {
-                sendToHost("L");
-                client.CloseConnection();
-            }
-
-            //If the client is a server, send the 
+            sendToHost("L");
+            client.CloseConnection();
         }
 
         /// <summary>
@@ -189,12 +186,13 @@ namespace SevenWonders
             // Disable the ready button now that we've indicated we are ready to start.
             Application.Current.Dispatcher.Invoke(new Action(delegate
             {
-                tableUI.readyButton.IsEnabled = false;
+                tableUI.btnReady.IsEnabled = false;
             }));
 
             sendToHost("R");
         }
 
+        /*
         public void sendChat()
         {
             string message;
@@ -221,6 +219,7 @@ namespace SevenWonders
             // gameUI.chatTextField.Text = "";
             tableUI.chatTextField.Text = "";
         }
+        */
 
         public void removeAI()
         {
@@ -377,12 +376,42 @@ namespace SevenWonders
 
                 switch (message.Substring(0, 8))
                 {
+                    case "AddPlayr":
+                        /*
+                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
+                        Application.Current.Dispatcher.Invoke(new Action(delegate
+                        {
+                            tableUI.AddPlayer(qcoll["Name"]);
+                        }));
+                        */
+                        throw new Exception("Unhandled message received from the server.");
+                        messageHandled = true;
+                        break;
                     case "UpdateUI":
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
 
                         Application.Current.Dispatcher.Invoke(new Action(delegate
                         {
                             gameUI.updateCoinsAndCardsPlayed(qcoll);
+                        }));
+                        messageHandled = true;
+                        break;
+
+                    case "ChngMode":
+                        // Basic/Leaders/Cities
+                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
+
+                        expansionSet = (ExpansionSet)Enum.Parse(typeof(ExpansionSet), qcoll["Mode"]);
+                        Application.Current.Dispatcher.Invoke(new Action(delegate
+                        {
+                            if (expansionSet == ExpansionSet.Original)
+                            {
+                                tableUI.leaders_Checkbox.IsChecked = false;
+                            }
+                            else
+                            {
+                                tableUI.leaders_Checkbox.IsChecked = true;
+                            }
                         }));
                         messageHandled = true;
                         break;
@@ -399,13 +428,8 @@ namespace SevenWonders
                         messageHandled = true;
                         break;
 
-                    case "EnableFB":    // Enable Free Build button
-
-                        Application.Current.Dispatcher.Invoke(new Action(delegate
-                        {
-                            gameUI.btnBuildStructureForFree.Visibility = Visibility.Visible;
-                            gameUI.btnBuildStructureForFree_isEnabled = true;
-                        }));
+                    case "EnableFB":
+                        isFreeBuildButtonEnabled = true;
                         messageHandled = true;
                         break;
 
@@ -413,8 +437,8 @@ namespace SevenWonders
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
                         Application.Current.Dispatcher.Invoke(new Action(delegate
                         {
-                            FinalScore fs = new FinalScore(qcoll);
-                            fs.Show();
+                            finalScoreUI = new FinalScore(gameUI, qcoll);
+                            finalScoreUI.Show();
                         }));
                         messageHandled = true;
                         break;
@@ -448,6 +472,16 @@ namespace SevenWonders
                         messageHandled = true;
                         break;
 
+                    case "PlyrInfo":
+                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
+                        Application.Current.Dispatcher.Invoke(new Action(delegate
+                        {
+                            tableUI.SetPlayerInfo(qcoll);
+                        }));
+
+                        messageHandled = true;
+                        break;
+
                     case "StrtGame":
                         //Handle when game cannot start
                         if (message[1] == '0')
@@ -455,7 +489,7 @@ namespace SevenWonders
                             //re-enable the ready button
                             Application.Current.Dispatcher.Invoke(new Action(delegate
                             {
-                                tableUI.readyButton.IsEnabled = true;
+                                tableUI.btnReady.IsEnabled = true;
                             }));
                         }
                         //game is starting
@@ -497,7 +531,7 @@ namespace SevenWonders
 
                         // Tell game server this client is ready to receive its first UI update, which will
                         // include coins and hand of cards.
-                        sendToHost("r");
+                        // sendToHost("r");
 
                         messageHandled = true;
                         break;
@@ -519,17 +553,13 @@ namespace SevenWonders
             }
 
             //chat
-            if (message[0] == '#')
-            {
-                updateChatTextBox(message.Substring(1));
-            }
             //enable Olympia power OR Rome power
             //activate the Olympia UI
             //receive the information on the current turn
-            else if (message[0] == 'T')
+            if (message[0] == 'T')
             {
                 //get the current turn information
-                currentTurn = int.Parse(message[1] + "");
+                //currentTurn = int.Parse(message[1] + "");
             }
             //received an unable to join message from the server
             //UC-02 R07

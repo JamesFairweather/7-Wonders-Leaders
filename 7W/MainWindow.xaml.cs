@@ -57,7 +57,6 @@ namespace SevenWonders
         Dictionary<string, PlayerState> playerState = new Dictionary<string, PlayerState>();
 
         public bool playerPlayedHisTurn = false;
-        public bool btnBuildStructureForFree_isEnabled = false;
 
         NameValueCollection handData;
 
@@ -66,6 +65,8 @@ namespace SevenWonders
         Buildable stageBuildable;
 
         bool canDiscardStructure;
+
+        GamePhase phase;
 
         //constructor: create the UI. create the Coordinator object
         public MainWindow()
@@ -78,8 +79,14 @@ namespace SevenWonders
             //make graphics better
             RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.Fant);
 
-            JoinTableUI joinGameDlg = new JoinTableUI(coordinator);
-            joinGameDlg.ShowDialog();
+            JoinTableUI joinGameDlg = new JoinTableUI();
+            bool succeeded = (bool)joinGameDlg.ShowDialog();
+
+            if (!succeeded)
+            {
+                Close();
+                return;
+            }
 
             // Maybe I should have the ability to choose between Joining and Creating?
             // Original code allowed the creator to add AI and select the leaders.
@@ -218,6 +225,8 @@ namespace SevenWonders
                 stageBuildable = (Buildable)Enum.Parse(typeof(Buildable), strWonderStage.Substring(2));
             }
 
+            phase = (GamePhase)Enum.Parse(typeof(GamePhase), handData["GamePhase"]);
+
             if (handData["Instructions"] != null)
             {
                 lblPlayMessage.Content = new TextBlock()
@@ -302,7 +311,7 @@ namespace SevenWonders
             if (handPanel.SelectedIndex < 0)
                 return;
 
-            if (btnBuildStructureForFree_isEnabled)
+            if (coordinator.isFreeBuildButtonEnabled && phase == GamePhase.Playing)
             {
                 if (hand[handPanel.SelectedIndex].Value != Buildable.StructureAlreadyBuilt)
                 {
@@ -313,6 +322,7 @@ namespace SevenWonders
                         TextWrapping = TextWrapping.Wrap
                     };
 
+                    btnBuildStructureForFree.Visibility = Visibility.Visible;
                     btnBuildStructureForFree.IsEnabled = true;
                 }
                 else
@@ -458,7 +468,9 @@ namespace SevenWonders
                 return;
 
             ((Button)sender).IsEnabled = false;
-            btnBuildStructureForFree_isEnabled = false;
+            ((Button)sender).Visibility = Visibility.Hidden;
+            coordinator.isFreeBuildButtonEnabled = false;
+            // btnBuildStructureForFree_isEnabled = false;
             playerPlayedHisTurn = true;
             coordinator.sendToHost(string.Format("####&Action={0}&FreeBuild=&Structure={1}", BuildAction.BuildStructure, hand[handPanel.SelectedIndex].Key.Id));
         }
@@ -792,12 +804,12 @@ namespace SevenWonders
             }
         }
 
+#if FALSE
         private void chatTextField_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Return) coordinator.sendChat(); 
         }
 
-#if FALSE
         private void joinGameIcon_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             coordinator.displayJoinGameUI();

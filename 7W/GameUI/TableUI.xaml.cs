@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
@@ -41,10 +42,7 @@ namespace SevenWonders
             coordinator = c;
 
             //get the local IP address
-            yourIPAddressField.Text = coordinator.client.ipAddr.ToString();
-
-            //empty the chatTextBox
-            chatTextBox.Text = "";
+            yourIPAddressField.Content = coordinator.client.ipAddr.ToString();
 
             playerList.ItemsSource = players;
         }
@@ -58,7 +56,7 @@ namespace SevenWonders
         {
             //Close the connection if the ready button is enabled
             //I.e. if the Ready button was not pressed.
-            if (readyButton.IsEnabled == true)
+            if (btnReady.IsEnabled == false)
             {
                 coordinator.hasGame = false;
 
@@ -66,23 +64,16 @@ namespace SevenWonders
             }
         }
 
-        /// <summary>
-        /// Event handler for using the Send button on the chat
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void sendButton_Click(object sender, RoutedEventArgs e)
+        public void SetPlayerInfo(NameValueCollection qscoll)
         {
-            coordinator.sendChat();
-        }
-        /// <summary>
-        /// Event handler for the Enter button on the Chat
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void textBox1_PreviewKeyDown(object sender, KeyEventArgs e)
-        { 
-            if (e.Key == Key.Return) coordinator.sendChat(); 
+            players.Clear();
+
+            foreach (string s in qscoll["Names"].Split(','))
+            {
+                players.Add(s);
+            }
+
+            btnReady.IsEnabled = players.Count >= 3;
         }
 
         /// <summary>
@@ -117,21 +108,6 @@ namespace SevenWonders
         {
             // Add "difficult" AI
             coordinator.sendToHost("aa4");
-
-            players.Add("aslkjasdf");
-            /*
-            JDF commented out in the interests of speeding up the game start.
-            //Add a Leaders AI
-            if (leaders_Checkbox.IsChecked == true)
-            {
-                coordinator.newAIUI('L');
-            }
-            //Add a Vanilla AI
-            else
-            {
-                coordinator.newAIUI('V');
-            }
-            */
         }
 
         /// <summary>
@@ -144,71 +120,14 @@ namespace SevenWonders
             coordinator.removeAI();
         }
 
-        /// <summary>
-        /// Checking the Leaders checkbox, which should change game mode to Leaders.
-        /// Sends to GMCoordinator the message to change to Leaders mode.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void leaders_Checked(object sender, RoutedEventArgs e)
+        private void expansions_Checkbox_Click(object sender, RoutedEventArgs e)
         {
-            if (leaders_Checkbox.IsChecked == true)
+            if ((bool)cities_Checkbox.IsChecked)
             {
-                coordinator.sendToHost("mL");
+                coordinator.expansionSet = ExpansionSet.Cities;
+                coordinator.sendToHost("mC");       // mode Cities
             }
-            else
-            {
-                throw new Exception();
-            }
-        }
-
-        /// <summary>
-        /// Unchecking the Leaders checkbox, which should change game mode back to Vanilla.
-        /// Sends to GMCoordinator the message to change to Vanilla mode.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void leaders_Checkbox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (leaders_Checkbox.IsChecked == false)
-            {
-                coordinator.sendToHost("mV");
-            }
-            else
-            {
-                throw new Exception();
-            }
-        }
-
-        /// <summary>
-        /// Return the local IP Address
-        /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        private String local()
-        {
-            /*
-            String localIP = "";
-            IPHostEntry host;
-
-            host = Dns.GetHostEntry(Dns.GetHostName());
-
-            foreach (IPAddress ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    localIP = ip.ToString();
-                }
-            }
-            return localIP;
-            */
-
-            return IPAddress.Loopback.ToString();
-        }
-
-        private void leaders_Checkbox_Click(object sender, RoutedEventArgs e)
-        {
-            if ((bool)leaders_Checkbox.IsChecked)
+            else if ((bool)leaders_Checkbox.IsChecked)
             {
                 coordinator.expansionSet = ExpansionSet.Leaders;
                 coordinator.sendToHost("mL");       // mode Leaders

@@ -6,28 +6,6 @@ using System.Text;
 
 namespace SevenWonders
 {
-    // I have a feeling that we really only need 3 phases: LeaderDraft (drawing 4
-    // leaders before the game), Leader Recruitment, and Playing.  Playing needs
-    // I think just two substates: Regular turn or Extra turn.  Extra turn would
-    // be any turn where the game has to wait for one player to choose a
-    // card/action (i.e. Babylon B, Halikarnassos, Solomon, Roma B, China)
-
-    public enum GamePhase
-    {
-        None,
-        // WaitingForPlayers,   // not used presently
-        // Start,               // not used presently
-        LeaderDraft,            // drafting leaders (i.e. before Age 1)
-        LeaderRecruitment,      // playing a leader card at the start of each Age
-        Playing,                // normal turn
-        Babylon,                // Waiting for Babylon to play its last card in the age.
-        Halikarnassos,          // Waiting for Halikarnassos to play from the discard pile.
-        RomaB,                  // Waiting  for Roma (B) to play a leader after building 2nd or 3rd wonder stage
-        Solomon,                // Waiting for Solomon to play from the discard pile (can coincide with Halikarnassos if Rome B builds its 2nd or 3rd wonder stage and the player plays Solomon)
-        Courtesan,              // Waiting for a player to select a leader to copy
-        End,
-    };
-
     public class GameManager
     {
         public int numOfPlayers { get; set; }
@@ -72,14 +50,21 @@ namespace SevenWonders
         /// Common begin of game tasks that are shared amongst all versions of 7W
         /// </summary>
         /// <param name="gmCoordinator"></param>
-        public GameManager(GMCoordinator gmCoordinator, int numOfPlayers, String []playerNicks, int numOfAI, char []AIStrats)
+        public GameManager(GMCoordinator gmCoordinator, List<PlayerInfo> players)
         {
             this.gmCoordinator = gmCoordinator;
 
-            //set the maximum number of players in the game to numOfPlayers + numOfAI
-            this.numOfPlayers = numOfPlayers;
-            this.numOfAI = numOfAI;
-            this.playerNicks = playerNicks;
+            // set the maximum number of players in the game to numOfPlayers + numOfAI
+            // this.numOfPlayers = numOfPlayers;
+            this.numOfPlayers = players.Where(x => x.isAI == false).Count();
+            // this.numOfAI = numOfAI;
+            this.numOfAI = players.Where(x => x.isAI == true).Count();
+            // this.playerNicks = playerNicks;
+            this.playerNicks = new string[players.Count];
+            for (int i = 0; i < players.Count; ++i)
+            {
+                this.playerNicks[i] = players[i].name;
+            }
 
             //set the game to not finished, since we are just starting
             gameConcluded = false;
@@ -127,7 +112,7 @@ namespace SevenWonders
             for (int i = numOfPlayers; i < numOfAI + numOfPlayers; i++)
             {
                 playerNicks[i] = "AI" + (i + 1);
-                player.Add(playerNicks[i], createAI(playerNicks[i], AIStrats[i-numOfPlayers]));
+                player.Add(playerNicks[i], createAI(playerNicks[i], '4'));
             }
 
             // set each Player's left and right neighbours
@@ -539,47 +524,19 @@ namespace SevenWonders
 
             BuildAction buildAction = (BuildAction)Enum.Parse(typeof(BuildAction), qscoll["Action"]);
 
+            // The structure name & the age must match (structure name is not enough as Loom, Glassworks, and Press
+            // have versions in Age 1 and in Age 2)
+            Card c = null;
             CardId cardId = Card.CardNameFromStringName(qscoll["Structure"]);
 
-            Card c = null;
-            if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
+            if (cardId == CardId.Loom || cardId == CardId.Press || cardId == CardId.Glassworks)
             {
-                // Leader Recruitment is not a special phase, so the players' phase state is
-                // not set to this value and it's valid to receive meessages in any order.
-
-                if (phase == GamePhase.RomaB && p.phase != GamePhase.RomaB)
-                    throw new Exception("RomaB: received a message from a player who is not in the RomaB phase.");
-
-                c = p.draftedLeaders.Find(x => x.Id == cardId);
-            }
-            else if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
-            {
-                if (phase == GamePhase.Halikarnassos && p.phase != GamePhase.Halikarnassos)
-                    throw new Exception("Halikarnassos: received a message from a player who is not in the Halikarnassos phase.");
-
-                if (phase == GamePhase.Solomon && p.phase != GamePhase.Solomon)
-                    throw new Exception("Solomon: received a message from a player who is not in the Solomon phase.");
-
-                c = discardPile.Find(x => x.Id == cardId);
-            }
-            else if (phase == GamePhase.Courtesan)
-            {
-                if (p.phase != GamePhase.Courtesan)
-                    throw new Exception("Courtesan phase: received a message from a player who is not in the Courtesan phase.");
-
-                c = p.leftNeighbour.playedStructure.Find(x => x.Id == cardId);
-
-                if (c == null)
-                    c = p.rightNeighbour.playedStructure.Find(x => x.Id == cardId);
+                c = fullCardList.Find(x => x.Id == cardId && (x.age == currentAge));
             }
             else
             {
-                // Normal turn
-                c = p.hand.Find(x => x.Id == cardId);
+                c = fullCardList.Find(x => x.Id == cardId);
             }
-
-            if (c == null)
-                throw new Exception("Received a message from the client to build a card that wasn't in the player's hand.");
 
             int nLeftCoins = 0, nRightCoins = 0;
 
@@ -589,7 +546,8 @@ namespace SevenWonders
             if (strRightCoins != null)
                 nRightCoins = int.Parse(strRightCoins);
 
-            playCard(p, c, buildAction, false, qscoll["FreeBuild"] != null, nLeftCoins, nRightCoins, qscoll["Bilkis"] != null);
+            playCard(p, c, buildAction, false, qscoll["FreeBuild"] != null,
+                nLeftCoins, nRightCoins, qscoll["Bilkis"] != null);
         }
 
         /// <summary>
@@ -601,14 +559,29 @@ namespace SevenWonders
 
             if (phase == GamePhase.LeaderRecruitment || phase == GamePhase.RomaB)
             {
+                // Leader Recruitment is not a special phase, so the players' phase state is
+                // not set to this value and it's valid to receive meessages in any order.
+
+                if (phase == GamePhase.RomaB && p.phase != GamePhase.RomaB)
+                    throw new Exception("RomaB: received a message from a player who is not in the RomaB phase.");
+
                 bFound = p.draftedLeaders.Remove(c);
             }
             else if (phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon)
             {
+                if (phase == GamePhase.Halikarnassos && p.phase != GamePhase.Halikarnassos)
+                    throw new Exception("Halikarnassos: received a message from a player who is not in the Halikarnassos phase.");
+
+                if (phase == GamePhase.Solomon && p.phase != GamePhase.Solomon)
+                    throw new Exception("Solomon: received a message from a player who is not in the Solomon phase.");
+
                 bFound = discardPile.Remove(c);
             }
             else if (phase == GamePhase.Courtesan)
             {
+                if (p.phase != GamePhase.Courtesan)
+                    throw new Exception("Courtesan phase: received a message from a player who is not in the Courtesan phase.");
+
                 bFound = p.leftNeighbour.playedStructure.Exists(x => x.Id == c.Id);
 
                 if (!bFound)
@@ -616,6 +589,8 @@ namespace SevenWonders
             }
             else
             {
+                // Normal turn
+
                 bFound = p.hand.Remove(c);
             }
 
@@ -872,6 +847,7 @@ namespace SevenWonders
             strHand += strBuildStates.TrimEnd(',');
 
             strHand += string.Format("&WonderStage={0},{1}", p.currentStageOfWonder, p.isStageBuildable());
+            strHand += string.Format("&GamePhase={0}", this.phase);
 
             return strHand;
         }
@@ -1043,9 +1019,6 @@ namespace SevenWonders
                 }
                 */
             }
-
-            if (gameConcluded)
-                endOfSessionActions();
         }
 
         protected int numOfPlayersThatHaveTakenTheirTurn = 0;
@@ -1169,11 +1142,13 @@ namespace SevenWonders
 
                     default:
                         throw new Exception("specialPhase is false but phase is not LeaderDraft, LeaderRecruitment, or Playing.  Logic error somewhere...");
-                        break;
                     }
                 }
 
                 updateAllGameUI();
+
+                if (gameConcluded)
+                    endOfSessionActions();
             }
         }
     }

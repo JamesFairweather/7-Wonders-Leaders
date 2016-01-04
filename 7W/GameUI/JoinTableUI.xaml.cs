@@ -22,19 +22,28 @@ namespace SevenWonders
     /// </summary>
     public partial class JoinTableUI : Window
     {
-        Coordinator coordinator;
-
-        public JoinTableUI(Coordinator c)
+        public JoinTableUI()
         {
             InitializeComponent();
-            coordinator = c;
         }
 
-        /*
-         * Parse the information in the Table UI
-         * UC-02 R03
-         */
+        public string userName { get { return textUser.Text; } }
+
+        public string ipAddressAsText{ get { return ipAddressText.Text; } }
+
+        private void textUser_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                validateInput();
+            }
+        }
         public void btnJoin_Click(object sender, RoutedEventArgs e)
+        {
+            validateInput();
+        }
+
+        private void validateInput()
         {
             IPAddress ip;
 
@@ -51,24 +60,10 @@ namespace SevenWonders
                 return;
             }
 
+            DialogResult = true;
+
             // All user inputs are valid; close the dialog window
             Close();
-        }
-
-        /*
-        private void buttonbtnCancel_Click2btnCancel_Click_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-        */
-        public string userName { get { return textUser.Text; } }
-
-        public string ipAddressAsText{ get { return ipAddressText.Text; } }
-
-        private void textUser_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-                Close();
         }
     }
 }
