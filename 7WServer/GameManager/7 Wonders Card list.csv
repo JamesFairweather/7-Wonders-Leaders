@@ -68,7 +68,7 @@ Original,University,Science,3,Scientific structures provide a science symbol,tab
 Original,Academy,Science,3,Scientific structures provide a science symbol,compass,1,1,1,1,2,,,3,,,,1,,,,Science,,,C,,,,,,,
 Original,Study,Science,3,Scientific structures provide a science symbol,gear,1,1,2,2,2,,1,,,,1,,1,,,Science,,,G,,,,,,,
 Original,Workers Guild,Guild,3,1 victory point for each brown card present in the neighboring cities,workers_guild,1,1,1,1,1,,1,1,1,2,,,,,,CoinsPoints,,,,,Neighbors,RawMaterial,0,1,,
-Original,Craftsmens Guild,Guild,3,2 victory points for each grey card present in the neighboring cities,craftsmens_guild,1,1,1,1,1,,,,2,2,,,,,,CoinsPoints,,,,,Neighbors,Goods,0,2,,
+Original,Craftsmens Guild,Guild,3,2 victory points for each grey card present in the neighboring cities,craftsmens_guild,1,1,1,1,1,,,2,,2,,,,,,CoinsPoints,,,,,Neighbors,Goods,0,2,,
 Original,Traders Guild,Guild,3,1 victory point for each yellow card present in the neighboring cities,traders_guild,1,1,1,1,1,,,,,,1,1,1,,,CoinsPoints,,,,,Neighbors,Commerce,0,1,,
 Original,Philosophers Guild,Guild,3,1 victory point for each green card present in the neighboring cities,philosophers_guild,1,1,1,1,1,,,,3,,1,,1,,,CoinsPoints,,,,,Neighbors,Science,0,1,,
 Original,Spies Guild,Guild,3,1 victory point for each red card present in the neighboring cities,spies_guild,1,1,1,1,1,,,,3,,,1,,,,CoinsPoints,,,,,Neighbors,Military,0,1,,

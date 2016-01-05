@@ -26,7 +26,7 @@ namespace SevenWonders
 
         private TcpClient tcpClient;
 
-        // private int numberOFAI;
+        public int NPCplayers { get; set; }
 
         // The thread that will hold the connection listener
         private Thread thrListener;
@@ -54,14 +54,6 @@ namespace SevenWonders
             // numberOFAI = 0;
             ipAddress = localIP();
         }
-
-        /*
-        public void updateAIPlayer(bool shouldAdd)
-        {
-            if (shouldAdd) numberOFAI++;
-            else numberOFAI--;
-        }
-        */
 
         /// <summary>
         /// Start the server. This is called by the GMCoordinator

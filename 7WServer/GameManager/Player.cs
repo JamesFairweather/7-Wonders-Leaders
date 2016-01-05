@@ -209,6 +209,10 @@ namespace SevenWonders
 
             this.isAI = isAI;
 
+            // add the AI algorithm
+            if (isAI)
+                AIBehaviour = new AIMoveAlgorithm4();
+
             currentStageOfWonder = 0;
             changeNickName = false;
             newNickName = "";

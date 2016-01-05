@@ -69,8 +69,8 @@ namespace SevenWonders
 
             Console.WriteLine("Accepted a new connection from user {0}", currentUser);
 
-            swSender.WriteLine(currentUser);
-            swSender.Flush();
+            // swSender.WriteLine(currentUser);
+            // swSender.Flush();
 
             // We got a response from the client
             if (currentUser != "")
@@ -85,7 +85,7 @@ namespace SevenWonders
                     return;
                 }
                 // The table is full. There are already 7 Connected Users.
-                else if (host.htUsers.Count == 7)
+                else if (host.htUsers.Count + host.NPCplayers == 7)
                 {
                     // 0 means not connected
                     swSender.WriteLine("0|Table is full.");

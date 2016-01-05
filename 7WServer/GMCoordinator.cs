@@ -152,7 +152,8 @@ namespace SevenWonders
                 //#: Chat string.
                 if (message[0] == '#')
                 {
-                    host.sendMessageToAll("#" + nickname + ": " + message.Substring(1));
+                    throw new Exception("Unexpected message received");
+                    // host.sendMessageToAll("#" + nickname + ": " + message.Substring(1));
                 }
                 //J: Player joins the game
                 //increment the numOfPlayers
@@ -220,10 +221,7 @@ namespace SevenWonders
                                 strCreateUIMsg += string.Format(",{0}", p.nickname);
                             }
 
-                            foreach (Player p in gameManager.player.Values)
-                            {
-                                sendMessage(p, strCreateUIMsg);
-                            }
+                            SendMessageToAll(strCreateUIMsg);
 
                             //set up the game, send information on boards to players, etc.
                             gameManager.beginningOfSessionActions();
@@ -292,6 +290,8 @@ namespace SevenWonders
 
                             players.Add(pi);
 
+                            host.NPCplayers++;
+
                             SendUpdatedPlayers();
                         }
                         else
@@ -308,6 +308,7 @@ namespace SevenWonders
                             if (players[i].isAI)
                             {
                                 players.Remove(players[i]);
+                                host.NPCplayers--;
                                 break;
                             }
                         }

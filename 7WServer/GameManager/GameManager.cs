@@ -63,24 +63,15 @@ namespace SevenWonders
             this.playerNicks = new string[players.Count];
             for (int i = 0; i < players.Count; ++i)
             {
-                this.playerNicks[i] = players[i].name;
+                playerNicks[i] = players[i].name;
+                player.Add(playerNicks[i], new Player(playerNicks[i], players[i].isAI, this));
             }
 
-            //set the game to not finished, since we are just starting
             gameConcluded = false;
 
             // If the Leaders expansion pack is enabled, start with age 0 (leaders draft)
             currentAge = gmCoordinator.leadersEnabled ? 0 : 1;
             currentTurn = 1;
-
-            //AI initialisation
-            this.numOfAI = numOfAI;
-
-            //player initialisation
-            for (int i = 0; i < numOfPlayers; i++)
-            {
-                player.Add(playerNicks[i], new Player(playerNicks[i], false, this));
-            }
 
             // load the card list
             using (System.IO.StreamReader file = new System.IO.StreamReader(System.Reflection.Assembly.Load("GameManager").
@@ -107,13 +98,6 @@ namespace SevenWonders
             //initialize the vanilla boards objects
             //does not assign the boards to players yet
             createBoards();
-
-            // create the AIs
-            for (int i = numOfPlayers; i < numOfAI + numOfPlayers; i++)
-            {
-                playerNicks[i] = "AI" + (i + 1);
-                player.Add(playerNicks[i], createAI(playerNicks[i], '4'));
-            }
 
             // set each Player's left and right neighbours
             // this determines player positioning

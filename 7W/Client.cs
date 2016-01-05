@@ -57,10 +57,6 @@ namespace SevenWonders
                 return;
             }
 
-            // Helps us track whether we're connected or not
-            Connected = true;
-            this.ipAddr = ipAddr;
-
             //Send the nickname. Await for permission.
             swSender.WriteLine(nickname);
             swSender.Flush();
@@ -72,9 +68,13 @@ namespace SevenWonders
             //Output the reason why the Server has rejected us
             if (connectionStatus[0] == '0')
             {
-                Console.WriteLine("Client.InitializeConnection: cannot accept connection: " + connectionStatus);
+                MessageBox.Show("Could not join game: " + connectionStatus.Substring(2));
                 return;
             }
+
+            // Helps us track whether we're connected or not
+            Connected = true;
+            this.ipAddr = ipAddr;
 
             // Server has accepted us
             // Start the thread for receiving messages and further communication

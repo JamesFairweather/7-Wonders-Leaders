@@ -77,16 +77,6 @@ namespace SevenWonders
         }
 
         /// <summary>
-        /// UI Element that displays current Players at the table
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void dataGrid1_SourceUpdated(object sender, DataTransferEventArgs e)
-        {
-            // dataGrid1.ItemsSource = "User1";// Server.htUsers;
-        }
-
-        /// <summary>
         /// Ready button is clicked
         /// Send the ready signal to the coordinator and load the UI
         /// Disables the Ready button
@@ -95,6 +85,8 @@ namespace SevenWonders
         /// <param name="e"></param>
         private void readyButton_Click(object sender, RoutedEventArgs e)
         {
+            btnReady.IsEnabled = false;
+
             coordinator.iAmReady();
         }
 
