@@ -376,17 +376,6 @@ namespace SevenWonders
 
                 switch (message.Substring(0, 8))
                 {
-                    case "AddPlayr":
-                        /*
-                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
-                        Application.Current.Dispatcher.Invoke(new Action(delegate
-                        {
-                            tableUI.AddPlayer(qcoll["Name"]);
-                        }));
-                        */
-                        throw new Exception("Unhandled message received from the server.");
-                        messageHandled = true;
-                        break;
                     case "UpdateUI":
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
 
@@ -482,6 +471,11 @@ namespace SevenWonders
                         messageHandled = true;
                         break;
 
+                    case "RespFail":
+                        MessageBox.Show(message.Substring(9));
+                        messageHandled = true;
+                        break;
+                    
                     case "StrtGame":
                         //Handle when game cannot start
                         if (message[1] == '0')

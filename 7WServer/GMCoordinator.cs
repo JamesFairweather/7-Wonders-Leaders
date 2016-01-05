@@ -282,52 +282,34 @@ namespace SevenWonders
                     //"aa": add AI in the GameManager
                     if (message[1] == 'a')
                     {
-                        PlayerInfo pi = new PlayerInfo();
-
-                        pi.name = "AI" + players.Where(x => x.isAI == true).Count();
-                        pi.isAI = true;
-                        pi.isReady = true;
-
-                        players.Add(pi);
-
-                        SendUpdatedPlayers();
-                        /*
-                        //increase the number of players
-                        if ((numOfPlayers + numOfAI) < 7)
+                        if (players.Count < 7)
                         {
-                            // AIStrats[numOfAI++] = message[2];
-                            host.updateAIPlayer(true);
-                            host.sendMessageToAll(string.Format("AddPlayr&Name=AI{0}", numOfAI));
+                            PlayerInfo pi = new PlayerInfo();
+
+                            pi.name = "AI" + players.Where(x => x.isAI == true).Count();
+                            pi.isAI = true;
+                            pi.isReady = true;
+
+                            players.Add(pi);
+
+                            SendUpdatedPlayers();
                         }
                         else
                         {
-                            host.sendMessageToAll("#There are " + numOfPlayers + " human players and " + numOfAI + " AI(s) already at the table.");
+                            host.sendMessageToUser(nickname, "RespFail There are already 7 players at this table.  Cannot add another player.");
                         }
-                        */
-                        // host.updateAIPlayer(true);
                     }
                     //"ar": remove AI in the GameManager
                     else if (message[1] == 'r')
                     {
-                        /*
-                        if (numOfAI > 0)
-                        {
-                            numOfAI--;
-                            host.updateAIPlayer(false);
-                            host.sendMessageToAll("#An AI has been removed. There are " + numOfAI + " AI(s) remaining.");
-                        }
-                        else
-                        {
-                            //send back to the host, telling him AI cannot be removed, since there are none
-                            host.sendMessageToUser(nickname, "#No AI is currently at the table.");
-                        }
-                        */
-
                         // Remove the last AI player.  Do nothing if there are no AI players.
                         for (int i = players.Count - 1; i != 0; i--)
                         {
                             if (players[i].isAI)
+                            {
                                 players.Remove(players[i]);
+                                break;
+                            }
                         }
 
                         SendUpdatedPlayers();
