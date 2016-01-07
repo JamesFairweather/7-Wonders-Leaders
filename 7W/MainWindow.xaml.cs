@@ -243,17 +243,10 @@ namespace SevenWonders
 
             foreach (KeyValuePair<Card, Buildable> kvp in hand)
             {
-                BitmapImage bmpImg = new BitmapImage();
-                bmpImg.BeginInit();
-                //Item1 of the id_buildable array of Tuples represents the id image
-                bmpImg.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/cards/" + (kvp.Key.expansion == ExpansionSet.Leaders ? @"Leaders/" : "") + kvp.Key.Id + ".jpg");
-                bmpImg.EndInit();
-
                 Image img = new Image();
-                img.Source = bmpImg;
+                img.Source = Application.Current.FindResource(kvp.Key.Id) as BitmapImage;
 
                 ListBoxItem entry = new ListBoxItem();
-                //entry.Name = kvp.Key.name;
                 entry.Content = img;
                 entry.BorderThickness = new Thickness(6);
 

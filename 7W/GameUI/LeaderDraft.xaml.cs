@@ -44,13 +44,8 @@ namespace SevenWonders
 
             foreach (string cardName in cards.Keys)
             {
-                BitmapImage bmpImg = new BitmapImage();
-                bmpImg.BeginInit();
-                bmpImg.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/cards/Leaders/" + cardName + ".jpg");
-                bmpImg.EndInit();
-
                 Image img = new Image();
-                img.Source = bmpImg;
+                img.Source = Application.Current.FindResource(cardName) as BitmapImage;
                 img.Height = hand.Height;
 
                 ListBoxItem entry = new ListBoxItem();
@@ -59,8 +54,6 @@ namespace SevenWonders
 
                 hand.Items.Add(entry);
             }
-
-            // btnDraft.IsEnabled = false;
         }
 
         private void hand_SelectionChanged(object sender, SelectionChangedEventArgs e)
