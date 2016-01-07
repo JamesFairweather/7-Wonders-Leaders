@@ -152,7 +152,7 @@ namespace SevenWonders
         Bilkis,
         Caesar,
         Cleopatra,
-        Croeseus,
+        Croesus,
         Euclid,
         Hammurabi,
         Hannibal,

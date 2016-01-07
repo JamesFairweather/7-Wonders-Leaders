@@ -131,7 +131,7 @@ Leaders,Aristotle,Leader,0,Aristotle adds 3 VP to each set of different scientif
 Leaders,Bilkis,Leader,0,Bilkis allows the player to purchase any resource by paying 1 coin to the bank once per turn (for future commerce.),Bilkis,1,1,1,1,1,4,,,,,,,,,,,,,,,,,,,,
 Leaders,Caesar,Leader,0,Caesar grants 2 shields.,shield_2,1,1,1,1,1,5,,,,,,,,,,Military,2,,,,,,,,,
 Leaders,Cleopatra,Leader,0,Cleopatra is worth  5 victory points at the end of the game.,Cleopatra,1,1,1,1,1,4,,,,,,,,,,CoinsPoints,,,,,None,Constant,,5,,
-Leaders,Croeseus,Leader,0,The player takes 6 coins from the bank.,Croeseus,1,1,1,1,1,1,,,,,,,,,,CoinsPoints,,,,,None,Constant,6,,,
+Leaders,Croesus,Leader,0,The player takes 6 coins from the bank.,Croeseus,1,1,1,1,1,1,,,,,,,,,,CoinsPoints,,,,,None,Constant,6,,,
 Leaders,Euclid,Leader,0,He grants the compass scientific symbol. This symbol is added to those of scientific structures (green cards) in the player's city.,compass,1,1,1,1,1,5,,,,,,,,,,Science,,,C,,,,,,,
 Leaders,Hammurabi,Leader,0,Hammruabi allows the player to build blue Structures for one resource less than their written cost (for future cards).,Hammurabi,1,1,1,1,1,2,,,,,,,,,,StructureDiscount,,,,,,,,,,Civilian
 Leaders,Hannibal,Leader,0,Hannibal grants 1 shield.,shield_1,1,1,1,1,1,2,,,,,,,,,,Military,1,,,,,,,,,

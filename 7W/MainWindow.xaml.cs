@@ -246,7 +246,7 @@ namespace SevenWonders
                 BitmapImage bmpImg = new BitmapImage();
                 bmpImg.BeginInit();
                 //Item1 of the id_buildable array of Tuples represents the id image
-                bmpImg.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/cards/" + kvp.Key.Id + ".jpg");
+                bmpImg.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/cards/" + (kvp.Key.expansion == ExpansionSet.Leaders ? @"Leaders/" : "") + kvp.Key.Id + ".jpg");
                 bmpImg.EndInit();
 
                 Image img = new Image();

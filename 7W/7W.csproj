@@ -460,44 +460,6 @@
     <Resource Include="Resources\Images\indexbg4x3.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Images\cards\Alexander.jpg" />
-    <Resource Include="Resources\Images\cards\Amytis.jpg" />
-    <Resource Include="Resources\Images\cards\Archimedes.jpg" />
-    <Resource Include="Resources\Images\cards\Aristotle.jpg" />
-    <Resource Include="Resources\Images\cards\Bilkis.jpg" />
-    <Resource Include="Resources\Images\cards\Caesar.jpg" />
-    <Resource Include="Resources\Images\cards\Cleopatra.jpg" />
-    <Resource Include="Resources\Images\cards\Croeseus.jpg" />
-    <Resource Include="Resources\Images\cards\Euclid.jpg" />
-    <Resource Include="Resources\Images\cards\Hammurabi.jpg" />
-    <Resource Include="Resources\Images\cards\Hannibal.jpg" />
-    <Resource Include="Resources\Images\cards\Hatshepsut.jpg" />
-    <Resource Include="Resources\Images\cards\Hiram.jpg" />
-    <Resource Include="Resources\Images\cards\Hypatia.jpg" />
-    <Resource Include="Resources\Images\cards\Imhotep.jpg" />
-    <Resource Include="Resources\Images\cards\Justinian.jpg" />
-    <Resource Include="Resources\Images\cards\Leonidas.jpg" />
-    <Resource Include="Resources\Images\cards\Maecenas.jpg" />
-    <Resource Include="Resources\Images\cards\Midas.jpg" />
-    <Resource Include="Resources\Images\cards\Nebuchadnezzar.jpg" />
-    <Resource Include="Resources\Images\cards\Nefertiti.jpg" />
-    <Resource Include="Resources\Images\cards\Nero.jpg" />
-    <Resource Include="Resources\Images\cards\Pericles.jpg" />
-    <Resource Include="Resources\Images\cards\Phidias.jpg" />
-    <Resource Include="Resources\Images\cards\Plato.jpg" />
-    <Resource Include="Resources\Images\cards\Praxiteles.jpg" />
-    <Resource Include="Resources\Images\cards\Ptolemy.jpg" />
-    <Resource Include="Resources\Images\cards\Pythagoras.jpg" />
-    <Resource Include="Resources\Images\cards\Ramses.jpg" />
-    <Resource Include="Resources\Images\cards\Sappho.jpg" />
-    <Resource Include="Resources\Images\cards\Solomon.jpg" />
-    <Resource Include="Resources\Images\cards\Tomyris.jpg" />
-    <Resource Include="Resources\Images\cards\Varro.jpg" />
-    <Resource Include="Resources\Images\cards\Vitruvius.jpg" />
-    <Resource Include="Resources\Images\cards\Xenophon.jpg" />
-    <Resource Include="Resources\Images\cards\Zenobia.jpg" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\Icons\Alexander.png" />
     <Resource Include="Resources\Images\Icons\Amytis.png" />
     <Resource Include="Resources\Images\Icons\Archimedes.png" />
@@ -537,17 +499,13 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\cards\Archery_Range.jpg" />
-    <Resource Include="Resources\Images\cards\Architects_Guild.jpg" />
     <Resource Include="Resources\Images\cards\Builders_Guild.jpg" />
     <Resource Include="Resources\Images\cards\Chamber_of_Commerce.jpg" />
     <Resource Include="Resources\Images\cards\Clay_Pit.jpg" />
     <Resource Include="Resources\Images\cards\Clay_Pool.jpg" />
-    <Resource Include="Resources\Images\cards\Courtesans_Guild.jpg" />
     <Resource Include="Resources\Images\cards\Craftsmens_Guild.jpg" />
-    <Resource Include="Resources\Images\cards\Diplomats_Guild.jpg" />
     <Resource Include="Resources\Images\cards\East_Trading_Post.jpg" />
     <Resource Include="Resources\Images\cards\Forest_Cave.jpg" />
-    <Resource Include="Resources\Images\cards\Gamers_Guild.jpg" />
     <Resource Include="Resources\Images\cards\Guard_Tower.jpg" />
     <Resource Include="Resources\Images\cards\Lumber_Yard.jpg" />
     <Resource Include="Resources\Images\cards\Magistrates_Guild.jpg" />
@@ -566,6 +524,48 @@
     <Resource Include="Resources\Images\cards\Tree_Farm.jpg" />
     <Resource Include="Resources\Images\cards\West_Trading_Post.jpg" />
     <Resource Include="Resources\Images\cards\Workers_Guild.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\cards\Leaders\Alexander.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Amytis.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Archimedes.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Architects_Guild.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Aristotle.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Bilkis.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Caesar.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Cleopatra.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Courtesans_Guild.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Croesus.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Diplomats_Guild.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Euclid.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Gamers_Guild.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Hammurabi.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Hannibal.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Hatshepsut.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Hiram.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Hypatia.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Imhotep.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Justinian.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Leonidas.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Maecenas.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Midas.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Nebuchadnezzar.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Nefertiti.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Nero.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Pericles.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Phidias.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Plato.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Praxiteles.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Ptolemy.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Pythagoras.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Ramses.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Sappho.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Solomon.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Tomyris.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Varro.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Vitruvius.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Xenophon.jpg" />
+    <Resource Include="Resources\Images\cards\Leaders\Zenobia.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

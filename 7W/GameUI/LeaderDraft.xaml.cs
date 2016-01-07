@@ -46,7 +46,7 @@ namespace SevenWonders
             {
                 BitmapImage bmpImg = new BitmapImage();
                 bmpImg.BeginInit();
-                bmpImg.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/cards/" + cardName + ".jpg");
+                bmpImg.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/cards/Leaders/" + cardName + ".jpg");
                 bmpImg.EndInit();
 
                 Image img = new Image();
