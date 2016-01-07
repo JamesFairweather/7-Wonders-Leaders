@@ -120,6 +120,7 @@ namespace SevenWonders
             phase = gmCoordinator.leadersEnabled ? GamePhase.LeaderDraft : GamePhase.Playing;
         }
 
+        /*
         /// <summary>
         /// Creating a vanilla AI controlled Player class
         /// </summary>
@@ -148,6 +149,7 @@ namespace SevenWonders
 
             return thisAI;
         }
+        */
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
