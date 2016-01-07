@@ -13,16 +13,10 @@ namespace SevenWonders
 
     public class Server
     {
-        // This hash table stores users and connections (browsable by user)
-        public Hashtable htUsers = new Hashtable(7);
-
         public Dictionary<string, TcpClient> userMap = new Dictionary<string, TcpClient>(7);
 
-        // This hash table stores connections and users (browsable by connection)
-        public Hashtable htConnections = new Hashtable(7);
-
         // Will store the IP address passed to it
-        private IPAddress ipAddress;
+        //private IPAddress ipAddress;
 
         private TcpClient tcpClient;
 
@@ -33,9 +27,6 @@ namespace SevenWonders
 
         // The TCP object that listens for connections
         private TcpListener tcpListener;
-
-        private StreamWriter swSender { get; set; }
-        private StreamReader swReader { get; set; }
 
         // The event and its argument will notify the form when a user has connected, disconnected, send message, etc.
 
@@ -51,8 +42,6 @@ namespace SevenWonders
         public Server()
         {
             acceptClient = true;
-            // numberOFAI = 0;
-            ipAddress = localIP();
         }
 
         /// <summary>
@@ -74,7 +63,7 @@ namespace SevenWonders
         private void keepListeningForNewRequests()
         {
             // Create the TCP listener object using the IP of the server and the specified port
-            tcpListener = new TcpListener(ipAddress, 1989);
+            tcpListener = new TcpListener(localIP(), 1989);
 
             // Start the TCP listener and listen for connections
             tcpListener.Start();
@@ -122,23 +111,23 @@ namespace SevenWonders
         // Add the user to the hash tables
         public void AddUser(TcpClient tcpUser, string strUsername)
         {
-            // add the username and associated connection to both hash tables
-            htUsers.Add(strUsername, tcpUser);
-            htConnections.Add(tcpUser, strUsername);
+            userMap.Add(strUsername, tcpUser);
         }
 
         // Remove the user from the hash tables
         public void RemoveUser(TcpClient tcpUser)
         {
             // If the user is there
-            if (htConnections[tcpUser] != null)
+            foreach (string s in userMap.Keys)
             {
-                // Remove the user from the hash table
-                htUsers.Remove(htConnections[tcpUser]);
-                htConnections.Remove(tcpUser);
+                if (tcpUser == userMap[s])
+                {
+                    userMap.Remove(s);
+                    break;
+                }
             }
 
-            if (htConnections.Count == 0)
+            if (userMap.Count == 0)
             {
                 acceptClient = true;
             }
@@ -197,63 +186,28 @@ namespace SevenWonders
         /// <param name="Message"></param>
         public void sendMessageToUser(String userName, String Message)
         {
-            StreamWriter sw;
-            TcpClient a;
-
-            // Uh, why isn't this a Dictionary?
-
-            Console.WriteLine("Sending message to user {0}: {1}", userName, Message);
-
-            foreach (DictionaryEntry de in htUsers)
-            {
-                if ((string)de.Key == userName)
-                {
-                    a = (TcpClient)de.Value;
-                    sw = new StreamWriter(a.GetStream()); //getTheClient's stream to send a message to that client
-                    sw.WriteLine(Message); //write the message to the client
-                    sw.Flush();
-                    sw = null;
-
-                    return;
-                }
-            }
+            StreamWriter sw = new StreamWriter(userMap[userName].GetStream());
+            sw.WriteLine(Message);
+            sw.Flush();
         }
 
         public void sendMessageToAll(String Message)
         {
-            StreamWriter sw;
-            TcpClient a;
-
             Console.WriteLine("Sending message to all Users: {0}", Message);
 
-            foreach (DictionaryEntry de in htUsers)
+            foreach (TcpClient c in userMap.Values)
             {
-                a = (TcpClient)de.Value;
-                sw = new StreamWriter(a.GetStream()); //getTheClient's stream to send a message to that client
-                sw.WriteLine(Message); //write the message to the client
+                StreamWriter sw = new StreamWriter(c.GetStream());
+                sw.WriteLine(Message);
                 sw.Flush();
-                sw = null;
             }
         }
 
-
-
-        public void handleNewNickName(String oldNickName, String newNickName)
+        public IPAddress GetIPAddressOfUser(string userId)
         {
-            TcpClient temp = null;
-            String tempName = "";
+            TcpClient tcpClient = userMap[userId];
 
-            foreach (DictionaryEntry de in htUsers)
-            {
-
-                temp = (TcpClient)de.Value;
-                tempName = (String)de.Key;
-
-                if (oldNickName == tempName) break;
-            }
-
-            RemoveUser(temp);
-            AddUser(temp, newNickName);
+            return ((System.Net.IPEndPoint)tcpClient.Client.RemoteEndPoint).Address;
         }
     }
 

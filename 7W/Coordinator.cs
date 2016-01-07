@@ -146,26 +146,6 @@ namespace SevenWonders
         }
 #endif
 
-        /*
-        /// <summary>
-        /// Update the Chat logs
-        /// </summary>
-        /// <param name="s"></param>
-        public void updateChatTextBox(string s)
-        {
-            s = s + "\n";
-
-            Application.Current.Dispatcher.Invoke(new Action(delegate
-            {
-                // gameUI.chatTextBox.Text += s;
-                tableUI.chatTextBox.Text += s;
-
-                // gameUI.scroll.ScrollToEnd();
-                tableUI.scroll.ScrollToEnd();
-            }));
-        }
-        */
-
         /// <summary>
         /// User quits the Client program
         /// </summary>
@@ -173,58 +153,6 @@ namespace SevenWonders
         {
             sendToHost("L");
             client.CloseConnection();
-        }
-
-        /// <summary>
-        /// Sends a message to the server telling it to start a game of vanilla or leaders
-        /// send Rv for vanilla
-        /// send Rl for leaders
-        /// </summary>
-        /// <param name="gameMode"></param>
-        public void iAmReady()
-        {
-            // Disable the ready button now that we've indicated we are ready to start.
-            Application.Current.Dispatcher.Invoke(new Action(delegate
-            {
-                tableUI.btnReady.IsEnabled = false;
-            }));
-
-            sendToHost("R");
-        }
-
-        /*
-        public void sendChat()
-        {
-            string message;
-
-            //determine the textfield that is non-empty and send that
-            //this should not be necessary later on, when the UI is better
-            // if (gameUI.chatTextField.Text.Length != 0)
-            // {
-            //     message = gameUI.chatTextField.Text;
-            // }
-            // else
-            {
-                message = tableUI.chatTextField.Text;
-            }
-
-            if (message.Length > 0) //check that the string is valid
-            {
-                //Tell the coordinator to send this a chat message to the server
-                //# means chat message
-                sendToHost("#" + message);
-            }
-
-            //reset the textfields
-            // gameUI.chatTextField.Text = "";
-            tableUI.chatTextField.Text = "";
-        }
-        */
-
-        public void removeAI()
-        {
-            //tell the GMCoordinator, which in turn tells the GameManager, to remove an AI
-            sendToHost("ar");
         }
 
 #if TRUE
@@ -255,6 +183,15 @@ namespace SevenWonders
             tableUI.leaders_Checkbox.IsEnabled = false;
             */
             tableUI.ShowDialog();
+
+            if (playerNames == null)
+            {
+                // If we get here and playerNames is null, the user closed the table UI dialog box
+                // before pressing the ready button (or another player didn't press the ready button)
+                // In that case, we will quit the game without showing the Main Window.
+                hasGame = false;
+                client.CloseConnection();
+            }
 
             // create the leader draft window if the Leaders expansion is enabled.
             if (expansionSet == ExpansionSet.Leaders)

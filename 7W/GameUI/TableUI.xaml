@@ -1,18 +1,30 @@
 ﻿<Window x:Class="SevenWonders.TableUI"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Table Manager" Height="300" Width="500" WindowStartupLocation="CenterScreen" Closed="Window_Closed">
+        Title="Table Manager" Height="300" Width="500" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.Background>
             <ImageBrush ImageSource="../Resources/Images/background.jpg" />
         </Grid.Background>
 
-        <!--
-        <Border BorderBrush="Silver" BorderThickness="1" Height="196" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Margin="321,18,0,0" Grid.ColumnSpan="2" />
-        -->
         <Label Content="Your IP Address" Height="28" HorizontalAlignment="Left" Margin="12,12,0,0" VerticalAlignment="Top" Width="109" />
         <Label Height="28" HorizontalAlignment="Left" Margin="106,12,0,0" Name="yourIPAddressField" VerticalAlignment="Top" Width="120" />
-        <ListBox Height="213" HorizontalAlignment="Left" Margin="10,46,0,0" Name="playerList" VerticalAlignment="Top" Width="392" />
+
+        <ListView Margin="10,46,0,0" Width="392" Height="213" HorizontalAlignment="Left" VerticalAlignment="Top" Name="lvPlayers">
+            <ListView.Resources>
+                <Style TargetType="{x:Type GridViewColumnHeader}">
+                    <Setter Property="HorizontalContentAlignment" Value="Left" />
+                </Style>
+            </ListView.Resources>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Name" Width="150" DisplayMemberBinding="{Binding Name}" />
+                    <GridViewColumn Header="IP Address" Width="130" DisplayMemberBinding="{Binding IPAddress}" />
+                    <GridViewColumn Header="AI Player" Width="50" DisplayMemberBinding="{Binding isAI}" />
+                    <GridViewColumn Header="Ready" Width="55" DisplayMemberBinding="{Binding isReady}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
         <Button Content="Add AI" Name="addAIButton" VerticalAlignment="Top" Click="addAIButton_Click" Margin="407,46,10,0" />
         <Button Content="Remove AI" Name="removeAIButton" VerticalAlignment="Top" Click="removeAIButton_Click" Margin="407,71,10,0" />
         <Button Content="Ready" Name="btnReady" VerticalAlignment="Top" Click="readyButton_Click" IsEnabled="False" Margin="407,239,10,0"/>

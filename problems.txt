@@ -1,6 +1,7 @@
 
 Added by James Fairweather
 UI problems:
+  - It needs to be more obvious when a player has made their selection and is waiting on the other players to make theirs
   - UI is too crowded.  Change it to be a scrollable horizontal panel with one player state in each panel that's much larger.  Should be large enough to show complete state of plus both neighbors.
   - it would be nice if PlayerStatePanels were created dynamically so we maximized our use of space on the Main Window.
     The current behavior is that all 8 panels are created statically and only the ones in use are activated.
@@ -46,10 +47,6 @@ Technical stories:
 	 - all data affecting commerce - what resources the player has, what resources each neighbor has, the next buildable
 	   wonder stage, and what commercial discount effects are in place.
 	- client sends what card was selected and a list of which resources were used.
-
-- The list of players (the datagrid) isn't hooked up at the match-making.
-
-- it would be nice to use data binding, if I can figure it out.
 
 Original text below:
 

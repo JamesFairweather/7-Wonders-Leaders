@@ -29,7 +29,7 @@ namespace SevenWonders
     {
         Coordinator coordinator;
 
-        private ObservableCollection<string> players = new ObservableCollection<string>();
+        private ObservableCollection<Persona> players = new ObservableCollection<Persona>();
 
         /// <summary>
         /// Initialise the Table UI
@@ -44,36 +44,37 @@ namespace SevenWonders
             //get the local IP address
             yourIPAddressField.Content = coordinator.client.ipAddr.ToString();
 
-            playerList.ItemsSource = players;
-        }
-
-        /// <summary>
-        /// Closing the Window
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void Window_Closed(object sender, EventArgs e)
-        {
-            //Close the connection if the ready button is enabled
-            //I.e. if the Ready button was not pressed.
-            if (btnReady.IsEnabled == false)
-            {
-                coordinator.hasGame = false;
-
-                coordinator.client.CloseConnection();
-            }
+            lvPlayers.ItemsSource = players;
         }
 
         public void SetPlayerInfo(NameValueCollection qscoll)
         {
             players.Clear();
 
-            foreach (string s in qscoll["Names"].Split(','))
+            string[] strPlayerNames = qscoll["Names"].Split(',');
+            string[] strPlayerIPs = qscoll["ipAddrs"].Split(',');
+            string[] strAIs = qscoll["isAI"].Split(',');
+            string[] strPlayerStates = qscoll["isReady"].Split(',');
+
+            for (int i = 0; i < strPlayerNames.Count(); ++i)
             {
-                players.Add(s);
+                Persona p = new Persona();
+
+                p.Name = strPlayerNames[i];
+                p.IPAddress = strPlayerIPs[i];
+                p.isAI = strAIs[i] == "True";
+                p.isReady = strPlayerStates[i] == "True";
+
+                if (p.Name == coordinator.nickname)
+                {
+                    btnReady.IsEnabled = p.isReady == false;
+                }
+
+                players.Add(p);
             }
 
-            btnReady.IsEnabled = players.Count >= 3;
+            if (btnReady.IsEnabled)
+                btnReady.IsEnabled = players.Count >= 3;
         }
 
         /// <summary>
@@ -85,9 +86,7 @@ namespace SevenWonders
         /// <param name="e"></param>
         private void readyButton_Click(object sender, RoutedEventArgs e)
         {
-            btnReady.IsEnabled = false;
-
-            coordinator.iAmReady();
+            coordinator.sendToHost("R");
         }
 
         /// <summary>
@@ -109,7 +108,7 @@ namespace SevenWonders
         /// <param name="e"></param>
         private void removeAIButton_Click(object sender, RoutedEventArgs e)
         {
-            coordinator.removeAI();
+            coordinator.sendToHost("ar");
         }
 
         private void expansions_Checkbox_Click(object sender, RoutedEventArgs e)
@@ -130,5 +129,16 @@ namespace SevenWonders
                 coordinator.sendToHost("mV");       // mode Vanilla
             }
         }
+    }
+
+    public class Persona
+    {
+        public string Name { get; set; }
+
+        public bool isAI { get; set; }
+
+        public string IPAddress { get; set; }
+
+        public bool isReady { get; set; }
     }
 }

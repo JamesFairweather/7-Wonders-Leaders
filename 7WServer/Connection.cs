@@ -76,7 +76,7 @@ namespace SevenWonders
             if (currentUser != "")
             {
                 // Store the user name in the hash table
-                if (host.htUsers.Contains(currentUser))
+                if (host.userMap.Keys.Contains(currentUser))
                 {
                     // 0 means not connected
                     swSender.WriteLine("0|Invalid Nickname.");
@@ -85,7 +85,7 @@ namespace SevenWonders
                     return;
                 }
                 // The table is full. There are already 7 Connected Users.
-                else if (host.htUsers.Count + host.NPCplayers == 7)
+                else if (host.userMap.Count + host.NPCplayers == 7)
                 {
                     // 0 means not connected
                     swSender.WriteLine("0|Table is full.");
@@ -93,7 +93,6 @@ namespace SevenWonders
                     CloseConnection();
                     return;
                 }
-
                 else if (!host.acceptClient)
                 {
                     // 0 means not connected

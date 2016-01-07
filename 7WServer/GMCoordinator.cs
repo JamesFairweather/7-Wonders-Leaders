@@ -93,7 +93,7 @@ namespace SevenWonders
             foreach (PlayerInfo pi in players)
             {
                 strPlayerNames += pi.name + ",";
-                strPlayerIPs += pi.ipAddress + ",";
+                strPlayerIPs += (pi.isAI ? "Server IP" : pi.ipAddress.ToString()) + ",";
                 strAIs += pi.isAI + ",";
                 strPlayerStates += pi.isReady + ",";
             }
@@ -162,6 +162,7 @@ namespace SevenWonders
                     PlayerInfo p = new PlayerInfo();
 
                     p.name = nickname;
+                    p.ipAddress = host.GetIPAddressOfUser(nickname);
                     p.isAI = false;
                     p.isReady = false;
 
