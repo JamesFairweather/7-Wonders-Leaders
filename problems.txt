@@ -41,6 +41,11 @@ Technical stories:
 - Should probably have a way to distinguish between the table host (creates the game and may add AI players) vs.
   non-hosts - cannot add AI players.
 
+- Need a way to re-roll the wonder boards.  Probably need a host player for that feature, otherwise it's too
+  easy to abuse.  Game should not begin until all players have confirmed acceptance of their boards.
+
+- Remove Byzantium from 3-player games.
+
 - On a normal turn, there should just one message exchanged: server sends game state to the client:
 	 - what cards were just played by the other players
 	 - what cards are in the player's hand, and their buildable states

@@ -78,6 +78,22 @@
         <BitmapImage x:Key="Scientists_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Scientists_Guild.jpg"/>
         <BitmapImage x:Key="Magistrates_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Magistrates_Guild.jpg"/>
         <BitmapImage x:Key="Builders_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Builders_Guild.jpg"/>
+        <BitmapImage x:Key="Alexandria (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Alexandria (A).jpg"/>
+        <BitmapImage x:Key="Alexandria (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Alexandria (B).jpg"/>
+        <BitmapImage x:Key="Babylon (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Babylon (A).jpg"/>
+        <BitmapImage x:Key="Babylon (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Babylon (B).jpg"/>
+        <BitmapImage x:Key="Ephesos (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Ephesos (A).jpg"/>
+        <BitmapImage x:Key="Ephesos (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Ephesos (B).jpg"/>
+        <BitmapImage x:Key="Giza (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Giza (A).jpg"/>
+        <BitmapImage x:Key="Giza (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Giza (B).jpg"/>
+        <BitmapImage x:Key="Halikarnassos (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Halikarnassos (A).jpg"/>
+        <BitmapImage x:Key="Halikarnassos (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Halikarnassos (B).jpg"/>
+        <BitmapImage x:Key="Olympia (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Olympia (A).jpg"/>
+        <BitmapImage x:Key="Olympia (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Olympia (B).jpg"/>
+        <BitmapImage x:Key="Rhodos (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Rhodos (A).jpg"/>
+        <BitmapImage x:Key="Rhodos (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Rhodos (B).jpg"/>
+        <BitmapImage x:Key="Roma (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Roma (A).jpg"/>
+        <BitmapImage x:Key="Roma (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Roma (B).jpg"/>
         <BitmapImage x:Key="Alexander" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Alexander.jpg"/>
         <BitmapImage x:Key="Amytis" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Amytis.jpg"/>
         <BitmapImage x:Key="Archimedes" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Archimedes.jpg"/>

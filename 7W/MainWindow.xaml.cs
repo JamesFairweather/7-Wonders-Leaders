@@ -244,7 +244,7 @@ namespace SevenWonders
             foreach (KeyValuePair<Card, Buildable> kvp in hand)
             {
                 Image img = new Image();
-                img.Source = Application.Current.FindResource(kvp.Key.Id) as BitmapImage;
+                img.Source = Application.Current.FindResource(kvp.Key.Id.ToString()) as BitmapImage;
 
                 ListBoxItem entry = new ListBoxItem();
                 entry.Content = img;
@@ -562,13 +562,7 @@ namespace SevenWonders
         /// <param name="information"></param>
         public void showBoardImage(string player, String boardInformation)
         {
-            //information holds the board image file name
-            BitmapImage boardImageSource = new BitmapImage();
-            boardImageSource.BeginInit();
-            boardImageSource.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/boards/" + boardInformation.Substring(2) + ".jpg");
-            boardImageSource.EndInit();
-
-            playerState[player].state.PlayerBoard.Source = boardImageSource;
+            playerState[player].state.PlayerBoard.Source = Application.Current.FindResource(boardInformation.Substring(2)) as BitmapImage;
 
             int nWonderStages = Int32.Parse(boardInformation.Substring(0, 1));
 
