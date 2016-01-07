@@ -330,13 +330,19 @@ namespace SevenWonders
                         expansionSet = (ExpansionSet)Enum.Parse(typeof(ExpansionSet), qcoll["Mode"]);
                         Application.Current.Dispatcher.Invoke(new Action(delegate
                         {
-                            if (expansionSet == ExpansionSet.Original)
+                            switch(expansionSet)
                             {
-                                tableUI.leaders_Checkbox.IsChecked = false;
-                            }
-                            else
-                            {
-                                tableUI.leaders_Checkbox.IsChecked = true;
+                                case ExpansionSet.Original:
+                                    tableUI.cmbGameMode.SelectedValue = "Basic";
+                                    break;
+
+                                case ExpansionSet.Leaders:
+                                    tableUI.cmbGameMode.SelectedValue = "Leaders";
+                                    break;
+
+                                case ExpansionSet.Cities:
+                                    tableUI.cmbGameMode.SelectedValue = "Cities";
+                                    break;
                             }
                         }));
                         messageHandled = true;

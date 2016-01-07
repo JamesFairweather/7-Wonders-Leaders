@@ -28,7 +28,15 @@
         <Button Content="Add AI" Name="addAIButton" VerticalAlignment="Top" Click="addAIButton_Click" Margin="407,46,10,0" />
         <Button Content="Remove AI" Name="removeAIButton" VerticalAlignment="Top" Click="removeAIButton_Click" Margin="407,71,10,0" />
         <Button Content="Ready" Name="btnReady" VerticalAlignment="Top" Click="readyButton_Click" IsEnabled="False" Margin="407,239,10,0"/>
+        <Label Content="Game Mode" Margin="407,91,10,151"/>
+        <ComboBox Margin="407,118,10,127" Name="cmbGameMode" SelectionChanged="cmbGameMode_SelectionChanged">
+            <ComboBoxItem Content="Basic" IsSelected="True"></ComboBoxItem>
+            <ComboBoxItem Content="Leaders"></ComboBoxItem>
+            <ComboBoxItem Content="Cities"></ComboBoxItem>
+        </ComboBox>
+        <!--
         <CheckBox Content="Leaders" Name="leaders_Checkbox" VerticalAlignment="Top" Click="expansions_Checkbox_Click" Margin="407,96,-407,0" />
         <CheckBox Content="Cities" Name="cities_Checkbox" VerticalAlignment="Top" Click="expansions_Checkbox_Click" Margin="407,116,-407,0" />
+        -->
     </Grid>
 </Window>

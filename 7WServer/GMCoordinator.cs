@@ -22,18 +22,7 @@ namespace SevenWonders
 
         Server host;
 
-        //int numOfPlayers;
-        //int numOfAI;
-
-        //int numOfCountdownsFinished;
-        //int numOfReadyPlayers;
-
         List<PlayerInfo> players = new List<PlayerInfo>();
-
-        // string[] playerNicks = new string[7];
-        // char[] AIStrats = new char[6];
-
-        int numOfPlayersThatHaveTakenTheirTurn { get; set; }
 
         ExpansionSet currentMode = ExpansionSet.Original;
 
@@ -58,29 +47,10 @@ namespace SevenWonders
 
         public void ResetGMCoordinator()
         {
-            //keep track of information at table UI
-            // numOfAI = 0;
-            //numOfPlayers = 0;
-            //numOfReadyPlayers = 0;
-            //numOfCountdownsFinished = 0;
-            numOfPlayersThatHaveTakenTheirTurn = 0;
-
             // default mode is no expansion packs
             currentMode = ExpansionSet.Original;
 
             gameManager = null;
-
-            /*
-            for (int i = 0; i < AIStrats.Length; ++i)
-            {
-                AIStrats[i] = '\0';
-            }
-
-            for (int i = 0; i < playerNicks.Length; ++i)
-            {
-                playerNicks[i] = null;
-            }
-            */
         }
 
         public void SendUpdatedPlayers()
@@ -234,13 +204,19 @@ namespace SevenWonders
                 //changed by TableUI
                 else if (message[0] == 'm')
                 {
-                    if (message[1] == 'L')
+                    switch (message[1])
                     {
-                        currentMode = ExpansionSet.Leaders;
-                    }
-                    else if (message[1] == 'V')
-                    {
-                        currentMode = ExpansionSet.Original;
+                        case 'V':
+                            currentMode = ExpansionSet.Original;
+                            break;
+
+                        case 'L':
+                            currentMode = ExpansionSet.Leaders;
+                            break;
+
+                        case 'C':
+                            currentMode = ExpansionSet.Cities;
+                            break;
                     }
 
                     host.sendMessageToAll(string.Format("ChngMode&Mode={0}", currentMode));

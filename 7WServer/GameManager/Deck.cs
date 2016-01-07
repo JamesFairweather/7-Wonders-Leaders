@@ -28,11 +28,22 @@ namespace SevenWonders
             {
                 for (int i = 0; i < c.GetNumCardsAvailable(numOfPlayers); ++i)
                 {
-                    if (c.expansion == ExpansionSet.Original || c.expansion == ExpansionSet.Leaders)
-                    {
-                        // remove the Cities cards for now.
-                        this.cardList.Add(c);
-                    }
+                    this.cardList.Add(c);
+                }
+            }
+        }
+
+        public void removeCityCards(int nCardsToRemove)
+        {
+            //shuffle first to randomize the locations of the city cards in the deck
+            shuffle();
+
+            for (int i = cardList.Count - 1; i >= 0 && nCardsToRemove > 0; --i)
+            {
+                if (cardList[i].structureType == StructureType.City)
+                {
+                    cardList.RemoveAt(i);
+                    --nCardsToRemove;
                 }
             }
         }

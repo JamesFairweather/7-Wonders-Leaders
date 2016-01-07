@@ -111,10 +111,12 @@ namespace SevenWonders
             coordinator.sendToHost("ar");
         }
 
+        /*
         private void expansions_Checkbox_Click(object sender, RoutedEventArgs e)
         {
             if ((bool)cities_Checkbox.IsChecked)
             {
+                leaders_Checkbox.IsChecked = true;
                 coordinator.expansionSet = ExpansionSet.Cities;
                 coordinator.sendToHost("mC");       // mode Cities
             }
@@ -125,8 +127,34 @@ namespace SevenWonders
             }
             else
             {
+                cities_Checkbox.IsChecked = false;
                 coordinator.expansionSet = ExpansionSet.Original;
                 coordinator.sendToHost("mV");       // mode Vanilla
+            }
+        }
+        */
+
+        private void cmbGameMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (coordinator == null || cmbGameMode.SelectedItem == null)
+                return;
+
+            switch (((ComboBoxItem)cmbGameMode.SelectedItem).Content as string)
+            {
+                case "Basic":
+                    coordinator.expansionSet = ExpansionSet.Original;
+                    coordinator.sendToHost("mV");       // mode Vanilla
+                    break;
+
+                case "Leaders":
+                    coordinator.expansionSet = ExpansionSet.Leaders;
+                    coordinator.sendToHost("mL");
+                    break;
+
+                case "Cities":
+                    coordinator.expansionSet = ExpansionSet.Cities;
+                    coordinator.sendToHost("mC");
+                    break;
             }
         }
     }
