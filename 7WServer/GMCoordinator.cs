@@ -168,11 +168,8 @@ namespace SevenWonders
 
                     players.Add(p);
 
-                    //store the player's nickname and increase the number of players
-                    // playerNicks[numOfPlayers++] = nickname;
-
                     SendUpdatedPlayers();
-
+                    host.sendMessageToUser(nickname, string.Format("ChngMode&Mode={0}", currentMode));
                 }
                 //R: Player hits the Ready button
                 //increment the numOfReadyPlayers
