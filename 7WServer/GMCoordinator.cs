@@ -212,7 +212,7 @@ namespace SevenWonders
                     }
                     else if (whichExpansion.StartsWith("Cities"))
                     {
-                        leadersEnabled = whichExpansion.Substring(7) == "True";
+                        citiesEnabled = whichExpansion.Substring(7) == "True";
                         host.sendMessageToAll(string.Format("ChngMode&Cities={0}", citiesEnabled));
                     }
                 }

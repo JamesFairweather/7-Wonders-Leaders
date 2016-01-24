@@ -567,6 +567,44 @@
     <Resource Include="Resources\Images\cards\Leaders\Xenophon.jpg" />
     <Resource Include="Resources\Images\cards\Leaders\Zenobia.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\cards\Cities\Architect_Cabinet.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Aspasia.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Berenice.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Black Market.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Botherhood.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Builders_Union.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Caligula.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Capitol.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Cenotaph.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Clandestine_Dock_East.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Clandestine_Dock_West.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Consulate.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Contingent.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Counterfeiters_Guild.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Darius.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Diocletian.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Embassy.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Gambling_Den.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Gambling_House.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Gates_of_the_City.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Guild_of_Shadows.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Hideout.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Lair.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Mercenaries.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Militia.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Mourners_Guild.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Pigeon_Loft.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Residence.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Secret_Society.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Secret_Warehouse.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Semiramis.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Sepulcher.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Slave_Market.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Spy_Ring.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Tabularium.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Torture_Chamber.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

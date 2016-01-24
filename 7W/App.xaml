@@ -134,5 +134,41 @@
         <BitmapImage x:Key="Courtesans_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Courtesans_Guild.jpg"/>
         <BitmapImage x:Key="Diplomats_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Diplomats_Guild.jpg"/>
         <BitmapImage x:Key="Architects_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Architects_Guild.jpg"/>
+        <BitmapImage x:Key="Pigeon_Loft" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Pigeon_Loft.jpg"/>
+        <BitmapImage x:Key="Militia" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Militia.jpg"/>
+        <BitmapImage x:Key="Hideout" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Hideout.jpg"/>
+        <BitmapImage x:Key="Residence" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Residence.jpg"/>
+        <BitmapImage x:Key="Gambling_Den" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Gambling_Den.jpg"/>
+        <BitmapImage x:Key="Clandestine_Dock_West" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Clandestine_Dock_West.jpg"/>
+        <BitmapImage x:Key="Clandestine_Dock_East" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Clandestine_Dock_East.jpg"/>
+        <BitmapImage x:Key="Secret_Warehouse" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Secret_Warehouse.jpg"/>
+        <BitmapImage x:Key="Gates_of_the_City" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Gates_of_the_City.jpg"/>
+        <BitmapImage x:Key="Spy_Ring" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Spy_Ring.jpg"/>
+        <BitmapImage x:Key="Mercenaries" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Mercenaries.jpg"/>
+        <BitmapImage x:Key="Lair" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Lair.jpg"/>
+        <BitmapImage x:Key="Consulate" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Consulate.jpg"/>
+        <BitmapImage x:Key="Gambling_House" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Gambling_House.jpg"/>
+        <BitmapImage x:Key="Black_Market" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Black_Market.jpg"/>
+        <BitmapImage x:Key="Sepulcher" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Sepulcher.jpg"/>
+        <BitmapImage x:Key="Architect_Cabinet" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Architect_Cabinet.jpg"/>
+        <BitmapImage x:Key="Tabularium" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Tabularium.jpg"/>
+        <BitmapImage x:Key="Builders_Union" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Builders_Union.jpg"/>
+        <BitmapImage x:Key="Torture_Chamber" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Torture_Chamber.jpg"/>
+        <BitmapImage x:Key="Contingent" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Contingent.jpg"/>
+        <BitmapImage x:Key="Brotherhood" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Brotherhood.jpg"/>
+        <BitmapImage x:Key="Embassy" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Embassy.jpg"/>
+        <BitmapImage x:Key="Cenotaph" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Cenotaph.jpg"/>
+        <BitmapImage x:Key="Secret_Society" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Secret_Society.jpg"/>
+        <BitmapImage x:Key="Slave_Market" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Slave_Market.jpg"/>
+        <BitmapImage x:Key="Capitol" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Capitol.jpg"/>
+        <BitmapImage x:Key="Bernice" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Bernice.jpg"/>
+        <BitmapImage x:Key="Darius" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Darius.jpg"/>
+        <BitmapImage x:Key="Caligula" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Caligula.jpg"/>
+        <BitmapImage x:Key="Aspasia" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Aspasia.jpg"/>
+        <BitmapImage x:Key="Diocletian" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Diocletian.jpg"/>
+        <BitmapImage x:Key="Semiramis" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Semiramis.jpg"/>
+        <BitmapImage x:Key="Counterfeiters_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Counterfeiters_Guild.jpg"/>
+        <BitmapImage x:Key="Guild_of_Shadows" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Guild_of_Shadows.jpg"/>
+        <BitmapImage x:Key="Mourners_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Mourners_Guild.jpg"/>
     </Application.Resources>
 </Application>

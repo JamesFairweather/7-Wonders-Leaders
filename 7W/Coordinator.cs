@@ -337,7 +337,7 @@ namespace SevenWonders
 
                             if (qcoll["Cities"] != null)
                             {
-                                tableUI.cities_Checkbox.IsChecked = qcoll["Leaders"] == "True";
+                                tableUI.cities_Checkbox.IsChecked = qcoll["Cities"] == "True";
                             }
                         }));
                         messageHandled = true;
