@@ -44,7 +44,7 @@ namespace SevenWonders
 
         public string[] playerNames;
 
-        public ExpansionSet expansionSet = ExpansionSet.Original;
+        public bool isLeadersEnabled = false;
 
         //Timer
         // int timeElapsed;
@@ -194,7 +194,7 @@ namespace SevenWonders
             }
 
             // create the leader draft window if the Leaders expansion is enabled.
-            if (expansionSet == ExpansionSet.Leaders)
+            if (isLeadersEnabled)
                 leaderDraftWindow = new LeaderDraft(this, false);
         }
 
@@ -327,16 +327,17 @@ namespace SevenWonders
                         // Basic/Leaders/Cities
                         qcoll = HttpUtility.ParseQueryString(message.Substring(9));
 
-                        expansionSet = (ExpansionSet)Enum.Parse(typeof(ExpansionSet), qcoll["Mode"]);
                         Application.Current.Dispatcher.Invoke(new Action(delegate
                         {
-                            if (expansionSet == ExpansionSet.Original)
+                            if (qcoll["Leaders"] != null)
                             {
-                                tableUI.leaders_Checkbox.IsChecked = false;
+                                tableUI.leaders_Checkbox.IsChecked = qcoll["Leaders"] == "True";
+                                isLeadersEnabled = (bool)tableUI.leaders_Checkbox.IsChecked;
                             }
-                            else
+
+                            if (qcoll["Cities"] != null)
                             {
-                                tableUI.leaders_Checkbox.IsChecked = true;
+                                tableUI.cities_Checkbox.IsChecked = qcoll["Leaders"] == "True";
                             }
                         }));
                         messageHandled = true;

@@ -24,11 +24,8 @@ namespace SevenWonders
 
         List<PlayerInfo> players = new List<PlayerInfo>();
 
-        ExpansionSet currentMode = ExpansionSet.Original;
-
-        public bool leadersEnabled { get { return currentMode == ExpansionSet.Leaders || currentMode == ExpansionSet.Cities; } }
-
-        public bool citiesEnabled { get { return currentMode == ExpansionSet.Cities; } }
+        public bool leadersEnabled = false;
+        public bool citiesEnabled = false;
 
         /// <summary>
         /// Create a new server.
@@ -48,7 +45,8 @@ namespace SevenWonders
         public void ResetGMCoordinator()
         {
             // default mode is no expansion packs
-            currentMode = ExpansionSet.Original;
+            leadersEnabled = false;
+            citiesEnabled = false;
 
             gameManager = null;
         }
@@ -139,7 +137,8 @@ namespace SevenWonders
                     players.Add(p);
 
                     SendUpdatedPlayers();
-                    host.sendMessageToUser(nickname, string.Format("ChngMode&Mode={0}", currentMode));
+                    host.sendMessageToUser(nickname, string.Format("ChngMode&Leaders={0}", leadersEnabled));
+                    host.sendMessageToUser(nickname, string.Format("ChngMode&Cities={0}", citiesEnabled));
                 }
                 //R: Player hits the Ready button
                 //increment the numOfReadyPlayers
@@ -202,24 +201,20 @@ namespace SevenWonders
                 }
                 //m: game mode options
                 //changed by TableUI
-                else if (message[0] == 'm')
+                else if (message.StartsWith("Expansion"))
                 {
-                    switch (message[1])
+                    string whichExpansion = message.Substring(10);
+
+                    if (whichExpansion.StartsWith("Leaders"))
                     {
-                        case 'V':
-                            currentMode = ExpansionSet.Original;
-                            break;
-
-                        case 'L':
-                            currentMode = ExpansionSet.Leaders;
-                            break;
-
-                        case 'C':
-                            currentMode = ExpansionSet.Cities;
-                            break;
+                        leadersEnabled = whichExpansion.Substring(8) == "True";
+                        host.sendMessageToAll(string.Format("ChngMode&Leaders={0}", leadersEnabled));
                     }
-
-                    host.sendMessageToAll(string.Format("ChngMode&Mode={0}", currentMode));
+                    else if (whichExpansion.StartsWith("Cities"))
+                    {
+                        leadersEnabled = whichExpansion.Substring(7) == "True";
+                        host.sendMessageToAll(string.Format("ChngMode&Cities={0}", citiesEnabled));
+                    }
                 }
 #if FALSE
                 //r: all player's countdowns are 

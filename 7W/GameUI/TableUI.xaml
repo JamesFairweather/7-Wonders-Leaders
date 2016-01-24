@@ -1,7 +1,7 @@
 ﻿<Window x:Class="SevenWonders.TableUI"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Table Manager" Height="300" Width="500" WindowStartupLocation="CenterScreen">
+        Title="Table Manager" Height="382" Width="616" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.Background>
             <ImageBrush ImageSource="../Resources/Images/background.jpg" />
@@ -10,7 +10,7 @@
         <Label Content="Your IP Address" Height="28" HorizontalAlignment="Left" Margin="12,12,0,0" VerticalAlignment="Top" Width="109" />
         <Label Height="28" HorizontalAlignment="Left" Margin="106,12,0,0" Name="yourIPAddressField" VerticalAlignment="Top" Width="120" />
 
-        <ListView Margin="10,46,0,0" Width="392" Height="213" HorizontalAlignment="Left" VerticalAlignment="Top" Name="lvPlayers">
+        <ListView Margin="10,46,0,0" Width="463" Height="247" HorizontalAlignment="Left" VerticalAlignment="Top" Name="lvPlayers">
             <ListView.Resources>
                 <Style TargetType="{x:Type GridViewColumnHeader}">
                     <Setter Property="HorizontalContentAlignment" Value="Left" />
@@ -25,10 +25,11 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <Button Content="Add AI" Name="addAIButton" VerticalAlignment="Top" Click="addAIButton_Click" Margin="407,46,10,0" />
-        <Button Content="Remove AI" Name="removeAIButton" VerticalAlignment="Top" Click="removeAIButton_Click" Margin="407,71,10,0" />
-        <Button Content="Ready" Name="btnReady" VerticalAlignment="Top" Click="readyButton_Click" IsEnabled="False" Margin="407,239,10,0"/>
-        <CheckBox Content="Leaders" Name="leaders_Checkbox" VerticalAlignment="Top" Click="expansions_Checkbox_Click" Margin="407,96,-407,0" />
-        <CheckBox Content="Cities" Name="cities_Checkbox" VerticalAlignment="Top" Click="expansions_Checkbox_Click" Margin="407,116,-407,0" />
+        <Button Content="Add AI" Name="addAIButton" VerticalAlignment="Top" Click="addAIButton_Click" Margin="376,321,174,0" />
+        <Button Content="Remove AI" Name="removeAIButton" VerticalAlignment="Top" Click="removeAIButton_Click" Margin="439,321,94,0" />
+        <Button Content="Ready" Name="btnReady" VerticalAlignment="Top" Click="readyButton_Click" IsEnabled="False" Margin="519,321,10,0"/>
+        <Label Content="Expansion Packs" Height="25" Margin="473,46,10,280"/>
+        <CheckBox Content="Leaders" Name="leaders_Checkbox" VerticalAlignment="Top" Click="leaders_Checkbox_Click" Margin="478,76,48,0" />
+        <CheckBox Content="Cities" Name="cities_Checkbox" VerticalAlignment="Top" Click="cities_Checkbox_Click" Margin="478,96,51,0" />
     </Grid>
 </Window>

@@ -111,25 +111,14 @@ namespace SevenWonders
             coordinator.sendToHost("ar");
         }
 
-        private void expansions_Checkbox_Click(object sender, RoutedEventArgs e)
+        private void leaders_Checkbox_Click(object sender, RoutedEventArgs e)
         {
-            if ((bool)cities_Checkbox.IsChecked)
-            {
-                leaders_Checkbox.IsChecked = true;
-                coordinator.expansionSet = ExpansionSet.Cities;
-                coordinator.sendToHost("mC");       // mode Cities
-            }
-            else if ((bool)leaders_Checkbox.IsChecked)
-            {
-                coordinator.expansionSet = ExpansionSet.Leaders;
-                coordinator.sendToHost("mL");       // mode Leaders
-            }
-            else
-            {
-                cities_Checkbox.IsChecked = false;
-                coordinator.expansionSet = ExpansionSet.Original;
-                coordinator.sendToHost("mV");       // mode Vanilla
-            }
+            coordinator.sendToHost(string.Format("Expansion&Leaders={0}", (bool)leaders_Checkbox.IsChecked));
+        }
+
+        private void cities_Checkbox_Click(object sender, RoutedEventArgs e)
+        {
+            coordinator.sendToHost(string.Format("Expansion&Cities={0}", (bool)cities_Checkbox.IsChecked));
         }
     }
 

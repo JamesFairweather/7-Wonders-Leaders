@@ -361,18 +361,6 @@ namespace SevenWonders
         };
     };
 
-    /*
-    public class CoinEffect : Effect
-    {
-        public int coins;
-
-        public CoinEffect(int coins)
-        {
-            this.coins = coins;
-        }
-    }
-    */
-
     public class MilitaryEffect : Effect
     {
         public int nShields { get; }
