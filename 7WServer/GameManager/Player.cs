@@ -179,6 +179,8 @@ namespace SevenWonders
 
         private List<int> coinTransactions = new List<int>();
 
+        private List<int> coinLossTransactions = new List<int>();
+
         //Player's left and right neighbours
         public Player leftNeighbour { get; set; }
 
@@ -261,6 +263,11 @@ namespace SevenWonders
         public void addTransaction(int coins)
         {
             coinTransactions.Add(coins);
+        }
+
+        public void addCoinLossTransaction(int ncoins)
+        {
+            coinLossTransactions.Add(ncoins);
         }
 
         public void executeActionNow(Card card)
@@ -376,12 +383,39 @@ namespace SevenWonders
             {
                 throw new Exception("This ability needs to be dealt with on the end-of-turn action queue.");
             }
+            else if (effect is LossOfCoinsEffect)
+            {
+                LossOfCoinsEffect loce = effect as LossOfCoinsEffect;
+
+                Player p = rightNeighbour;
+
+                while (p != this)
+                {
+                    switch(loce.lc)
+                    {
+                        case LossOfCoinsEffect.LossCounter.Constant:
+                            p.addCoinLossTransaction(loce.coinsLost);
+                            break;
+
+                        case LossOfCoinsEffect.LossCounter.ConflictToken:
+                            p.addCoinLossTransaction(p.conflictTokenOne + p.conflictTokenTwo + p.conflictTokenThree);
+                            break;
+
+                        case LossOfCoinsEffect.LossCounter.WonderStage:
+                            p.addCoinLossTransaction(p.currentStageOfWonder - 1);
+                            break;
+                    }
+
+                    p = p.rightNeighbour;
+                }
+            }
             else if (
                 effect is ScienceWildEffect ||
                 effect is ScienceEffect ||
                 effect is MilitaryEffect ||
                 effect is FreeLeadersEffect ||
-                effect is StructureDiscountEffect)
+                effect is StructureDiscountEffect ||
+                effect is CopyScienceSymbolFromNeighborEffect)
             {
                 // nothing to do; this card will be included in the end of game point total, or
                 // - Military cards are used at the end of each age to resolve conflicts
@@ -451,6 +485,8 @@ namespace SevenWonders
             }
 
             actions.Clear();
+
+            // after the rest of the commercial transactions have been processed, execute the coin loss transactions
         }
 
         int CountVictoryPoints(CoinsAndPointsEffect cpe)

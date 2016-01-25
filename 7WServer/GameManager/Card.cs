@@ -355,7 +355,7 @@ namespace SevenWonders
 
             // From the Cities expansion pack
             CopyScienceSymbolFromNeighbor,
-            CoinsLossPoints,
+            LossOfCoins,
             Diplomacy,
             CoinsLossPerMilitaryPoints,
         };
@@ -494,8 +494,25 @@ namespace SevenWonders
     {
     }
 
-    public class CoinsLossPointsEffect : Effect
+    public class LossOfCoinsEffect : Effect
     {
+        public enum LossCounter
+        {
+            Constant,
+            ConflictToken,
+            WonderStage,
+        };
+
+        public LossCounter lc;
+        public int coinsLost;
+        public int victoryPoints;
+
+        public LossOfCoinsEffect(LossCounter l, int coinsLost, int victoryPoints)
+        {
+            this.lc = l;
+            this.coinsLost = coinsLost;
+            this.victoryPoints = victoryPoints;
+        }
     }
 
     public class DiplomacyEffect : Effect
@@ -638,8 +655,9 @@ namespace SevenWonders
                         effect = new CopyScienceSymbolFromNeighborEffect();
                         break;
 
-                    case Effect.Type.CoinsLossPoints:
-                        effect = new CoinsLossPointsEffect();
+                    case Effect.Type.LossOfCoins:
+                        LossOfCoinsEffect.LossCounter lc = (LossOfCoinsEffect.LossCounter)Enum.Parse(typeof(LossOfCoinsEffect.LossCounter), createParams[27]);
+                        effect = new LossOfCoinsEffect(lc, int.Parse(createParams[28]), int.Parse(createParams[29]));
                         break;
 
                     case Effect.Type.Diplomacy:
