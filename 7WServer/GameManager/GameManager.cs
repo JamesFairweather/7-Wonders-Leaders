@@ -409,17 +409,12 @@ namespace SevenWonders
         protected void dealDeck(int currentAge)
         {
             //shuffle the deck
-            Deck deck = deckList.Find(x => x.age == currentAge);
+            Deck deck = deckList[currentAge];
 
-            if (currentAge != 4)
-                deck.shuffle();
+            deck.shuffle();
 
-            //if the current deck is 0, then that means we are dealing with the leaders deck
-            int numCardsToDeal;
+            int numCardsToDeal = currentAge == 0 ? 4 : gmCoordinator.citiesEnabled ? 8 : 7;
 
-            numCardsToDeal = currentAge == 0 ? 4 : 7;
-
-            //deal cards to each Player from Deck d
             foreach (Player p in player.Values)
             {
                 for (int j = 0; j < numCardsToDeal; j++)
@@ -460,6 +455,14 @@ namespace SevenWonders
             {
                 board.Add(Board.Wonder.Roma_A, new Board(ExpansionSet.Leaders, Board.Wonder.Roma_B, "Roma (A)", CardId.Roma_A_Board, new FreeLeadersEffect(), 2));
                 board.Add(Board.Wonder.Roma_B, new Board(ExpansionSet.Leaders, Board.Wonder.Roma_A, "Roma (B)", CardId.Roma_B_Board, null, 3));
+            }
+
+            if (gmCoordinator.citiesEnabled)
+            {
+                board.Add(Board.Wonder.Petra_A, new Board(ExpansionSet.Cities, Board.Wonder.Petra_B, "Petra (A)", CardId.Petra_A_Board, new ResourceEffect(true, "B"), 3));
+                board.Add(Board.Wonder.Petra_B, new Board(ExpansionSet.Cities, Board.Wonder.Petra_A, "Petra (B)", CardId.Petra_B_Board, new ResourceEffect(true, "B"), 2));
+                board.Add(Board.Wonder.Byzantium_A, new Board(ExpansionSet.Cities, Board.Wonder.Byzantium_B, "Byzantium (A)", CardId.Byzantium_A_Board, new ResourceEffect(true, "S"), 3));
+                board.Add(Board.Wonder.Byzantium_B, new Board(ExpansionSet.Cities, Board.Wonder.Byzantium_A, "Byzantium (B)", CardId.Byzantium_B_Board, new ResourceEffect(true, "S"), 2));
             }
 
             // Take the board effects from the card list.

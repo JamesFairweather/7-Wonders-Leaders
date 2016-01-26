@@ -29,6 +29,10 @@ namespace SevenWonders
             Rhodos_B,
             Roma_A,
             Roma_B,
+            Petra_A,
+            Petra_B,
+            Byzantium_A,
+            Byzantium_B,
         };
 
         public ExpansionSet expansionSet;
