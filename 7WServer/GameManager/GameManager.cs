@@ -93,7 +93,11 @@ namespace SevenWonders
                 fullCardList.RemoveAll(x => x.expansion == ExpansionSet.Cities);
 
             if (!gmCoordinator.leadersEnabled)
-                fullCardList.RemoveAll(x => x.expansion == ExpansionSet.Leaders);
+            {
+                // Remove all cards which are included with the Leaders expansion pack or 
+                // the Cities expansion pack but are Leaders (e.g. Darius, Aspasia, etc).
+                fullCardList.RemoveAll(x => x.expansion == ExpansionSet.Leaders || x.structureType == StructureType.Leader);
+            }
 
             //initialize the vanilla boards objects
             //does not assign the boards to players yet
