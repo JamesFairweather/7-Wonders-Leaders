@@ -314,12 +314,17 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\Help.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\1m.png" />
     <Resource Include="Resources\Images\1r.png" />
     <Resource Include="Resources\Images\2m.png" />
     <Resource Include="Resources\Images\2r.png" />
+    <Resource Include="Resources\Images\ScoreSheet.jpg" />
+    <Resource Include="Resources\Images\indexbg4x3.jpg" />
+    <Resource Include="Resources\Images\coin-2.png" />
+    <Resource Include="Resources\Images\ConflictAge1.png" />
+    <Resource Include="Resources\Images\ConflictAge2.png" />
+    <Resource Include="Resources\Images\ConflictAge3.png" />
+    <Resource Include="Resources\Images\ConflictLoss.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\Icons\2VP.png" />
@@ -357,6 +362,93 @@
     <Resource Include="Resources\Images\Icons\wood_2.png" />
     <Resource Include="Resources\Images\Icons\wood_clay.png" />
     <Resource Include="Resources\Images\Icons\wood_ore.png" />
+    <Resource Include="Resources\Images\Icons\arena.png" />
+    <Resource Include="Resources\Images\Icons\Bazar.png" />
+    <Resource Include="Resources\Images\Icons\builders_guild.png" />
+    <Resource Include="Resources\Images\Icons\chamber_of_commerce.png" />
+    <Resource Include="Resources\Images\Icons\craftsmens_guild.png" />
+    <Resource Include="Resources\Images\Icons\Haven.png" />
+    <Resource Include="Resources\Images\Icons\Lighthouse.png" />
+    <Resource Include="Resources\Images\Icons\magistrates_guild.png" />
+    <Resource Include="Resources\Images\Icons\philosophers_guild.png" />
+    <Resource Include="Resources\Images\Icons\scientists_guild.png" />
+    <Resource Include="Resources\Images\Icons\shipowners_guild.png" />
+    <Resource Include="Resources\Images\Icons\spies_guild.png" />
+    <Resource Include="Resources\Images\Icons\strategists_guild.png" />
+    <Resource Include="Resources\Images\Icons\Tavern.png" />
+    <Resource Include="Resources\Images\Icons\traders_guild.png" />
+    <Resource Include="Resources\Images\Icons\Vineyard.png" />
+    <Resource Include="Resources\Images\Icons\workers_guild.png" />
+    <Resource Include="Resources\Images\Icons\Alexander.png" />
+    <Resource Include="Resources\Images\Icons\Amytis.png" />
+    <Resource Include="Resources\Images\Icons\Archimedes.png" />
+    <Resource Include="Resources\Images\Icons\architects_guild.png" />
+    <Resource Include="Resources\Images\Icons\Aristotle.png" />
+    <Resource Include="Resources\Images\Icons\Bilkis.png" />
+    <Resource Include="Resources\Images\Icons\Bilkis2.png" />
+    <Resource Include="Resources\Images\Icons\Cleopatra.png" />
+    <Resource Include="Resources\Images\Icons\courtesans_guild.png" />
+    <Resource Include="Resources\Images\Icons\Croeseus.png" />
+    <Resource Include="Resources\Images\Icons\diplomats_guild.png" />
+    <Resource Include="Resources\Images\Icons\gamers_guild.png" />
+    <Resource Include="Resources\Images\Icons\Hammurabi.png" />
+    <Resource Include="Resources\Images\Icons\Hatshepsut.png" />
+    <Resource Include="Resources\Images\Icons\Hiram.png" />
+    <Resource Include="Resources\Images\Icons\Hypatia.png" />
+    <Resource Include="Resources\Images\Icons\Imhotep.png" />
+    <Resource Include="Resources\Images\Icons\Justinian.png" />
+    <Resource Include="Resources\Images\Icons\Leonidas.png" />
+    <Resource Include="Resources\Images\Icons\Maecenas.png" />
+    <Resource Include="Resources\Images\Icons\Midas.png" />
+    <Resource Include="Resources\Images\Icons\Nebuchadnezzar.png" />
+    <Resource Include="Resources\Images\Icons\Nefertiti.png" />
+    <Resource Include="Resources\Images\Icons\Nero.png" />
+    <Resource Include="Resources\Images\Icons\Pericles.png" />
+    <Resource Include="Resources\Images\Icons\Phidias.png" />
+    <Resource Include="Resources\Images\Icons\Plato.png" />
+    <Resource Include="Resources\Images\Icons\Praxiteles.png" />
+    <Resource Include="Resources\Images\Icons\Ramses.png" />
+    <Resource Include="Resources\Images\Icons\Sappho.png" />
+    <Resource Include="Resources\Images\Icons\Solomon.png" />
+    <Resource Include="Resources\Images\Icons\Tomyris.png" />
+    <Resource Include="Resources\Images\Icons\Varro.png" />
+    <Resource Include="Resources\Images\Icons\Vitruvius.png" />
+    <Resource Include="Resources\Images\Icons\Xenophon.png" />
+    <Resource Include="Resources\Images\Icons\Zenobia.png" />
+    <Resource Include="Resources\Images\Icons\Architect_Cabinet.png" />
+    <Resource Include="Resources\Images\Icons\Aspasia.png" />
+    <Resource Include="Resources\Images\Icons\Berenice.png" />
+    <Resource Include="Resources\Images\Icons\Black_Market.png" />
+    <Resource Include="Resources\Images\Icons\Botherhood.png" />
+    <Resource Include="Resources\Images\Icons\Builders_Union.png" />
+    <Resource Include="Resources\Images\Icons\Caligula.png" />
+    <Resource Include="Resources\Images\Icons\Capitol.png" />
+    <Resource Include="Resources\Images\Icons\Cenotaph.png" />
+    <Resource Include="Resources\Images\Icons\Clandestine_Dock_East.png" />
+    <Resource Include="Resources\Images\Icons\Clandestine_Dock_West.png" />
+    <Resource Include="Resources\Images\Icons\Consulate.png" />
+    <Resource Include="Resources\Images\Icons\Contingent.png" />
+    <Resource Include="Resources\Images\Icons\Counterfeiters_Guild.png" />
+    <Resource Include="Resources\Images\Icons\Darius.png" />
+    <Resource Include="Resources\Images\Icons\Diocletian.png" />
+    <Resource Include="Resources\Images\Icons\Embassy.png" />
+    <Resource Include="Resources\Images\Icons\Gambling_Den.png" />
+    <Resource Include="Resources\Images\Icons\Gambling_House.png" />
+    <Resource Include="Resources\Images\Icons\Gates_of_the_City.png" />
+    <Resource Include="Resources\Images\Icons\Guild_of_Shadows.png" />
+    <Resource Include="Resources\Images\Icons\Hideout.png" />
+    <Resource Include="Resources\Images\Icons\Lair.png" />
+    <Resource Include="Resources\Images\Icons\Mask.png" />
+    <Resource Include="Resources\Images\Icons\Mercenaries.png" />
+    <Resource Include="Resources\Images\Icons\Militia.png" />
+    <Resource Include="Resources\Images\Icons\Mourners_Guild.png" />
+    <Resource Include="Resources\Images\Icons\Residence.png" />
+    <Resource Include="Resources\Images\Icons\Secret_Society.png" />
+    <Resource Include="Resources\Images\Icons\Secret_Warehouse.png" />
+    <Resource Include="Resources\Images\Icons\Semiramis.png" />
+    <Resource Include="Resources\Images\Icons\Sepulcher.png" />
+    <Resource Include="Resources\Images\Icons\Slave_Market.png" />
+    <Resource Include="Resources\Images\Icons\Tabularium.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\cards\Academy.jpg" />
@@ -408,96 +500,6 @@
     <Resource Include="Resources\Images\cards\Vineyard.jpg" />
     <Resource Include="Resources\Images\cards\Walls.jpg" />
     <Resource Include="Resources\Images\cards\Workshop.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Images\boards\Alexandria %28A%29.jpg" />
-    <Resource Include="Resources\Images\boards\Alexandria %28B%29.jpg" />
-    <Resource Include="Resources\Images\boards\Babylon %28A%29.jpg" />
-    <Resource Include="Resources\Images\boards\Babylon %28B%29.jpg" />
-    <Resource Include="Resources\Images\boards\Ephesos %28A%29.jpg" />
-    <Resource Include="Resources\Images\boards\Ephesos %28B%29.jpg" />
-    <Resource Include="Resources\Images\boards\Giza %28A%29.jpg" />
-    <Resource Include="Resources\Images\boards\Giza %28B%29.jpg" />
-    <Resource Include="Resources\Images\boards\Halikarnassos %28A%29.jpg" />
-    <Resource Include="Resources\Images\boards\Halikarnassos %28B%29.jpg" />
-    <Resource Include="Resources\Images\boards\Olympia %28A%29.jpg" />
-    <Resource Include="Resources\Images\boards\Olympia %28B%29.jpg" />
-    <Resource Include="Resources\Images\boards\Rhodos %28A%29.jpg" />
-    <Resource Include="Resources\Images\boards\Rhodos %28B%29.jpg" />
-    <Resource Include="Resources\Images\boards\Roma %28A%29.jpg" />
-    <Resource Include="Resources\Images\boards\Roma %28B%29.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Images\Icons\arena.png" />
-    <Resource Include="Resources\Images\Icons\Bazar.png" />
-    <Resource Include="Resources\Images\Icons\builders_guild.png" />
-    <Resource Include="Resources\Images\Icons\chamber_of_commerce.png" />
-    <Resource Include="Resources\Images\Icons\craftsmens_guild.png" />
-    <Resource Include="Resources\Images\Icons\Haven.png" />
-    <Resource Include="Resources\Images\Icons\Lighthouse.png" />
-    <Resource Include="Resources\Images\Icons\magistrates_guild.png" />
-    <Resource Include="Resources\Images\Icons\philosophers_guild.png" />
-    <Resource Include="Resources\Images\Icons\scientists_guild.png" />
-    <Resource Include="Resources\Images\Icons\shipowners_guild.png" />
-    <Resource Include="Resources\Images\Icons\spies_guild.png" />
-    <Resource Include="Resources\Images\Icons\strategists_guild.png" />
-    <Resource Include="Resources\Images\Icons\Tavern.png" />
-    <Resource Include="Resources\Images\Icons\traders_guild.png" />
-    <Resource Include="Resources\Images\Icons\Vineyard.png" />
-    <Resource Include="Resources\Images\Icons\workers_guild.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Images\ScoreSheet.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Images\coin-2.png" />
-    <Resource Include="Resources\Images\ConflictAge1.png" />
-    <Resource Include="Resources\Images\ConflictAge2.png" />
-    <Resource Include="Resources\Images\ConflictAge3.png" />
-    <Resource Include="Resources\Images\ConflictLoss.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Images\indexbg4x3.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Images\Icons\Alexander.png" />
-    <Resource Include="Resources\Images\Icons\Amytis.png" />
-    <Resource Include="Resources\Images\Icons\Archimedes.png" />
-    <Resource Include="Resources\Images\Icons\architects_guild.png" />
-    <Resource Include="Resources\Images\Icons\Aristotle.png" />
-    <Resource Include="Resources\Images\Icons\Bilkis.png" />
-    <Resource Include="Resources\Images\Icons\Bilkis2.png" />
-    <Resource Include="Resources\Images\Icons\Cleopatra.png" />
-    <Resource Include="Resources\Images\Icons\courtesans_guild.png" />
-    <Resource Include="Resources\Images\Icons\Croeseus.png" />
-    <Resource Include="Resources\Images\Icons\diplomats_guild.png" />
-    <Resource Include="Resources\Images\Icons\gamers_guild.png" />
-    <Resource Include="Resources\Images\Icons\Hammurabi.png" />
-    <Resource Include="Resources\Images\Icons\Hatshepsut.png" />
-    <Resource Include="Resources\Images\Icons\Hiram.png" />
-    <Resource Include="Resources\Images\Icons\Hypatia.png" />
-    <Resource Include="Resources\Images\Icons\Imhotep.png" />
-    <Resource Include="Resources\Images\Icons\Justinian.png" />
-    <Resource Include="Resources\Images\Icons\Leonidas.png" />
-    <Resource Include="Resources\Images\Icons\Maecenas.png" />
-    <Resource Include="Resources\Images\Icons\Midas.png" />
-    <Resource Include="Resources\Images\Icons\Nebuchadnezzar.png" />
-    <Resource Include="Resources\Images\Icons\Nefertiti.png" />
-    <Resource Include="Resources\Images\Icons\Nero.png" />
-    <Resource Include="Resources\Images\Icons\Pericles.png" />
-    <Resource Include="Resources\Images\Icons\Phidias.png" />
-    <Resource Include="Resources\Images\Icons\Plato.png" />
-    <Resource Include="Resources\Images\Icons\Praxiteles.png" />
-    <Resource Include="Resources\Images\Icons\Ramses.png" />
-    <Resource Include="Resources\Images\Icons\Sappho.png" />
-    <Resource Include="Resources\Images\Icons\Solomon.png" />
-    <Resource Include="Resources\Images\Icons\Tomyris.png" />
-    <Resource Include="Resources\Images\Icons\Varro.png" />
-    <Resource Include="Resources\Images\Icons\Vitruvius.png" />
-    <Resource Include="Resources\Images\Icons\Xenophon.png" />
-    <Resource Include="Resources\Images\Icons\Zenobia.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\cards\Archery_Range.jpg" />
     <Resource Include="Resources\Images\cards\Builders_Guild.jpg" />
     <Resource Include="Resources\Images\cards\Chamber_of_Commerce.jpg" />
@@ -524,6 +526,24 @@
     <Resource Include="Resources\Images\cards\Tree_Farm.jpg" />
     <Resource Include="Resources\Images\cards\West_Trading_Post.jpg" />
     <Resource Include="Resources\Images\cards\Workers_Guild.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\boards\Alexandria %28A%29.jpg" />
+    <Resource Include="Resources\Images\boards\Alexandria %28B%29.jpg" />
+    <Resource Include="Resources\Images\boards\Babylon %28A%29.jpg" />
+    <Resource Include="Resources\Images\boards\Babylon %28B%29.jpg" />
+    <Resource Include="Resources\Images\boards\Ephesos %28A%29.jpg" />
+    <Resource Include="Resources\Images\boards\Ephesos %28B%29.jpg" />
+    <Resource Include="Resources\Images\boards\Giza %28A%29.jpg" />
+    <Resource Include="Resources\Images\boards\Giza %28B%29.jpg" />
+    <Resource Include="Resources\Images\boards\Halikarnassos %28A%29.jpg" />
+    <Resource Include="Resources\Images\boards\Halikarnassos %28B%29.jpg" />
+    <Resource Include="Resources\Images\boards\Olympia %28A%29.jpg" />
+    <Resource Include="Resources\Images\boards\Olympia %28B%29.jpg" />
+    <Resource Include="Resources\Images\boards\Rhodos %28A%29.jpg" />
+    <Resource Include="Resources\Images\boards\Rhodos %28B%29.jpg" />
+    <Resource Include="Resources\Images\boards\Roma %28A%29.jpg" />
+    <Resource Include="Resources\Images\boards\Roma %28B%29.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\cards\Leaders\Alexander.jpg" />
