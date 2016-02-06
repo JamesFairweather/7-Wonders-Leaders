@@ -341,6 +341,18 @@ namespace SevenWonders
                     case CardId.Courtesans_Guild:
                         phase = GamePhase.Courtesan;
                         break;
+
+                    case CardId.Gambling_Den:
+                        addTransaction(6);
+                        rightNeighbour.addTransaction(1);
+                        leftNeighbour.addTransaction(1);
+                        break;
+
+                    case CardId.Gambling_House:
+                        addTransaction(9);
+                        rightNeighbour.addTransaction(2);
+                        leftNeighbour.addTransaction(2);
+                        break;
                 }
             }
             else if (effect is CommercialDiscountEffect)

@@ -457,6 +457,8 @@ namespace SevenWonders
                 board.Add(Board.Wonder.Roma_B, new Board(ExpansionSet.Leaders, Board.Wonder.Roma_A, "Roma (B)", CardId.Roma_B_Board, null, 3));
             }
 
+            /*
+            Disabled temporarily until I get around to scanning images of these boards.
             if (gmCoordinator.citiesEnabled)
             {
                 board.Add(Board.Wonder.Petra_A, new Board(ExpansionSet.Cities, Board.Wonder.Petra_B, "Petra (A)", CardId.Petra_A_Board, new ResourceEffect(true, "B"), 3));
@@ -464,6 +466,7 @@ namespace SevenWonders
                 board.Add(Board.Wonder.Byzantium_A, new Board(ExpansionSet.Cities, Board.Wonder.Byzantium_B, "Byzantium (A)", CardId.Byzantium_A_Board, new ResourceEffect(true, "S"), 3));
                 board.Add(Board.Wonder.Byzantium_B, new Board(ExpansionSet.Cities, Board.Wonder.Byzantium_A, "Byzantium (B)", CardId.Byzantium_B_Board, new ResourceEffect(true, "S"), 2));
             }
+            */
 
             // Take the board effects from the card list.
 
@@ -494,7 +497,7 @@ namespace SevenWonders
         /// <returns></returns>
         protected Board popRandomBoard()
         {
-            int index = (new Random()).Next(0, board.Count);
+            int index = (new Random()).Next(0, board.Where(x => !x.Value.inPlay).Count());
 
             KeyValuePair<Board.Wonder, Board> randomBoard = board.ElementAt(index);
 
