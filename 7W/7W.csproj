@@ -544,6 +544,18 @@
     <Resource Include="Resources\Images\boards\Rhodos %28B%29.jpg" />
     <Resource Include="Resources\Images\boards\Roma %28A%29.jpg" />
     <Resource Include="Resources\Images\boards\Roma %28B%29.jpg" />
+    <Resource Include="Resources\Images\boards\Abu Simbel %28A%29.jpg" />
+    <Resource Include="Resources\Images\boards\Abu Simbel %28B%29.jpg" />
+    <Resource Include="Resources\Images\boards\Byzantium %28A%29.jpg" />
+    <Resource Include="Resources\Images\boards\Byzantium %28B%29.jpg" />
+    <Resource Include="Resources\Images\boards\China %28A%29.jpg" />
+    <Resource Include="Resources\Images\boards\China %28B%29.jpg" />
+    <Resource Include="Resources\Images\boards\Manneken Pis %28A%29.jpg" />
+    <Resource Include="Resources\Images\boards\Manneken Pis %28B%29.jpg" />
+    <Resource Include="Resources\Images\boards\Petra %28A%29.jpg" />
+    <Resource Include="Resources\Images\boards\Petra %28B%29.jpg" />
+    <Resource Include="Resources\Images\boards\Stonehenge %28A%29.jpg" />
+    <Resource Include="Resources\Images\boards\Stonehenge %28B%29.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\cards\Leaders\Alexander.jpg" />

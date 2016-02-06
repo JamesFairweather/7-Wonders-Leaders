@@ -94,6 +94,18 @@
         <BitmapImage x:Key="Rhodos (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Rhodos (B).jpg"/>
         <BitmapImage x:Key="Roma (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Roma (A).jpg"/>
         <BitmapImage x:Key="Roma (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Roma (B).jpg"/>
+        <BitmapImage x:Key="Byzantium (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Byzantium (B).jpg"/>
+        <BitmapImage x:Key="Byzantium (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Byzantium (B).jpg"/>
+        <BitmapImage x:Key="Petra (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Petra (B).jpg"/>
+        <BitmapImage x:Key="Petra (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Petra (B).jpg"/>
+        <BitmapImage x:Key="Abu Simbel (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Abu Simbel (B).jpg"/>
+        <BitmapImage x:Key="Abu Simbel (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Abu Simbel (B).jpg"/>
+        <BitmapImage x:Key="China (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/China (B).jpg"/>
+        <BitmapImage x:Key="China (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/China (B).jpg"/>
+        <BitmapImage x:Key="Manneken Pis (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Manneken Pis (B).jpg"/>
+        <BitmapImage x:Key="Manneken Pis (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Manneken Pis (B).jpg"/>
+        <BitmapImage x:Key="Stonehenge (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Stonehenge (B).jpg"/>
+        <BitmapImage x:Key="Stonehenge (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Stonehenge (B).jpg"/>
         <BitmapImage x:Key="Alexander" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Alexander.jpg"/>
         <BitmapImage x:Key="Amytis" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Amytis.jpg"/>
         <BitmapImage x:Key="Archimedes" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Archimedes.jpg"/>
