@@ -179,7 +179,9 @@ namespace SevenWonders
 
         private List<int> coinTransactions = new List<int>();
 
-        private List<int> coinLossTransactions = new List<int>();
+        private int coinsToLose = 0;
+
+        private int nDebtTokens = 0;
 
         //Player's left and right neighbours
         public Player leftNeighbour { get; set; }
@@ -267,7 +269,7 @@ namespace SevenWonders
 
         public void addCoinLossTransaction(int ncoins)
         {
-            coinLossTransactions.Add(ncoins);
+            coinsToLose += ncoins;
         }
 
         public void executeActionNow(Card card)
@@ -498,7 +500,25 @@ namespace SevenWonders
 
             actions.Clear();
 
-            // after the rest of the commercial transactions have been processed, execute the coin loss transactions
+            if (coinsToLose != 0)
+            {
+                if (isAI)
+                {
+                    AIBehaviour.loseCoins(this, coinsToLose);
+                }
+                else
+                {
+
+                }
+            }
+        }
+
+        public void takeDebtTokens(int nDebtTokens)
+        {
+            this.nDebtTokens += nDebtTokens;
+            coin -= (coinsToLose - nDebtTokens);
+
+            coinsToLose = 0;
         }
 
         int CountVictoryPoints(CoinsAndPointsEffect cpe)

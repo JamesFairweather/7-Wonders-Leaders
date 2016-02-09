@@ -61,6 +61,11 @@
                                 <SolidColorBrush Color="White" Opacity="0.5"/>
                             </WrapPanel.Background>
                         </WrapPanel>
+                        <WrapPanel x:Name="CityStructures" Margin="1">
+                            <WrapPanel.Background>
+                                <SolidColorBrush Color="Black" Opacity="0.5"/>
+                            </WrapPanel.Background>
+                        </WrapPanel>
                     </StackPanel>
                 </Grid>
             </Grid>

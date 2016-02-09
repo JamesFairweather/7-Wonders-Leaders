@@ -19,7 +19,7 @@ namespace SevenWonders
 {
     public class PlayerState
     {
-        public Dictionary<StructureType, WrapPanel> structuresBuilt = new Dictionary<StructureType, WrapPanel>(8);
+        public Dictionary<StructureType, WrapPanel> structuresBuilt = new Dictionary<StructureType, WrapPanel>(9);
         public Image lastCardPlayed;
 
         public PlayerStateWindow state;
@@ -36,6 +36,7 @@ namespace SevenWonders
             structuresBuilt[StructureType.Civilian] = plyr.CivilianStructures;
             structuresBuilt[StructureType.Guild] = plyr.GuildStructures;
             structuresBuilt[StructureType.Leader] = plyr.LeaderStructures;
+            structuresBuilt[StructureType.City] = plyr.CityStructures;
 
             plyr.CoinsImage.Visibility = Visibility.Visible;
 

@@ -203,6 +203,7 @@ namespace SevenWonders
                 deckList.Add(new Deck(fullCardList, i, numOfAI + numOfPlayers));
             }
 
+            /*
             if (gmCoordinator.citiesEnabled)
             {
                 for (int i = 1; i <= 3; ++i)
@@ -210,6 +211,7 @@ namespace SevenWonders
                     deckList[i].removeCityCards(9 - (numOfPlayers + numOfAI));
                 }
             }
+            */
 
             deckList[3].removeAge3Guilds(fullCardList.Where(x => x.structureType == StructureType.Guild).Count() - (numOfPlayers + numOfAI + 2));
 

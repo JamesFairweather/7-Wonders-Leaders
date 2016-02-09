@@ -197,6 +197,20 @@ namespace SevenWonders
                 Console.WriteLine(player.nickname + " Action: Discard {0}", c.Id);
                 gm.playCard(player, c, BuildAction.Discard, true);
             }
-        } 
+        }
+        
+        public void loseCoins(Player player, int nCoins)
+        {
+            int nDebtTokens = 0;
+
+            int c = player.coin - nCoins;
+
+            if (c < 3)
+            {
+                nDebtTokens = player.coin - c;
+            }
+
+            player.takeDebtTokens(nDebtTokens);
+        }
     }
 }
