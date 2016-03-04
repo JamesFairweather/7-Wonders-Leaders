@@ -45,6 +45,8 @@ namespace SevenWonders
         // playing.  All other phases are special.
         private GamePhase prevPhase;
 
+        private Random rnd;
+
         /// <summary>
         /// Shared constructor for GameManager and LeadersGameManager
         /// Common begin of game tasks that are shared amongst all versions of 7W
@@ -122,6 +124,8 @@ namespace SevenWonders
             }
 
             phase = gmCoordinator.leadersEnabled ? GamePhase.LeaderDraft : GamePhase.Playing;
+
+            rnd = new Random();
         }
 
         /*
@@ -499,7 +503,7 @@ namespace SevenWonders
         /// <returns></returns>
         protected Board popRandomBoard()
         {
-            int index = (new Random()).Next(0, board.Where(x => !x.Value.inPlay).Count());
+            int index = rnd.Next(0, board.Where(x => !x.Value.inPlay).Count());
 
             KeyValuePair<Board.Wonder, Board> randomBoard = board.ElementAt(index);
 

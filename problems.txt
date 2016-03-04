@@ -53,6 +53,9 @@ Technical stories:
 	   wonder stage, and what commercial discount effects are in place.
 	- client sends what card was selected and a list of which resources were used.
 
+- when you build a card from the discard pile, do you get the leader effect (e.g. if you build a commercial structure
+  and you have Xenonphon, do you get the 2 extra coins?)
+
 Original text below:
 
 MainWindow constructor
