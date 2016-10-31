@@ -499,18 +499,6 @@ namespace SevenWonders
             }
 
             actions.Clear();
-
-            if (coinsToLose != 0)
-            {
-                if (isAI)
-                {
-                    AIBehaviour.loseCoins(this, coinsToLose);
-                }
-                else
-                {
-
-                }
-            }
         }
 
         public void takeDebtTokens(int nDebtTokens)
@@ -519,6 +507,22 @@ namespace SevenWonders
             coin -= (coinsToLose - nDebtTokens);
 
             coinsToLose = 0;
+        }
+
+        public void loseCoins()
+        {
+            if (coinsToLose != 0)
+            {
+                if (isAI)
+                {
+                    AIBehaviour.loseCoins(this, coinsToLose);
+                }
+                else
+                {
+                    phase = GamePhase.Debt;
+                    gm.gmCoordinator.sendMessage(this, "GetDebtTokens");
+                }
+            }
         }
 
         int CountVictoryPoints(CoinsAndPointsEffect cpe)
@@ -589,12 +593,17 @@ namespace SevenWonders
             return sum;
         }
 
+        struct ScienceSymbols
+        {
+            public int nTablet;
+            public int nCompass;
+            public int nGear;
+        };
+
         struct ScienceScore
         {
             // copy the input parameters
-            public int nCompass;
-            public int nGear;
-            public int nTablet;
+            public ScienceSymbols sym;
             public int groupMultiplier;
 
             // calculated values
@@ -605,20 +614,20 @@ namespace SevenWonders
 
         int CalculateScienceGroupScore(int nCompass, int nGear, int nTablet, int groupMultiplier, out ScienceScore ss)
         {
-            ss.nCompass = nCompass;
-            ss.nGear = nGear;
-            ss.nTablet = nTablet;
+            ss.sym.nCompass = nCompass;
+            ss.sym.nGear = nGear;
+            ss.sym.nTablet = nTablet;
             ss.groupMultiplier = groupMultiplier;
 
             // Compute output values
-            ss.baseScore = ss.nCompass * ss.nCompass + ss.nGear * ss.nGear + ss.nTablet * ss.nTablet;
-            ss.nGroups = Math.Min(Math.Min(ss.nCompass, ss.nGear), ss.nTablet);
+            ss.baseScore = ss.sym.nCompass * ss.sym.nCompass + ss.sym.nGear * ss.sym.nGear + ss.sym.nTablet * ss.sym.nTablet;
+            ss.nGroups = Math.Min(Math.Min(ss.sym.nCompass, ss.sym.nGear), ss.sym.nTablet);
             ss.TotalPoints = ss.baseScore + ss.nGroups * ss.groupMultiplier;
 
             return ss.TotalPoints;
         }
 
-        ScienceScore FindBestScienceWildcard(int nScienceWildCards, int groupMultiplier)
+        ScienceScore FindBestScienceWildcard(int nWildScienceSymbols, ScienceSymbols copiedSymbols, int groupMultiplier)
         {
             ScienceScore tmpResult = new ScienceScore();
             ScienceScore bestResult = tmpResult;
@@ -639,13 +648,13 @@ namespace SevenWonders
             // But with Aristotle's bonus, it's better to use the wild card to make a 3rd set instead
             // 1/2/6 = 51 with Aristotle but if you do 2/2/5 you get 53 points because the exta set
             // is worth 3 bonus points.
-            for (int i = 0; i <= nScienceWildCards; ++i)
+            for (int i = 0; i <= Math.Max(nWildScienceSymbols, copiedSymbols.nTablet); ++i)
             {
-                for (int j = 0; j <= nScienceWildCards - i; ++j)
+                for (int j = 0; j <= Math.Max(nWildScienceSymbols, copiedSymbols.nCompass) - i; ++j)
                 {
-                    for (int k = 0; k <= nScienceWildCards - i - j; ++k)
+                    for (int k = 0; k <= Math.Max(nWildScienceSymbols, copiedSymbols.nGear) - i - j; ++k)
                     {
-                        int score = CalculateScienceGroupScore(nCompass + i, nGear + j, nTablet + k, groupMultiplier, out tmpResult);
+                        int score = CalculateScienceGroupScore(nTablet + i, nCompass + j, nGear + k, groupMultiplier, out tmpResult);
                         if (score > maxScienceScore)
                         {
                             maxScienceScore = score;
@@ -702,13 +711,28 @@ namespace SevenWonders
             }
             */
 
+            ScienceSymbols wildScienceSymbols;
+
             int nScienceWildCards = playedStructure.Where(x => x.effect is ScienceWildEffect).Count();
+
+            // figure out what symbols can be copied from neighbors by masks
+            int nMasks = playedStructure.Where(x => x.effect is CopyScienceSymbolFromNeighborEffect).Count();
+
+            wildScienceSymbols.nTablet = nScienceWildCards + 
+                leftNeighbour.playedStructure.Where(x => x.effect is ScienceEffect && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Tablet).Count() +
+                rightNeighbour.playedStructure.Where(x => x.effect is ScienceEffect && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Tablet).Count();
+            wildScienceSymbols.nCompass = nScienceWildCards +
+                leftNeighbour.playedStructure.Where(x => x.effect is ScienceEffect && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Compass).Count() +
+                rightNeighbour.playedStructure.Where(x => x.effect is ScienceEffect && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Compass).Count();
+            wildScienceSymbols.nGear = nScienceWildCards + 
+                leftNeighbour.playedStructure.Where(x => x.effect is ScienceEffect && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Gear).Count() +
+                rightNeighbour.playedStructure.Where(x => x.effect is ScienceEffect && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Gear).Count();
 
             // if (nScienceWildCards != 0)
             //    Console.WriteLine("  {0} science wild card effect(s)", nScienceWildCards);
 
             bool hasAristotle = playedStructure.Exists(x => x.Id == CardId.Aristotle);
-            ScienceScore scienceScore = FindBestScienceWildcard(nScienceWildCards, hasAristotle ? 10 : 7);
+            ScienceScore scienceScore = FindBestScienceWildcard(nScienceWildCards + nMasks, wildScienceSymbols, hasAristotle ? 10 : 7);
 
             foreach (Card c in playedStructure.Where(x => x.structureType == StructureType.WonderStage))
             {
@@ -749,7 +773,14 @@ namespace SevenWonders
                                     }
                                     else if (card.effect is ScienceWildEffect)
                                     {
-                                        tmpScienceScore = FindBestScienceWildcard(nScienceWildCards + 1, hasAristotle ? 10 : 7);
+                                        // TODO: refactor this for Cities.
+                                        ScienceSymbols tmp;
+
+                                        tmp.nTablet = nScienceWildCards + 1;
+                                        tmp.nCompass = nScienceWildCards + 1;
+                                        tmp.nGear = nScienceWildCards + 1;
+
+                                        tmpScienceScore = FindBestScienceWildcard(nScienceWildCards + 1, tmp, hasAristotle ? 10 : 7);
                                         pointsForThisGuild = tmpScienceScore.TotalPoints - scienceScore.TotalPoints;
                                     }
 

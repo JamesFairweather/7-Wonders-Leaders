@@ -19,6 +19,7 @@
         RomaB,                  // Waiting  for Roma (B) to play a leader after building 2nd or 3rd wonder stage
         Solomon,                // Waiting for Solomon to play from the discard pile (can coincide with Halikarnassos if Rome B builds its 2nd or 3rd wonder stage and the player plays Solomon)
         Courtesan,              // Waiting for a player to select a leader to copy
+        Debt,                   // Waiting for a player to choose how many debt tokens to take.
         End,
     };
 }

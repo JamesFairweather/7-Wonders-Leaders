@@ -17,6 +17,9 @@ Commerce issues:
 		  as every possible combination must be checked before the cost is said to be impossible.  I.e. using the first resource of an either/or might make it not possible
 		  to afford it but choosing the other one could mean the structure _is_ affordable.  So every possible combination must be checked before the isCardAffordable returns
 		  false, and I don't think it's checking every possible combination.
+		* I found a combination that failed: I built a Forest Cave, then a Timber Yard, then a Caravansery.  The server didn't think I could build the Training Ground (cost: 1 wood, 2 ore)
+		  without using commerce.  But of course I can.  One ore from the Forest Cave, one from the Caravansery, and the wood from the Timber Yard.  Here's another one: Building Worker's Guild
+		  (cost: OOBSW) with Giza B and Clay Pit, Forest Cave, Timber Yard and Caravansery.  It can be built without commerce, but the game says it can't.
 	- Submit data from client should look like: BldStrct&Structure=<Card Name>&CommerceData=true&Player=W/Clay Pit&Player=S/Quarry&Player=S/Quarry&Left=W/Tree Farm&Right=G/Glassworks
 		- Commerce Data is only required for structures that require it.
 		- The card name can be WonderStagen, n { 1, 2, 3, 4 }
@@ -55,6 +58,9 @@ Technical stories:
 
 - when you build a card from the discard pile, do you get the leader effect (e.g. if you build a commercial structure
   and you have Xenonphon, do you get the 2 extra coins?)
+
+- If you build a Press with Halikarnassos free build from the discard pile, it may not find the "right" press
+  as the one in Age 2 is different from the one in Age 1.
 
 Original text below:
 

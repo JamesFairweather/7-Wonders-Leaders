@@ -17,6 +17,8 @@ namespace SevenWonders
 
         public int currentTurn;
 
+        public int nTurnsInEachAge;
+
         // JDF I think player should be a dictionary rather than an array.
         // public Dictionary<string, Player> player;
 
@@ -124,6 +126,9 @@ namespace SevenWonders
             }
 
             phase = gmCoordinator.leadersEnabled ? GamePhase.LeaderDraft : GamePhase.Playing;
+
+            // set the number of turns for each age.  If playing with the Cities expansion, 
+            nTurnsInEachAge = gmCoordinator.citiesEnabled ? 7 : 6;
 
             rnd = new Random();
         }
@@ -810,6 +815,8 @@ namespace SevenWonders
                     discardPile.Add(p.hand.First());
                     p.hand.Clear();
                 }
+
+                p.loseCoins();
             }
         }
 
@@ -1065,7 +1072,7 @@ namespace SevenWonders
 
                 executeActionsAtEndOfTurn();
 
-                if (currentTurn == 6)
+                if (currentTurn == nTurnsInEachAge)
                 {
                     foreach (Player p in player.Values)
                     {
@@ -1128,7 +1135,7 @@ namespace SevenWonders
                             currentTurn++;
 
                             //if the current turn is last turn of Age, do end of Age calculation
-                            if (currentTurn == 7)
+                            if (currentTurn == (nTurnsInEachAge+1))
                             {
                                 //perform end of Age actions
                                 endOfAgeActions();

@@ -184,6 +184,8 @@ namespace SevenWonders
             //set the player's total coins
             playerCoinsLabel.Content = PLAYER_COIN;
 
+            bankCoinsLabel.Content = cardCost.coin;
+
             //set the market images
             leftRawImage.Source = new BitmapImage(
                 new Uri("pack://application:,,,/7W;component/Resources/Images/" + (leftRawMarket ? "1r.png" : "2r.png")));
@@ -224,6 +226,7 @@ namespace SevenWonders
                 case 'G': resourceIconIndex = 4; break;
                 case 'C': resourceIconIndex = 5; break;
                 case 'P': resourceIconIndex = 6; break;
+                case 'M': resourceIconIndex = 7; break;
             }
 
             return resourceIcons[resourceIconIndex];
@@ -525,10 +528,15 @@ namespace SevenWonders
                 costPanel.Children.Add(costLabels[i]);
             }
 
+            int coinCost = cost.coin;
+
+            if (usedBilkis) ++coinCost;
+
             //update the subtotals
             leftSubtotalLabel.Content = leftcoin;
             rightSubtotalLabel.Content = rightcoin;
-            subTotalLabel.Content = leftcoin + rightcoin + (usedBilkis ? 1 : 0);
+            bankCoinsLabel.Content = coinCost;
+            subTotalLabel.Content = coinCost + leftcoin + rightcoin;
         }
 
         /// <summary>
@@ -542,12 +550,6 @@ namespace SevenWonders
             rightcoin = 0;
             usedBilkis = false;
             imgBilkisPower.Opacity = 1.0;
-
-            if (cardCost.coin != 0)
-            {
-                // not sure whether this will work or not.
-                throw new NotImplementedException();
-            }
 
             resourcesNeeded = cardCost.Total();
 

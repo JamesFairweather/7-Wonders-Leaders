@@ -23,8 +23,10 @@
         <Button Content="Reset" Height="23" HorizontalAlignment="Left" Margin="259,546,0,0" Name="resetButton" VerticalAlignment="Top" Width="75" Click="resetButton_Click" />
         <Button Content="Cancel" Height="23" HorizontalAlignment="Left" Margin="429,546,0,0" Name="cancelButton" VerticalAlignment="Top" Width="75" Click="cancelButton_Click" />
         <Label Content="Your coins: " Height="28" HorizontalAlignment="Left" Margin="235,91,0,0" Name="label2" VerticalAlignment="Top" />
-        <Label Content="Subtotal: " Height="28" HorizontalAlignment="Left" Margin="246,500,0,0" Name="label3" VerticalAlignment="Top" />
         <Label Content="" HorizontalAlignment="Left" Margin="307,91,0,462" Name="playerCoinsLabel" Width="38" />
+        <Label Content="Bank: " Height="28" HorizontalAlignment="Left" Margin="246,456,0,0" Name="label6" VerticalAlignment="Top"/>
+        <Label Content="" Height="28" HorizontalAlignment="Left" Margin="307,456,0,0" Name="bankCoinsLabel" VerticalAlignment="Top" Width="38"/>
+        <Label Content="Total: " Height="28" HorizontalAlignment="Left" Margin="246,500,0,0" Name="label3" VerticalAlignment="Top" />
         <Label Content="" Height="28" HorizontalAlignment="Left" Margin="307,500,0,0" Name="subTotalLabel" VerticalAlignment="Top" Width="38" />
         <Label Content="Left Subtotal:" Height="28" HorizontalAlignment="Left" Margin="51,500,0,0" Name="label4" VerticalAlignment="Top" />
         <Label Content="Right Subtotal:" Height="28" HorizontalAlignment="Left" Margin="412,500,0,0" Name="label5" VerticalAlignment="Top" />

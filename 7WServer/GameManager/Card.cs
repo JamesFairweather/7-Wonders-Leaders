@@ -299,7 +299,7 @@ namespace SevenWonders
 
         public int Total()
         {
-            return coin + wood + stone + clay + ore + cloth + glass + papyrus;
+            return wood + stone + clay + ore + cloth + glass + papyrus;
         }
     };
 
