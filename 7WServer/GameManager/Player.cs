@@ -679,6 +679,8 @@ namespace SevenWonders
             // Console.WriteLine("End of game summary for {0}", playerBoard.name);
 
             score.coins = coin / 3;
+
+            score.coins -= debtToken;
             // Console.WriteLine("  Coins at the end of the game: {0}", coin);
 
             // Console.WriteLine("  Military victories for 1st age: {0}", conflictTokenOne);
