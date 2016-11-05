@@ -222,67 +222,40 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Images\HelpSlides\right.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\brick.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\ore.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\stone.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\wood.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\glass.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\loom.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\papyrus.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\coin.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\quit.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\joinGame.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\newGame.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\background.jpg" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\HelpSlides\next.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\HelpSlides\left.jpg" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\stage.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\leader.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\bilkispowerbutton.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\bilkisbackground.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\bilkisbackgroundUI.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Images\courtesan_bg.png" />
+    <Resource Include="Resources\Images\Help.png" />
+    <Resource Include="Resources\Images\1m.png" />
+    <Resource Include="Resources\Images\1r.png" />
+    <Resource Include="Resources\Images\2m.png" />
+    <Resource Include="Resources\Images\2r.png" />
+    <Resource Include="Resources\Images\ScoreSheet.jpg" />
+    <Resource Include="Resources\Images\indexbg4x3.jpg" />
+    <Resource Include="Resources\Images\coin-2.png" />
+    <Resource Include="Resources\Images\ConflictAge1.png" />
+    <Resource Include="Resources\Images\ConflictAge2.png" />
+    <Resource Include="Resources\Images\ConflictAge3.png" />
+    <Resource Include="Resources\Images\ConflictLoss.png" />
+    <Resource Include="Resources\Images\DebtToken.png" />
+    <Resource Include="Resources\Images\diplomacy.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
@@ -311,20 +284,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GameManager\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Images\Help.png" />
-    <Resource Include="Resources\Images\1m.png" />
-    <Resource Include="Resources\Images\1r.png" />
-    <Resource Include="Resources\Images\2m.png" />
-    <Resource Include="Resources\Images\2r.png" />
-    <Resource Include="Resources\Images\ScoreSheet.jpg" />
-    <Resource Include="Resources\Images\indexbg4x3.jpg" />
-    <Resource Include="Resources\Images\coin-2.png" />
-    <Resource Include="Resources\Images\ConflictAge1.png" />
-    <Resource Include="Resources\Images\ConflictAge2.png" />
-    <Resource Include="Resources\Images\ConflictAge3.png" />
-    <Resource Include="Resources\Images\ConflictLoss.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\Icons\2VP.png" />
