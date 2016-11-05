@@ -913,6 +913,7 @@ namespace SevenWonders
         {
             string strPlayerNames = "&Names=";
             string strCoins = "&Coins=";
+            string strDebt = "&Debt=";
             string strCardNames = "&CardNames=";
 
             foreach (Player p in player.Values)
@@ -940,9 +941,14 @@ namespace SevenWonders
                 }
 
                 strCoins += p.coin + ",";
+                strDebt += p.debtToken + ",";
             }
 
-            string strCardsPlayed = "UpdateUI" + strPlayerNames.TrimEnd(',') + strCoins.TrimEnd(',') + strCardNames.TrimEnd(',');
+            string strCardsPlayed = "UpdateUI" +
+                strPlayerNames.TrimEnd(',') +
+                strCoins.TrimEnd(',') +
+                strDebt.TrimEnd(',') +
+                strCardNames.TrimEnd(',');
 
             foreach (Player p in player.Values)
             {

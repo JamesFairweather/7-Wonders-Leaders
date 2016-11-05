@@ -594,14 +594,18 @@ namespace SevenWonders
         {
             string[] playerNames = qscoll["Names"].Split(',');
             string[] coins = qscoll["Coins"].Split(',');
+            string[] debt = qscoll["Debt"].Split(',');
             string[] cardNames = qscoll["CardNames"].Split(',');
 
             for (int i = 0; i < playerNames.Length; ++i)
             {
                 string strCoins = coins[i];
+                string strDebt = debt[i];
+                string playerName = playerNames[i];
+                string cardName = cardNames[i];
 
                 // some of these functions should be in the PlayerState class.
-                TextBlock tb = new TextBlock()
+                TextBlock coins_text = new TextBlock()
                 {
                     Text = "x " + strCoins,
                     TextAlignment = TextAlignment.Center,
@@ -611,10 +615,28 @@ namespace SevenWonders
                     Foreground = new SolidColorBrush(Colors.White),
                 };
 
-                string playerName = playerNames[i];
-                string cardName = cardNames[i];
+                playerState[playerName].state.CoinsLabel.Content = coins_text;
 
-                playerState[playerName].state.CoinsLabel.Content = tb;
+                if (strDebt != "0")
+                {
+                    TextBlock debt_text = new TextBlock()
+                    {
+                        Text = "x " + strDebt,
+                        TextAlignment = TextAlignment.Center,
+                        TextWrapping = TextWrapping.Wrap,
+                        FontFamily = new FontFamily("Lucida Handwriting"),
+                        FontSize = 18,
+                        Foreground = new SolidColorBrush(Colors.White),
+                    };
+
+                    playerState[playerName].state.DebtLabel.Content = debt_text;
+
+                    // make the debt image visible as it is hidden until the player has taken a debt token
+                    if (playerState[playerName].state.DebtImage.Visibility == Visibility.Hidden)
+                    {
+                        playerState[playerName].state.DebtImage.Visibility = Visibility.Visible;
+                    }
+                }
 
                 if (cardName.Length == 12 && cardName.Substring(0, 11) == "WonderStage")
                 {
@@ -721,7 +743,6 @@ namespace SevenWonders
 
                 int age = int.Parse(s[0]);
                 int victoriesInThisAge = int.Parse(s[1]);
-                int totalLossTokens = int.Parse(s[2]);
                 BitmapImage conflictImageSource = new BitmapImage();
 
                 if (victoriesInThisAge != 0)
@@ -737,7 +758,8 @@ namespace SevenWonders
                             {
                                 Image image = new Image();
                                 image.Source = conflictImageSource;
-                                image.Height = 22;
+                                image.Height = 24;
+                                image.ToolTip = "Age I military wins are worth 1 point each.";
                                 ps.state.ConflictTokens.Children.Add(image);
                             }
                             break;
@@ -751,7 +773,8 @@ namespace SevenWonders
                             {
                                 Image image = new Image();
                                 image.Source = conflictImageSource;
-                                image.Height = 30;
+                                image.Height = 32;
+                                image.ToolTip = "Age II military wins are worth 3 points each.";
                                 ps.state.ConflictTokens.Children.Add(image);
                             }
                             break;
@@ -765,29 +788,36 @@ namespace SevenWonders
                             {
                                 Image image = new Image();
                                 image.Source = conflictImageSource;
-                                image.Height = 38;
+                                image.Height = 40;
+                                image.ToolTip = "Age III military wins are worth 5 points each.";
                                 ps.state.ConflictTokens.Children.Add(image);
                             }
                             break;
                     }
                 }
 
-                if (totalLossTokens != ps.state.MilitaryLosses.Children.Count)
+                string strTotalLossTokens = s[2];
+
+                if (strTotalLossTokens != "0")
                 {
-                    BitmapImage lossImageSource = new BitmapImage();
-
-                    lossImageSource.BeginInit();
-                    lossImageSource.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/ConflictLoss.png");
-                    lossImageSource.EndInit();
-
-                    for (int i = ps.state.MilitaryLosses.Children.Count; i < totalLossTokens; ++i)
+                    TextBlock losses_text = new TextBlock()
                     {
-                        Image image = new Image();
-                        image.Source = lossImageSource;
-                        image.Height = 30;
+                        Text = "x " + strTotalLossTokens,
+                        TextAlignment = TextAlignment.Center,
+                        TextWrapping = TextWrapping.Wrap,
+                        FontFamily = new FontFamily("Lucida Handwriting"),
+                        FontSize = 18,
+                        Foreground = new SolidColorBrush(Colors.White),
+                    };
 
-                        ps.state.MilitaryLosses.Children.Add(image);
+                    ps.state.LossLabel.Content = losses_text;
+
+                    // make the debt image visible as it is hidden until the player has taken a debt token
+                    if (ps.state.LossImage.Visibility == Visibility.Hidden)
+                    {
+                        ps.state.LossImage.Visibility = Visibility.Visible;
                     }
+
                 }
             }
         }

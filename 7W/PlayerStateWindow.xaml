@@ -85,9 +85,12 @@
                         <Label x:Name="PlayerName" Grid.Row="0" HorizontalAlignment="Center" FontFamily="Lucida Handwriting" FontSize="12" Foreground="White" Background="Transparent" BorderThickness="0"></Label>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="15,0,0,0" Grid.Row="1">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
-                                <Image x:Name="CoinsImage" VerticalAlignment="Center" Height="30" Source="Resources/Images/Coin.png" Visibility="Hidden"/>
+                                <Image x:Name="CoinsImage" VerticalAlignment="Center" Height="30" Source="Resources/Images/Coin.png" Visibility="Hidden" ToolTip="Coins allow you to purchase resources from neighboring cities or pay for structures with a coin cost."/>
                                 <Label x:Name="CoinsLabel" VerticalAlignment="Center"/>
-                                <StackPanel x:Name="MilitaryLosses" Orientation="Horizontal"></StackPanel>
+                                <Image x:Name="DebtImage" VerticalAlignment="Center" Height="30" Source="Resources/Images/DebtToken.png" Visibility="Hidden" ToolTip="At the end of the game, you lose one Victory Point for each debt token."/>
+                                <Label x:Name="DebtLabel" VerticalAlignment="Center"/>
+                                <Image x:Name="LossImage" VerticalAlignment="Center" Height="30" Source="Resources/Images/ConflictLoss.png" Visibility="Hidden" ToolTip="At the end of the game, you lose one Victory Point for each loss token."/>
+                                <Label x:Name="LossLabel" VerticalAlignment="Center"/>
                             </StackPanel>
                             <StackPanel x:Name="ConflictTokens" Orientation="Horizontal" VerticalAlignment="Top">
                             </StackPanel>

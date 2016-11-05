@@ -141,6 +141,8 @@ namespace SevenWonders
 
         public int lossToken { get; set; }
 
+        public int debtToken { get; set; }
+
         public int conflictTokenOne { get; set; }
 
         public int conflictTokenTwo { get; set; }
@@ -180,8 +182,6 @@ namespace SevenWonders
         private List<int> coinTransactions = new List<int>();
 
         private int coinsToLose = 0;
-
-        private int nDebtTokens = 0;
 
         //Player's left and right neighbours
         public Player leftNeighbour { get; set; }
@@ -503,7 +503,7 @@ namespace SevenWonders
 
         public void takeDebtTokens(int nDebtTokens)
         {
-            this.nDebtTokens += nDebtTokens;
+            debtToken += nDebtTokens;
             coin -= (coinsToLose - nDebtTokens);
 
             coinsToLose = 0;
