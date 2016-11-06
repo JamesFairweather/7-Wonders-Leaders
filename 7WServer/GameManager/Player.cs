@@ -634,33 +634,30 @@ namespace SevenWonders
 
             int maxScienceScore = 0;
 
-            // The player can have up to two science wild cards: Babylon wonder and the Scientists' guild.
-            // Try every possible combination of these cards and select the one that yields the highest score
-            // for the science cards.
+            // this player's science cards:
             int nCompass = playedStructure.Where(x => x.effect is ScienceEffect && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Compass).Count();
             int nGear = playedStructure.Where(x => x.effect is ScienceEffect && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Gear).Count();
             int nTablet = playedStructure.Where(x => x.effect is ScienceEffect && ((ScienceEffect)x.effect).symbol == ScienceEffect.Symbol.Tablet).Count();
 
+            // now add wild cards and symbols copied from neighbors by mask effect cards.
+
             // if wild cards are in play, we choose the best combination of wilds to get the maximum overall
             // score, with Aristotle's bonus factored in.  In some cases, Aristotle's effect will mean it's
             // more beneficial to use the wild card(s) to make more groups rather than like symbols.
-            // For example: 1/2/5+1.  Without Aristotle, the maximum score is 1/2/6 = 48.
-            // But with Aristotle's bonus, it's better to use the wild card to make a 3rd set instead
-            // 1/2/6 = 51 with Aristotle but if you do 2/2/5 you get 53 points because the exta set
-            // is worth 3 bonus points.
-            for (int i = 0; i <= Math.Max(nWildScienceSymbols, copiedSymbols.nTablet); ++i)
-            {
-                for (int j = 0; j <= Math.Max(nWildScienceSymbols, copiedSymbols.nCompass) - i; ++j)
-                {
-                    for (int k = 0; k <= Math.Max(nWildScienceSymbols, copiedSymbols.nGear) - i - j; ++k)
-                    {
-                        int score = CalculateScienceGroupScore(nTablet + i, nCompass + j, nGear + k, groupMultiplier, out tmpResult);
-                        if (score > maxScienceScore)
-                        {
-                            maxScienceScore = score;
+            // For example: 1/2/5+1 wild.  Without Aristotle, the maximum score is 1/2/6 = 48.
+            // But with Aristotle's bonus, it's better to use the wild card to make a 2nd set instead
+            // 1/2/6 = 51 with Aristotle but if you use the wild to make 2/2/5, that group is worth 53 points.
 
-                            bestResult = tmpResult;
-                        }
+            for (int nWildTablets = 0; nWildTablets <= Math.Min(nWildScienceSymbols, copiedSymbols.nTablet); ++nWildTablets)
+            {
+                for (int nWildCompasses = 0; nWildCompasses <= Math.Min(nWildScienceSymbols - nWildTablets, copiedSymbols.nCompass); ++nWildCompasses)
+                {
+                    int mWildGears = Math.Min(nWildScienceSymbols - (nWildTablets + nWildCompasses), copiedSymbols.nGear);
+                    int score = CalculateScienceGroupScore(nTablet + nWildTablets, nCompass + nWildCompasses, nGear + mWildGears, groupMultiplier, out tmpResult);
+                    if (score > maxScienceScore)
+                    {
+                        maxScienceScore = score;
+                        bestResult = tmpResult;
                     }
                 }
             }
