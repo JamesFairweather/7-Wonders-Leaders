@@ -3,6 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
+        <BitmapImage x:Key="DebtToken" UriSource="pack://application:,,,/7W;component/Resources/Images/DebtToken.png"/>
+        <BitmapImage x:Key="ConflictAge1" UriSource="pack://application:,,,/7W;component/Resources/Images/ConflictAge1.png"/>
+        <BitmapImage x:Key="ConflictAge2" UriSource="pack://application:,,,/7W;component/Resources/Images/ConflictAge2.png"/>
+        <BitmapImage x:Key="ConflictAge3" UriSource="pack://application:,,,/7W;component/Resources/Images/ConflictAge3.png"/>
         <BitmapImage x:Key="Lumber_Yard" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Lumber_Yard.jpg"/>
         <BitmapImage x:Key="Stone_Pit" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Stone_Pit.jpg"/>
         <BitmapImage x:Key="Clay_Pool" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Clay_Pool.jpg"/>
@@ -142,8 +146,6 @@
         <BitmapImage x:Key="Vitruvius" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Vitruvius.jpg"/>
         <BitmapImage x:Key="Xenophon" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Xenophon.jpg"/>
         <BitmapImage x:Key="Zenobia" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Zenobia.jpg"/>
-        <BitmapImage x:Key="DebtToken" UriSource="pack:://application:,,,/7W;component/Resources/Images/DebtToken.png"/>
-        <BitmapImage x:Key="DiplomacyToken" UriSource="pack:://application:,,,/7W;component/Resources/Images/diplomacy.png"/>
         <BitmapImage x:Key="Gamers_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Gamers_Guild.jpg"/>
         <BitmapImage x:Key="Courtesans_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Courtesans_Guild.jpg"/>
         <BitmapImage x:Key="Diplomats_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Diplomats_Guild.jpg"/>

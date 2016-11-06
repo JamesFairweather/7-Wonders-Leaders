@@ -743,21 +743,16 @@ namespace SevenWonders
 
                 int age = int.Parse(s[0]);
                 int victoriesInThisAge = int.Parse(s[1]);
-                BitmapImage conflictImageSource = new BitmapImage();
 
                 if (victoriesInThisAge != 0)
                 {
                     switch (age)
                     {
                         case 1:
-                            conflictImageSource.BeginInit();
-                            conflictImageSource.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/ConflictAge1.png");
-                            conflictImageSource.EndInit();
-
                             for (int i = 0; i < victoriesInThisAge; ++i)
                             {
                                 Image image = new Image();
-                                image.Source = conflictImageSource;
+                                image.Source = Application.Current.FindResource("ConflictAge1") as BitmapImage;
                                 image.Height = 24;
                                 image.ToolTip = "Age I military wins are worth 1 point each.";
                                 ps.state.ConflictTokens.Children.Add(image);
@@ -765,14 +760,11 @@ namespace SevenWonders
                             break;
 
                         case 2:
-                            conflictImageSource.BeginInit();
-                            conflictImageSource.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/ConflictAge2.png");
-                            conflictImageSource.EndInit();
 
                             for (int i = 0; i < victoriesInThisAge; ++i)
                             {
                                 Image image = new Image();
-                                image.Source = conflictImageSource;
+                                image.Source = Application.Current.FindResource("ConflictAge2") as BitmapImage;
                                 image.Height = 32;
                                 image.ToolTip = "Age II military wins are worth 3 points each.";
                                 ps.state.ConflictTokens.Children.Add(image);
@@ -780,14 +772,11 @@ namespace SevenWonders
                             break;
 
                         case 3:
-                            conflictImageSource.BeginInit();
-                            conflictImageSource.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/ConflictAge3.png");
-                            conflictImageSource.EndInit();
 
                             for (int i = 0; i < victoriesInThisAge; ++i)
                             {
                                 Image image = new Image();
-                                image.Source = conflictImageSource;
+                                image.Source = Application.Current.FindResource("ConflictAge3") as BitmapImage;
                                 image.Height = 40;
                                 image.ToolTip = "Age III military wins are worth 5 points each.";
                                 ps.state.ConflictTokens.Children.Add(image);

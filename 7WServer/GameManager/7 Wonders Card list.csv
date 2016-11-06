@@ -207,6 +207,6 @@ Cities,Caligula,Leader,0,The player can build one black card per Age for free.,C
 Cities,Aspasia,Leader,0,The player takes a Diplomacy token when Aspasia is played.,Aspasia,0,1,1,1,1,3,,,,,,,,,,Diplomacy,,,,,,,,0,,
 Cities,Diocletian,Leader,0,Diocletian grants 2 coins for each black structure that the player builds from this point forward. The coins are taken from the bank when the structures are built.,Diocletian,0,1,1,1,1,2,,,,,,,,,,CoinsPoints,,,,,Player,City,2,,,
 Cities,Semiramis,Leader,0,All past and future Military Loss tokens count as a shields symbol for future conflict phases.,Semiramis,0,1,1,1,1,2,,,,,,,,,,,,,,,,,,,,
-Cities,Counterfeiters Guild,Guild,3,The card earns 5 victory points and causes the loss of 3 coins from all the other players.,Counterfeiters Guild,1,1,1,1,1,,,,,3,1,1,,,,LossOfCoins,,,,,,Constant,3,5,,
+Cities,Counterfeiters Guild,Guild,3,The card earns 5 victory points and causes the loss of 3 coins from all the other players.,Counterfeiters_Guild,1,1,1,1,1,,,,,3,1,1,,,,LossOfCoins,,,,,,Constant,3,5,,
 Cities,Guild of Shadows,Guild,3,The card earns 1 victory point for each black card present in the two neighboring cities.,Guild_of_Shadows,1,1,1,1,1,,1,2,,,,,1,,,CoinsPoints,,,,,Neighbors,City,,1,,
 Cities,Mourners Guild,Guild,3,The card is worth 1 victory point for each Victory Conflict token present in each of the two neighboring cities.,Mourners_Guild,1,1,1,1,1,,1,,2,,1,1,,,,CoinsPoints,,,,,Neighbors,ConflictToken,,1,,

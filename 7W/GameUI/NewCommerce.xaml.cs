@@ -226,7 +226,6 @@ namespace SevenWonders
                 case 'G': resourceIconIndex = 4; break;
                 case 'C': resourceIconIndex = 5; break;
                 case 'P': resourceIconIndex = 6; break;
-                case 'M': resourceIconIndex = 7; break;
             }
 
             return resourceIcons[resourceIconIndex];
