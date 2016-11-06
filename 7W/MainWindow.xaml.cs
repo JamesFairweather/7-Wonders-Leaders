@@ -175,13 +175,8 @@ namespace SevenWonders
             {
                 Card leaderCard = coordinator.FindCard(leaderCardName);
 
-                BitmapImage bmpImg = new BitmapImage();
-                bmpImg.BeginInit();
-                bmpImg.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/icons/" + leaderCard.iconName + ".png");
-                bmpImg.EndInit();
-
                 Image img = new Image();
-                img.Source = bmpImg;
+                img.Source = FindResource("Icons/" + leaderCard.iconName) as BitmapImage;
                 img.Height = ICON_HEIGHT;
 
                 img.ToolTip = string.Format("{0} - cost: {1} coin{2}.  {3}",
@@ -245,7 +240,7 @@ namespace SevenWonders
             foreach (KeyValuePair<Card, Buildable> kvp in hand)
             {
                 Image img = new Image();
-                img.Source = Application.Current.FindResource(kvp.Key.Id.ToString()) as BitmapImage;
+                img.Source = FindResource(kvp.Key.Id.ToString()) as BitmapImage;
 
                 ListBoxItem entry = new ListBoxItem();
                 entry.Content = img;
@@ -563,7 +558,7 @@ namespace SevenWonders
         /// <param name="information"></param>
         public void showBoardImage(string player, String boardInformation)
         {
-            playerState[player].state.PlayerBoard.Source = Application.Current.FindResource(boardInformation.Substring(2)) as BitmapImage;
+            playerState[player].state.PlayerBoard.Source = FindResource(boardInformation.Substring(2)) as BitmapImage;
 
             int nWonderStages = Int32.Parse(boardInformation.Substring(0, 1));
 
@@ -702,12 +697,8 @@ namespace SevenWonders
                     be.BlurRadius = 25;
                     be.Color = Colors.OrangeRed;
 
-                    BitmapImage bmi = new BitmapImage();
-                    bmi.BeginInit();
-                    bmi.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/Icons/" + lastPlayedCard.iconName + ".png");
-                    bmi.EndInit();
                     Image iconImage = new Image();
-                    iconImage.Source = bmi;
+                    iconImage.Source = FindResource("Icons/" + lastPlayedCard.iconName) as BitmapImage;
                     iconImage.Height = ICON_HEIGHT;                 // limit the height of each card icon to 30 pixels.
                     string strToolTip = string.Format("{0}: {1}", lastPlayedCard.strName, lastPlayedCard.description);
                     if (lastPlayedCard.chain[0] != string.Empty)
@@ -752,7 +743,7 @@ namespace SevenWonders
                             for (int i = 0; i < victoriesInThisAge; ++i)
                             {
                                 Image image = new Image();
-                                image.Source = Application.Current.FindResource("ConflictAge1") as BitmapImage;
+                                image.Source = FindResource("ConflictAge1") as BitmapImage;
                                 image.Height = 24;
                                 image.ToolTip = "Age I military wins are worth 1 point each.";
                                 ps.state.ConflictTokens.Children.Add(image);
@@ -764,7 +755,7 @@ namespace SevenWonders
                             for (int i = 0; i < victoriesInThisAge; ++i)
                             {
                                 Image image = new Image();
-                                image.Source = Application.Current.FindResource("ConflictAge2") as BitmapImage;
+                                image.Source = FindResource("ConflictAge2") as BitmapImage;
                                 image.Height = 32;
                                 image.ToolTip = "Age II military wins are worth 3 points each.";
                                 ps.state.ConflictTokens.Children.Add(image);
@@ -776,7 +767,7 @@ namespace SevenWonders
                             for (int i = 0; i < victoriesInThisAge; ++i)
                             {
                                 Image image = new Image();
-                                image.Source = Application.Current.FindResource("ConflictAge3") as BitmapImage;
+                                image.Source = FindResource("ConflictAge3") as BitmapImage;
                                 image.Height = 40;
                                 image.ToolTip = "Age III military wins are worth 5 points each.";
                                 ps.state.ConflictTokens.Children.Add(image);

@@ -45,7 +45,7 @@ namespace SevenWonders
             foreach (string cardName in cards.Keys)
             {
                 Image img = new Image();
-                img.Source = Application.Current.FindResource(cardName) as BitmapImage;
+                img.Source = FindResource(cardName) as BitmapImage;
                 img.Height = hand.Height;
 
                 ListBoxItem entry = new ListBoxItem();

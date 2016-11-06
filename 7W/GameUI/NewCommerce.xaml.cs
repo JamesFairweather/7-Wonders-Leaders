@@ -55,10 +55,6 @@ namespace SevenWonders
         //e.g. For a DAG that has only 1 level, consisting of WBO, to get O, use [0][2]
         Button[,] leftDagButton, middleDagButton, rightDagButton;
 
-        //Icon Bitmap images
-        //Order: BOTW-GLP
-        BitmapImage[] resourceIcons = new BitmapImage[7];
-
         void CreateDag(ResourceManager d, string sourceStr)
         {
             string[] playerEffectsSplit = sourceStr.Split(',');
@@ -140,42 +136,6 @@ namespace SevenWonders
             CreateDag(leftDag, qscoll["LeftResources"]);
             CreateDag(rightDag, qscoll["RightResources"]);
 
-            //initialise images
-            for (int i = 0; i < 7; i++)
-            {
-                resourceIcons[i] = new BitmapImage();
-                resourceIcons[i].BeginInit();
-                string filename = "";
-
-                switch (i)
-                {
-                    case 0:
-                        filename = "brick";
-                        break;
-                    case 1:
-                        filename = "ore";
-                        break;
-                    case 2:
-                        filename = "stone";
-                        break;
-                    case 3:
-                        filename = "wood";
-                        break;
-                    case 4:
-                        filename = "glass";
-                        break;
-                    case 5:
-                        filename = "loom";
-                        break;
-                    case 6:
-                        filename = "papyrus";
-                        break;
-                }
-
-                resourceIcons[i].UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/" + filename + ".png");
-                resourceIcons[i].EndInit();
-            }
-
             //set the name labels
             leftNameLabel.Content = leftName;
             middleNameLabel.Content = middleName;
@@ -187,12 +147,9 @@ namespace SevenWonders
             bankCoinsLabel.Content = cardCost.coin;
 
             //set the market images
-            leftRawImage.Source = new BitmapImage(
-                new Uri("pack://application:,,,/7W;component/Resources/Images/" + (leftRawMarket ? "1r.png" : "2r.png")));
-            rightRawImage.Source = new BitmapImage(
-                new Uri("pack://application:,,,/7W;component/Resources/Images/" + (rightRawMarket ? "1r.png" : "2r.png")));
-            leftManuImage.Source = rightManuImage.Source = new BitmapImage(
-                new Uri("pack://application:,,,/7W;component/Resources/Images/" + (marketplace ? "1m.png" : "2m.png")));
+            leftRawImage.Source = FindResource(leftRawMarket ? "1r" : "2r") as BitmapImage;
+            rightRawImage.Source = FindResource(rightRawMarket ? "1r" : "2r") as BitmapImage;
+            leftManuImage.Source = rightManuImage.Source = FindResource(marketplace ? "1m" : "2m") as BitmapImage;
 
             if (leaderDiscountCardId != null)
             {
@@ -215,20 +172,20 @@ namespace SevenWonders
 
         BitmapImage GetButtonIcon(char resource)
         {
-            int resourceIconIndex = -1;
+            string resourceName = "";
 
             switch(resource)
             {
-                case 'B': resourceIconIndex = 0; break;
-                case 'O': resourceIconIndex = 1; break;
-                case 'S': resourceIconIndex = 2; break;
-                case 'W': resourceIconIndex = 3; break;
-                case 'G': resourceIconIndex = 4; break;
-                case 'C': resourceIconIndex = 5; break;
-                case 'P': resourceIconIndex = 6; break;
+                case 'B': resourceName = "brick"; break;
+                case 'O': resourceName = "ore"; break;
+                case 'S': resourceName = "stone"; break;
+                case 'W': resourceName = "wood"; break;
+                case 'G': resourceName = "glass"; break;
+                case 'C': resourceName = "loom"; break;
+                case 'P': resourceName = "papyrus"; break;
             }
 
-            return resourceIcons[resourceIconIndex];
+            return FindResource(resourceName) as BitmapImage;
         }
 
         /// <summary>

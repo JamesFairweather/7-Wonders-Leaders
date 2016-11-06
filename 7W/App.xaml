@@ -3,10 +3,152 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <BitmapImage x:Key="DebtToken" UriSource="pack://application:,,,/7W;component/Resources/Images/DebtToken.png"/>
+        <BitmapImage x:Key="1m" UriSource="pack://application:,,,/7W;component/Resources/Images/1m.png"/>
+        <BitmapImage x:Key="1r" UriSource="pack://application:,,,/7W;component/Resources/Images/1r.png"/>
+        <BitmapImage x:Key="2m" UriSource="pack://application:,,,/7W;component/Resources/Images/2m.png"/>
+        <BitmapImage x:Key="2r" UriSource="pack://application:,,,/7W;component/Resources/Images/2r.png"/>
+        <BitmapImage x:Key="background" UriSource="pack://application:,,,/7W;component/Resources/Images/background.jpg"/>
+        <BitmapImage x:Key="brick" UriSource="pack://application:,,,/7W;component/Resources/Images/brick.png"/>
+        <BitmapImage x:Key="coin" UriSource="pack://application:,,,/7W;component/Resources/Images/coin.png"/>
+        <BitmapImage x:Key="coin-2" UriSource="pack://application:,,,/7W;component/Resources/Images/coin-2.png"/>
         <BitmapImage x:Key="ConflictAge1" UriSource="pack://application:,,,/7W;component/Resources/Images/ConflictAge1.png"/>
         <BitmapImage x:Key="ConflictAge2" UriSource="pack://application:,,,/7W;component/Resources/Images/ConflictAge2.png"/>
         <BitmapImage x:Key="ConflictAge3" UriSource="pack://application:,,,/7W;component/Resources/Images/ConflictAge3.png"/>
+        <BitmapImage x:Key="ConflictLoss" UriSource="pack://application:,,,/7W;component/Resources/Images/ConflictLoss.png"/>
+        <BitmapImage x:Key="DebtToken" UriSource="pack://application:,,,/7W;component/Resources/Images/DebtToken.png"/>
+        <BitmapImage x:Key="diplomacy" UriSource="pack://application:,,,/7W;component/Resources/Images/diplomacy.png"/>
+        <BitmapImage x:Key="glass" UriSource="pack://application:,,,/7W;component/Resources/Images/glass.png"/>
+        <BitmapImage x:Key="indexbg4x3" UriSource="pack://application:,,,/7W;component/Resources/Images/indexbg4x3.jpg"/>
+        <BitmapImage x:Key="loom" UriSource="pack://application:,,,/7W;component/Resources/Images/loom.png"/>
+        <BitmapImage x:Key="ore" UriSource="pack://application:,,,/7W;component/Resources/Images/ore.png"/>
+        <BitmapImage x:Key="papyrus" UriSource="pack://application:,,,/7W;component/Resources/Images/papyrus.png"/>
+        <BitmapImage x:Key="ScoreSheet" UriSource="pack://application:,,,/7W;component/Resources/Images/ScoreSheet.jpg"/>
+        <BitmapImage x:Key="stone" UriSource="pack://application:,,,/7W;component/Resources/Images/stone.png"/>
+        <BitmapImage x:Key="wood" UriSource="pack://application:,,,/7W;component/Resources/Images/wood.png"/>
+
+        <BitmapImage x:Key="Icons/2VP" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/2VP.png"/>
+        <BitmapImage x:Key="Icons/3VP" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/3vp.png"/>
+        <BitmapImage x:Key="Icons/4VP" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/4vp.png"/>
+        <BitmapImage x:Key="Icons/5VP" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/5VP.png"/>
+        <BitmapImage x:Key="Icons/6VP" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/6VP.png"/>
+        <BitmapImage x:Key="Icons/7VP" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/7VP.png"/>
+        <BitmapImage x:Key="Icons/8VP" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/8VP.png"/>
+        <BitmapImage x:Key="Icons/Alexander" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Alexander.png"/>
+        <BitmapImage x:Key="Icons/Amytis" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Amytis.png"/>
+        <BitmapImage x:Key="Icons/Archimedes" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Archimedes.png"/>
+        <BitmapImage x:Key="Icons/Architect_Cabinet" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Architect_Cabinet.png"/>
+        <BitmapImage x:Key="Icons/architects_guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/architects_guild.png"/>
+        <BitmapImage x:Key="Icons/arena" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/arena.png"/>
+        <BitmapImage x:Key="Icons/Aristotle" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Aristotle.png"/>
+        <BitmapImage x:Key="Icons/Aspasia" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Aspasia.png"/>
+        <BitmapImage x:Key="Icons/Bazar" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Bazar.png"/>
+        <BitmapImage x:Key="Icons/Berenice" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Berenice.png"/>
+        <BitmapImage x:Key="Icons/Bilkis" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Bilkis.png"/>
+        <BitmapImage x:Key="Icons/Bilkis2" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Bilkis2.png"/>
+        <BitmapImage x:Key="Icons/Black_Market" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Black_Market.png"/>
+        <BitmapImage x:Key="Icons/Botherhood" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Botherhood.png"/>
+        <BitmapImage x:Key="Icons/builders_guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/builders_guild.png"/>
+        <BitmapImage x:Key="Icons/Builders_Union" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Builders_Union.png"/>
+        <BitmapImage x:Key="Icons/Caligula" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Caligula.png"/>
+        <BitmapImage x:Key="Icons/Capitol" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Capitol.png"/>
+        <BitmapImage x:Key="Icons/caravansery" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/caravansery.png"/>
+        <BitmapImage x:Key="Icons/Cenotaph" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Cenotaph.png"/>
+        <BitmapImage x:Key="Icons/chamber_of_commerce" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/chamber_of_commerce.png"/>
+        <BitmapImage x:Key="Icons/Clandestine_Dock_East" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Clandestine_Dock_East.png"/>
+        <BitmapImage x:Key="Icons/Clandestine_Dock_West" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Clandestine_Dock_West.png"/>
+        <BitmapImage x:Key="Icons/clay_1" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/clay_1.png"/>
+        <BitmapImage x:Key="Icons/clay_2" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/clay_2.png"/>
+        <BitmapImage x:Key="Icons/clay_ore" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/clay_ore.png"/>
+        <BitmapImage x:Key="Icons/Cleopatra" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Cleopatra.png"/>
+        <BitmapImage x:Key="Icons/cloth" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/cloth.png"/>
+        <BitmapImage x:Key="Icons/compass" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/compass.png"/>
+        <BitmapImage x:Key="Icons/Consulate" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Consulate.png"/>
+        <BitmapImage x:Key="Icons/Contingent" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Contingent.png"/>
+        <BitmapImage x:Key="Icons/Counterfeiters_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Counterfeiters_Guild.png"/>
+        <BitmapImage x:Key="Icons/courtesans_guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/courtesans_guild.png"/>
+        <BitmapImage x:Key="Icons/craftsmens_guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/craftsmens_guild.png"/>
+        <BitmapImage x:Key="Icons/Croeseus" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Croeseus.png"/>
+        <BitmapImage x:Key="Icons/Darius" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Darius.png"/>
+        <BitmapImage x:Key="Icons/Diocletian" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Diocletian.png"/>
+        <BitmapImage x:Key="Icons/diplomats_guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/diplomats_guild.png"/>
+        <BitmapImage x:Key="Icons/east_trading_post" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/east_trading_post.png"/>
+        <BitmapImage x:Key="Icons/Embassy" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Embassy.png"/>
+        <BitmapImage x:Key="Icons/forum" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/forum.png"/>
+        <BitmapImage x:Key="Icons/Gambling_Den" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Gambling_Den.png"/>
+        <BitmapImage x:Key="Icons/Gambling_House" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Gambling_House.png"/>
+        <BitmapImage x:Key="Icons/gamers_guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/gamers_guild.png"/>
+        <BitmapImage x:Key="Icons/Gates_of_the_City" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Gates_of_the_City.png"/>
+        <BitmapImage x:Key="Icons/gear" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/gear.png"/>
+        <BitmapImage x:Key="Icons/glass" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/glass.png"/>
+        <BitmapImage x:Key="Icons/Guild_of_Shadows" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Guild_of_Shadows.png"/>
+        <BitmapImage x:Key="Icons/Hammurabi" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Hammurabi.png"/>
+        <BitmapImage x:Key="Icons/Hatshepsut" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Hatshepsut.png"/>
+        <BitmapImage x:Key="Icons/haven" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Haven.png"/>
+        <BitmapImage x:Key="Icons/Hideout" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Hideout.png"/>
+        <BitmapImage x:Key="Icons/Hiram" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Hiram.png"/>
+        <BitmapImage x:Key="Icons/Hypatia" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Hypatia.png"/>
+        <BitmapImage x:Key="Icons/Imhotep" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Imhotep.png"/>
+        <BitmapImage x:Key="Icons/Justinian" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Justinian.png"/>
+        <BitmapImage x:Key="Icons/Lair" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Lair.png"/>
+        <BitmapImage x:Key="Icons/Leonidas" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Leonidas.png"/>
+        <BitmapImage x:Key="Icons/lighthouse" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Lighthouse.png"/>
+        <BitmapImage x:Key="Icons/Maecenas" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Maecenas.png"/>
+        <BitmapImage x:Key="Icons/magistrates_guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/magistrates_guild.png"/>
+        <BitmapImage x:Key="Icons/marketplace" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/marketplace.png"/>
+        <BitmapImage x:Key="Icons/Mask" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Mask.png"/>
+        <BitmapImage x:Key="Icons/Mercenaries" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Mercenaries.png"/>
+        <BitmapImage x:Key="Icons/Midas" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Midas.png"/>
+        <BitmapImage x:Key="Icons/Militia" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Militia.png"/>
+        <BitmapImage x:Key="Icons/Mourners_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Mourners_Guild.png"/>
+        <BitmapImage x:Key="Icons/Nebuchadnezzar" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Nebuchadnezzar.png"/>
+        <BitmapImage x:Key="Icons/Nefertiti" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Nefertiti.png"/>
+        <BitmapImage x:Key="Icons/Nero" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Nero.png"/>
+        <BitmapImage x:Key="Icons/ore_1" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/ore_1.png"/>
+        <BitmapImage x:Key="Icons/ore_2" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/ore_2.png"/>
+        <BitmapImage x:Key="Icons/papyrus" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/papyrus.png"/>
+        <BitmapImage x:Key="Icons/Pericles" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Pericles.png"/>
+        <BitmapImage x:Key="Icons/Phidias" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Phidias.png"/>
+        <BitmapImage x:Key="Icons/philosophers_guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/philosophers_guild.png"/>
+        <BitmapImage x:Key="Icons/Plato" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Plato.png"/>
+        <BitmapImage x:Key="Icons/Praxiteles" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Praxiteles.png"/>
+        <BitmapImage x:Key="Icons/Ramses" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Ramses.png"/>
+        <BitmapImage x:Key="Icons/Residence" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Residence.png"/>
+        <BitmapImage x:Key="Icons/Sappho" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Sappho.png"/>
+        <BitmapImage x:Key="Icons/scientists_guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/scientists_guild.png"/>
+        <BitmapImage x:Key="Icons/Secret_Society" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Secret_Society.png"/>
+        <BitmapImage x:Key="Icons/Secret_Warehouse" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Secret_Warehouse.png"/>
+        <BitmapImage x:Key="Icons/Semiramis" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Semiramis.png"/>
+        <BitmapImage x:Key="Icons/Sepulcher" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Sepulcher.png"/>
+        <BitmapImage x:Key="Icons/shield_1" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/shield_1.png"/>
+        <BitmapImage x:Key="Icons/shield_2" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/shield_2.png"/>
+        <BitmapImage x:Key="Icons/shield_3" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/shield_3.png"/>
+        <BitmapImage x:Key="Icons/shipowners_guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/shipowners_guild.png"/>
+        <BitmapImage x:Key="Icons/Slave_Market" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Slave_Market.png"/>
+        <BitmapImage x:Key="Icons/Solomon" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Solomon.png"/>
+        <BitmapImage x:Key="Icons/spies_guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/spies_guild.png"/>
+        <BitmapImage x:Key="Icons/stone_1" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/stone_1.png"/>
+        <BitmapImage x:Key="Icons/stone_2" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/stone_2.png"/>
+        <BitmapImage x:Key="Icons/stone_clay" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/stone_clay.png"/>
+        <BitmapImage x:Key="Icons/stone_ore" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/stone_ore.png"/>
+        <BitmapImage x:Key="Icons/stone_wood" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/stone_wood.png"/>
+        <BitmapImage x:Key="Icons/strategists_guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/strategists_guild.png"/>
+        <BitmapImage x:Key="Icons/tablet" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/tablet.png"/>
+        <BitmapImage x:Key="Icons/Tabularium" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Tabularium.png"/>
+        <BitmapImage x:Key="Icons/tavern" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Tavern.png"/>
+        <BitmapImage x:Key="Icons/Tomyris" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Tomyris.png"/>
+        <BitmapImage x:Key="Icons/traders_guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/traders_guild.png"/>
+        <BitmapImage x:Key="Icons/Varro" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Varro.png"/>
+        <BitmapImage x:Key="Icons/vineyard" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Vineyard.png"/>
+        <BitmapImage x:Key="Icons/Vitruvius" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Vitruvius.png"/>
+        <BitmapImage x:Key="Icons/west_trading_post" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/west_trading_post.png"/>
+        <BitmapImage x:Key="Icons/wood_1" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/wood_1.png"/>
+        <BitmapImage x:Key="Icons/wood_2" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/wood_2.png"/>
+        <BitmapImage x:Key="Icons/wood_clay" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/wood_clay.png"/>
+        <BitmapImage x:Key="Icons/wood_ore" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/wood_ore.png"/>
+        <BitmapImage x:Key="Icons/workers_guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/workers_guild.png"/>
+        <BitmapImage x:Key="Icons/Xenophon" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Xenophon.png"/>
+        <BitmapImage x:Key="Icons/Zenobia" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Zenobia.png"/>
+        
         <BitmapImage x:Key="Lumber_Yard" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Lumber_Yard.jpg"/>
         <BitmapImage x:Key="Stone_Pit" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Stone_Pit.jpg"/>
         <BitmapImage x:Key="Clay_Pool" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Clay_Pool.jpg"/>
@@ -82,6 +224,7 @@
         <BitmapImage x:Key="Scientists_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Scientists_Guild.jpg"/>
         <BitmapImage x:Key="Magistrates_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Magistrates_Guild.jpg"/>
         <BitmapImage x:Key="Builders_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Builders_Guild.jpg"/>
+
         <BitmapImage x:Key="Alexandria (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Alexandria (A).jpg"/>
         <BitmapImage x:Key="Alexandria (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Alexandria (B).jpg"/>
         <BitmapImage x:Key="Babylon (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Babylon (A).jpg"/>
@@ -110,6 +253,7 @@
         <BitmapImage x:Key="Manneken Pis (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Manneken Pis (B).jpg"/>
         <BitmapImage x:Key="Stonehenge (A)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Stonehenge (B).jpg"/>
         <BitmapImage x:Key="Stonehenge (B)" UriSource="pack://application:,,,/7W;component/Resources/Images/boards/Stonehenge (B).jpg"/>
+
         <BitmapImage x:Key="Alexander" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Alexander.jpg"/>
         <BitmapImage x:Key="Amytis" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Amytis.jpg"/>
         <BitmapImage x:Key="Archimedes" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Archimedes.jpg"/>
@@ -150,6 +294,7 @@
         <BitmapImage x:Key="Courtesans_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Courtesans_Guild.jpg"/>
         <BitmapImage x:Key="Diplomats_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Diplomats_Guild.jpg"/>
         <BitmapImage x:Key="Architects_Guild" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Leaders/Architects_Guild.jpg"/>
+
         <BitmapImage x:Key="Pigeon_Loft" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Pigeon_Loft.jpg"/>
         <BitmapImage x:Key="Militia" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Militia.jpg"/>
         <BitmapImage x:Key="Hideout" UriSource="pack://application:,,,/7W;component/Resources/Images/cards/Cities/Hideout.jpg"/>
