@@ -5,12 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SevenWonders"
         mc:Ignorable="d"
-        Title="Game Over! Final Scores" Height="410" Width="258" Icon="../Resources/Images/stage.png" Closed="Window_Closed">
+        Title="Game Over! Final Scores" Height="451" Width="258" Icon="../Resources/Images/stage.png" Closed="Window_Closed">
     <Grid Name="ScoreGrid">
         <Grid.Background>
             <ImageBrush ImageSource="../Resources/Images/ScoreSheet.jpg" Stretch="None" AlignmentX="Left" />
         </Grid.Background>
         <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>

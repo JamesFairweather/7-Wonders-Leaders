@@ -531,10 +531,12 @@ namespace SevenWonders
 
     public class DiplomacyEffect : Effect
     {
-    }
+        public int victoryPoints;
 
-    public class CoinsLossPerMilitaryPointsEffect : Effect
-    {
+        public DiplomacyEffect(int victoryPoints)
+        {
+            this.victoryPoints = victoryPoints;
+        }
     }
 
     public class Card
@@ -675,11 +677,7 @@ namespace SevenWonders
                         break;
 
                     case Effect.Type.Diplomacy:
-                        effect = new DiplomacyEffect();
-                        break;
-
-                    case Effect.Type.CoinsLossPerMilitaryPoints:
-                        effect = new CoinsLossPerMilitaryPointsEffect();
+                        effect = new DiplomacyEffect(int.Parse(createParams[29]));
                         break;
 
                     default:

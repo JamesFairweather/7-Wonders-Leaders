@@ -13,12 +13,14 @@
         <Label Content="" Height="23" HorizontalAlignment="Center" Margin="429,52,59,0" Name="rightNameLabel" VerticalAlignment="Top" Width="89" HorizontalContentAlignment="Center" />
         <Image Height="38" HorizontalAlignment="Left" Margin="51,81,0,0" Name="leftRawImage" Stretch="Fill" VerticalAlignment="Top" Width="129" />
         <Image Height="38" HorizontalAlignment="Left" Margin="51,125,0,0" Name="leftManuImage" Stretch="Fill" VerticalAlignment="Top" Width="129" />
+        <Image Height="38" HorizontalAlignment="Left" Margin="51,169,0,0" Name="clandestineDockWestImage" Stretch="Fill" VerticalAlignment="Top" Width="129" />
         <Image Height="38" HorizontalAlignment="Left" Margin="412,81,0,0" Name="rightRawImage" Stretch="Fill" VerticalAlignment="Top" Width="129" />
-        <Image Height="38" HorizontalAlignment="Center" Margin="412,125,36,0" Name="rightManuImage" Stretch="Fill" VerticalAlignment="Top" Width="129" />
+        <Image Height="38" HorizontalAlignment="Left" Margin="412,125,0,0" Name="rightManuImage" Stretch="Fill" VerticalAlignment="Top" Width="129" />
+        <Image Height="38" HorizontalAlignment="Left" Margin="412,169,0,0" Name="clandestineDockEastImage" Stretch="Fill" VerticalAlignment="Top" Width="129" />
         <Image Margin="235,456,319,94" Source="../Resources/Images/bilkispowerbutton.png" Name="imgBilkisPower" ToolTip="Bilkis allows you to purchase any resource for 1 coin, once per turn." Visibility="Hidden"/>
-        <StackPanel Height="267" HorizontalAlignment="Center" Margin="51,172,386,0" Name="leftDagPanel" VerticalAlignment="Top" Width="154" Orientation="Vertical" />
-        <StackPanel Height="267" HorizontalAlignment="Center" Margin="210,172,165,0" Name="middleDagPanel" VerticalAlignment="Top" Width="216" Orientation="Vertical" />
-        <StackPanel Height="267" HorizontalAlignment="Center" Margin="429,172,22,0" Name="rightDagPanel" VerticalAlignment="Top" Width="140" Orientation="Vertical" />
+        <StackPanel Height="267" HorizontalAlignment="Center" Margin="51,210,386,0" Name="leftDagPanel" VerticalAlignment="Top" Width="154" Orientation="Vertical" />
+        <StackPanel Height="267" HorizontalAlignment="Center" Margin="210,210,165,0" Name="middleDagPanel" VerticalAlignment="Top" Width="216" Orientation="Vertical" />
+        <StackPanel Height="267" HorizontalAlignment="Center" Margin="429,210,22,0" Name="rightDagPanel" VerticalAlignment="Top" Width="140" Orientation="Vertical" />
         <Button Content="Submit" Height="23" HorizontalAlignment="Left" Margin="85,546,0,0" Name="submitButton" VerticalAlignment="Top" Width="75" Click="submitButton_Click" Opacity="1" Foreground="Black" FontSize="12" />
         <Button Content="Reset" Height="23" HorizontalAlignment="Left" Margin="259,546,0,0" Name="resetButton" VerticalAlignment="Top" Width="75" Click="resetButton_Click" />
         <Button Content="Cancel" Height="23" HorizontalAlignment="Left" Margin="429,546,0,0" Name="cancelButton" VerticalAlignment="Top" Width="75" Click="cancelButton_Click" />

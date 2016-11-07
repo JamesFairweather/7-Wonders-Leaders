@@ -857,6 +857,12 @@ namespace SevenWonders
                     // Shipowners guild counts 1 point for each RawMaterial, Goods, and Guild structure in the players' city.
                     score.guilds += playedStructure.Where(x => x.structureType == StructureType.RawMaterial || x.structureType == StructureType.Goods || x.structureType == StructureType.Guild).Count();
                 }
+                else if (c.Id == CardId.Counterfeiters_Guild)
+                {
+                    LossOfCoinsEffect lce = c.effect as LossOfCoinsEffect;
+
+                    score.guilds += lce.victoryPoints;
+                }
             }
 
             foreach (Card c in playedStructure.Where(x => x.structureType == StructureType.Leader))
@@ -914,6 +920,38 @@ namespace SevenWonders
 
             if (hasAristotle)
                 score.leaders += scienceScore.nGroups * 3;
+
+            foreach (Card c in playedStructure.Where(x => x.structureType == StructureType.City))
+            {
+                if (c.effect == null)
+                {
+                    switch (c.Id)
+                    {
+                        // Special-case this structure as its effect is unique
+                        case CardId.Architect_Cabinet:
+                            score.cities += 2;
+                            break;
+                    }
+                }
+                else if (c.effect is CoinsAndPointsEffect)
+                {
+                    // Gates of the City, Tabularium, Capitol, Secret Society, Slave Market
+                    score.cities += CountVictoryPoints(c.effect as CoinsAndPointsEffect);
+                }
+                else if (c.effect is LossOfCoinsEffect)
+                {
+                    // Hideout, Lair, Sepulcher, Builder's Union, Botherhood, Cenotaph,
+                    LossOfCoinsEffect lce = c.effect as LossOfCoinsEffect;
+
+                    score.cities += lce.victoryPoints;
+                }
+                else if (c.effect is DiplomacyEffect)
+                {
+                    DiplomacyEffect de = c.effect as DiplomacyEffect;
+
+                    score.cities += de.victoryPoints;
+                }
+            }
 
             return score;
         }
