@@ -240,6 +240,7 @@ namespace SevenWonders
         {
             //distribute tokens
             distributeConflictTokens();
+            resetDiplomacyState();
 
             string strUpdateMilitaryTokens = "Military";
 
@@ -292,9 +293,31 @@ namespace SevenWonders
 
             foreach (Player p in player.Values)
             {
+                if (p.diplomacyEnabled)
+                {
+                    // skip this if we played a diplomacy card this age.
+                    continue;
+                }
+
+                Player playerToCompare = p.rightNeighbour;
+
+                while (playerToCompare.diplomacyEnabled)
+                {
+                    // find the first neighbor to the right who hasn't played diplomacy.
+                    playerToCompare = playerToCompare.rightNeighbour;
+                }
+
+                if (playerToCompare == p)
+                {
+                    // all other players have played diplomacy for this age.
+                    continue;
+                }
+
                 //if the current player's shield is greater than the next person, increase conflicttoken by the appropriate age
                 //if less, get a losstoken
-                if (p.shield > p.rightNeighbour.shield)
+                if (p.shield > playerToCompare.shield &&
+                    playerToCompare != p.leftNeighbour // If this condition is true, only two players are fighting this age.  The winner gets one win, the loser gets one loss.  We only have to distribute the win once.
+                    )
                 {
                     if (currentAge == 1)
                     {
@@ -317,10 +340,10 @@ namespace SevenWonders
                         p.executeAction();
                     }
 
-                    //check if right neighbour has played card 232: return conflict loss token received
+                    //check if right neighbour has played Tomyris: return conflict loss token received
                     //if no, receive lossToken
                     //if yes, do not get lossToken, instead, give lossToken to winner
-                    if (p.rightNeighbour.playedStructure.Exists(x => x.Id == CardId.Tomyris))
+                    if (playerToCompare.playedStructure.Exists(x => x.Id == CardId.Tomyris))
                     {
                         //the loser is rightNeighbour
                         //the winner is current player. current player will get the loss token
@@ -328,43 +351,56 @@ namespace SevenWonders
                     }
                     else
                     {
-                        p.rightNeighbour.lossToken++;
+                        playerToCompare.lossToken++;
                     }
                 }
-                else if (p.shield < p.rightNeighbour.shield)
+                else if (p.shield < playerToCompare.shield &&
+                    playerToCompare != p.leftNeighbour // If this condition is true, only two players are fighting this age.  The winner gets one win, the loser gets one loss.  We only have to distribute the win once.
+                    )
                 {
                     if (currentAge == 1)
                     {
-                        p.rightNeighbour.conflictTokenOne += 1;
+                        playerToCompare.conflictTokenOne += 1;
                     }
                     else if (currentAge == 2)
                     {
-                        p.rightNeighbour.conflictTokenTwo += 1;
+                        playerToCompare.conflictTokenTwo += 1;
                     }
                     else if (currentAge == 3)
                     {
-                        p.rightNeighbour.conflictTokenThree += 1;
+                        playerToCompare.conflictTokenThree += 1;
                     }
 
-                    if (p.rightNeighbour.playedStructure.Exists(x => x.Id == CardId.Nero))
+                    if (playerToCompare.playedStructure.Exists(x => x.Id == CardId.Nero))
                     {
                         // Nero grants 2 coins for each Victory token earned by the player from this point forward. These coins are taken from the bank when the Victory tokens are gained.
                         // Bug: this transaction needs to be executed immediately
-                        p.rightNeighbour.addTransaction(2);
-                        p.rightNeighbour.executeAction();
+                        playerToCompare.addTransaction(2);
+                        playerToCompare.executeAction();
                     }
 
                     if (p.playedStructure.Exists(x => x.Id == CardId.Tomyris))
                     {
                         //the loser is rightNeighbour
                         //the winner is current player. current player will get the loss token
-                        p.rightNeighbour.lossToken++;
+                        playerToCompare.lossToken++;
                     }
                     else
                     {
                         p.lossToken++;
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Clear the diplomacy state following the military conflict resolution
+        /// </summary>
+        void resetDiplomacyState()
+        {
+            foreach (Player p in player.Values)
+            {
+                p.diplomacyEnabled = false;
             }
         }
 
@@ -914,6 +950,7 @@ namespace SevenWonders
             string strPlayerNames = "&Names=";
             string strCoins = "&Coins=";
             string strDebt = "&Debt=";
+            string strDiplomacy = "&Diplomacy=";
             string strCardNames = "&CardNames=";
 
             foreach (Player p in player.Values)
@@ -942,12 +979,14 @@ namespace SevenWonders
 
                 strCoins += p.coin + ",";
                 strDebt += p.debtToken + ",";
+                strDiplomacy += p.diplomacyEnabled + ",";
             }
 
             string strCardsPlayed = "UpdateUI" +
                 strPlayerNames.TrimEnd(',') +
                 strCoins.TrimEnd(',') +
                 strDebt.TrimEnd(',') +
+                strDiplomacy.TrimEnd(',') +
                 strCardNames.TrimEnd(',');
 
             foreach (Player p in player.Values)

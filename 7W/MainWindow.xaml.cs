@@ -590,6 +590,7 @@ namespace SevenWonders
             string[] playerNames = qscoll["Names"].Split(',');
             string[] coins = qscoll["Coins"].Split(',');
             string[] debt = qscoll["Debt"].Split(',');
+            string[] diplomacy = qscoll["Diplomacy"].Split(',');
             string[] cardNames = qscoll["CardNames"].Split(',');
 
             for (int i = 0; i < playerNames.Length; ++i)
@@ -597,6 +598,7 @@ namespace SevenWonders
                 string strCoins = coins[i];
                 string strDebt = debt[i];
                 string playerName = playerNames[i];
+                string diplomacyTokenVisible = diplomacy[i];
                 string cardName = cardNames[i];
 
                 // some of these functions should be in the PlayerState class.
@@ -631,6 +633,15 @@ namespace SevenWonders
                     {
                         playerState[playerName].state.DebtImage.Visibility = Visibility.Visible;
                     }
+                }
+
+                // toggle the visibility of the diplomacy token, if necessary
+                if (Convert.ToBoolean(diplomacyTokenVisible) &&
+                    playerState[playerName].state.DiplomacyImage.Visibility == Visibility.Hidden) {
+                    playerState[playerName].state.DiplomacyImage.Visibility = Visibility.Visible;
+                } else if (!Convert.ToBoolean(diplomacyTokenVisible) &&
+                    playerState[playerName].state.DiplomacyImage.Visibility == Visibility.Visible) {
+                    playerState[playerName].state.DiplomacyImage.Visibility = Visibility.Hidden;
                 }
 
                 if (cardName.Length == 12 && cardName.Substring(0, 11) == "WonderStage")

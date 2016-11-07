@@ -176,6 +176,12 @@ namespace SevenWonders
         public byte bilkis;
         public bool hasBilkis;
 
+        /// <summary>
+        /// True if the player has played a card or wonder stage with a diplomacy effect for this
+        /// age.  Default is false.  Only applicable with the Cities expansion pack.
+        /// </summary>
+        public bool diplomacyEnabled;
+
         //stored actions for the turn
         private List<Effect> actions = new List<Effect>();
 
@@ -423,6 +429,11 @@ namespace SevenWonders
                     p = p.rightNeighbour;
                 }
             }
+            else if (effect is DiplomacyEffect)
+            {
+                // Aspasia, Residence, Consulate, Embassy, Wonder stage on Byzantium & China B
+                diplomacyEnabled = true;
+            }
             else if (
                 effect is ScienceWildEffect ||
                 effect is ScienceEffect ||
@@ -519,8 +530,11 @@ namespace SevenWonders
                 }
                 else
                 {
-                    phase = GamePhase.Debt;
-                    gm.gmCoordinator.sendMessage(this, "GetDebtTokens");
+                    throw new NotImplementedException();
+                    // TODO: implement a client handler for paying debt tokens
+                    //
+                    // phase = GamePhase.Debt;
+                    // gm.gmCoordinator.sendMessage(this, "GetDebtTokens");
                 }
             }
         }
