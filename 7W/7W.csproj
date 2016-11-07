@@ -368,7 +368,7 @@
     <Resource Include="Resources\Images\Icons\Aspasia.png" />
     <Resource Include="Resources\Images\Icons\Berenice.png" />
     <Resource Include="Resources\Images\Icons\Black_Market.png" />
-    <Resource Include="Resources\Images\Icons\Botherhood.png" />
+    <Resource Include="Resources\Images\Icons\Brotherhood.png" />
     <Resource Include="Resources\Images\Icons\Builders_Union.png" />
     <Resource Include="Resources\Images\Icons\Caligula.png" />
     <Resource Include="Resources\Images\Icons\Capitol.png" />
@@ -553,7 +553,7 @@
     <Resource Include="Resources\Images\cards\Cities\Aspasia.jpg" />
     <Resource Include="Resources\Images\cards\Cities\Berenice.jpg" />
     <Resource Include="Resources\Images\cards\Cities\Black Market.jpg" />
-    <Resource Include="Resources\Images\cards\Cities\Botherhood.jpg" />
+    <Resource Include="Resources\Images\cards\Cities\Brotherhood.jpg" />
     <Resource Include="Resources\Images\cards\Cities\Builders_Union.jpg" />
     <Resource Include="Resources\Images\cards\Cities\Caligula.jpg" />
     <Resource Include="Resources\Images\cards\Cities\Capitol.jpg" />

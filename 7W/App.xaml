@@ -46,7 +46,7 @@
         <BitmapImage x:Key="Icons/Bilkis" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Bilkis.png"/>
         <BitmapImage x:Key="Icons/Bilkis2" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Bilkis2.png"/>
         <BitmapImage x:Key="Icons/Black_Market" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Black_Market.png"/>
-        <BitmapImage x:Key="Icons/Botherhood" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Botherhood.png"/>
+        <BitmapImage x:Key="Icons/Brotherhood" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Brotherhood.png"/>
         <BitmapImage x:Key="Icons/builders_guild" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/builders_guild.png"/>
         <BitmapImage x:Key="Icons/Builders_Union" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Builders_Union.png"/>
         <BitmapImage x:Key="Icons/Caligula" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Caligula.png"/>
