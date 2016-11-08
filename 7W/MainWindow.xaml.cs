@@ -76,9 +76,15 @@ namespace SevenWonders
             //make graphics better
             RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.Fant);
 
-            NameValueCollection testScores = HttpUtility.ParseQueryString("&James=13,7,3,20,7,0,0,0,69&AI0=7,6,0,6,0,15,9,0,43&AI1=-6,7,0,6,0,0,33,0,40");
+            /* Test code for displaying the Final Score window without actually having to play through a game.
+             * Uncomment if you want the UI to display this window, then exit.
+             * 
+            NameValueCollection testScores = HttpUtility.ParseQueryString("JaPlayer1=1,2,3,4,5,6,7,8,9,69&Player2=2,2,2,2,2,2,2,2,2,22&Player3=-3,-3,-3,-3,-3,-3,-3,-3,-3,33");
+            NameValueCollection testScores = HttpUtility.ParseQueryString("Player1=1,2,3,4,5,6,7,8,9,69&Player2=2,2,2,2,2,2,2,2,2,22&Player3=-3,-3,-3,-3,-3,-3,-3,-3,-3,33&Player4=4,4,4,4,4,4,4,4,4,44&Player5=5,5,5,5,5,5,5,5,5,55&Player6=6,6,6,6,6,6,6,6,6,66&Player7=7,7,7,7,7,7,7,7,7,77&Player8=8,8,8,8,8,8,8,8,8,88");
             FinalScore finalScoreUI = new FinalScore(this, testScores);
             finalScoreUI.ShowDialog();
+            return;
+            */
 
             JoinTableUI joinGameDlg = new JoinTableUI();
             bool succeeded = (bool)joinGameDlg.ShowDialog();
