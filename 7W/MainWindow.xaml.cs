@@ -3,17 +3,12 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Effects;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Web;
 
 namespace SevenWonders
 {
@@ -77,8 +72,13 @@ namespace SevenWonders
 
             InitializeComponent();
 
+
             //make graphics better
             RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.Fant);
+
+            NameValueCollection testScores = HttpUtility.ParseQueryString("&James=13,7,3,20,7,0,0,0,69&AI0=7,6,0,6,0,15,9,0,43&AI1=-6,7,0,6,0,0,33,0,40");
+            FinalScore finalScoreUI = new FinalScore(this, testScores);
+            finalScoreUI.ShowDialog();
 
             JoinTableUI joinGameDlg = new JoinTableUI();
             bool succeeded = (bool)joinGameDlg.ShowDialog();

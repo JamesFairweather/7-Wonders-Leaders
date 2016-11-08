@@ -555,9 +555,9 @@ namespace SevenWonders
                     sum += rightNeighbour.lossToken * cpe.victoryPointsAtEndOfGameMultiplier;
                 }
 
-                // Added for Leaders (Alexander)
                 if (cpe.classConsidered == StructureType.ConflictToken)
                 {
+                    // Alexander and Mourner's Guild
                     sum += (leftNeighbour.conflictTokenOne + leftNeighbour.conflictTokenTwo + leftNeighbour.conflictTokenThree) * cpe.victoryPointsAtEndOfGameMultiplier;
                     sum += (rightNeighbour.conflictTokenOne + rightNeighbour.conflictTokenTwo + rightNeighbour.conflictTokenThree) * cpe.victoryPointsAtEndOfGameMultiplier;
                 }
@@ -585,15 +585,15 @@ namespace SevenWonders
                     sum += lossToken * cpe.victoryPointsAtEndOfGameMultiplier;
                 }
 
-                // Added for Leaders (Alexander)
                 if (cpe.classConsidered == StructureType.ConflictToken)
                 {
+                    // Alexander and Slave Market
                     sum += (conflictTokenOne + conflictTokenTwo + conflictTokenThree) * cpe.victoryPointsAtEndOfGameMultiplier;
                 }
 
                 if (cpe.classConsidered == StructureType.ThreeCoins)
                 {
-                    // Midas, Gamer's Guild give points for each set of 3 coins in the player's possession at the end of the game.
+                    // Midas and Gamer's Guild give points for each set of 3 coins in the player's possession at the end of the game.
                     sum += coin / 3;
                 }
             }
