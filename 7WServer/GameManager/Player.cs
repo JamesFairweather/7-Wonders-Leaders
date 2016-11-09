@@ -199,6 +199,8 @@ namespace SevenWonders
 
         public CommercialDiscountEffect.RawMaterials rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.None;
         public CommercialDiscountEffect.Goods goodsDiscount = CommercialDiscountEffect.Goods.None;
+        public bool hasClandestineDockWest = false;
+        public bool hasClandestineDockEast = false;
 
         public AIMoveBehaviour AIBehaviour;
 
@@ -365,37 +367,36 @@ namespace SevenWonders
             }
             else if (effect is CommercialDiscountEffect)
             {
-                CommercialDiscountEffect cde = effect as CommercialDiscountEffect;
-
-                // Set discount effects for future transactions.
-                switch (cde.effectString[1])
+                switch (card.Id)
                 {
-                    case 'R':
-                        switch (cde.effectString[0])
-                        {
-                            case 'L':
-                                if (rawMaterialsDiscount == CommercialDiscountEffect.RawMaterials.None)
-                                    rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.LeftNeighbor;
-                                else if (rawMaterialsDiscount == CommercialDiscountEffect.RawMaterials.RightNeighbor)
-                                    rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.BothNeighbors;
-                                break;
-
-                            case 'R':
-                                if (rawMaterialsDiscount == CommercialDiscountEffect.RawMaterials.None)
-                                    rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.RightNeighbor;
-                                else if (rawMaterialsDiscount == CommercialDiscountEffect.RawMaterials.LeftNeighbor)
-                                    rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.BothNeighbors;
-                                break;
-
-                            case 'B':
-                                rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.BothNeighbors;
-                                break;
-                        }
+                    case CardId.Marketplace:
+                        goodsDiscount = CommercialDiscountEffect.Goods.BothNeighbors;
                         break;
 
-                    case 'G':
-                        if (cde.effectString[0] == 'B')
-                            goodsDiscount = CommercialDiscountEffect.Goods.BothNeighbors;
+                    case CardId.Clandestine_Dock_West:
+                        hasClandestineDockWest = true;
+                        break;
+
+                    case CardId.Clandestine_Dock_East:
+                        hasClandestineDockEast = true;
+                        break;
+
+                    case CardId.West_Trading_Post:
+                        if (rawMaterialsDiscount == CommercialDiscountEffect.RawMaterials.None)
+                            rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.LeftNeighbor;
+                        else if (rawMaterialsDiscount == CommercialDiscountEffect.RawMaterials.RightNeighbor)
+                            rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.BothNeighbors;
+                        break;
+
+                    case CardId.East_Trading_Post:
+                        if (rawMaterialsDiscount == CommercialDiscountEffect.RawMaterials.None)
+                            rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.RightNeighbor;
+                        else if (rawMaterialsDiscount == CommercialDiscountEffect.RawMaterials.LeftNeighbor)
+                            rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.BothNeighbors;
+                        break;
+
+                    case CardId.Olympia_B_s1:
+                        rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.BothNeighbors;
                         break;
                 }
             }

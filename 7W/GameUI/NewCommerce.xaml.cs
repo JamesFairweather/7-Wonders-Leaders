@@ -35,7 +35,8 @@ namespace SevenWonders
         bool hasBilkis;
         bool usedBilkis;
         string leaderDiscountCardId;
-        bool leftRawMarket, rightRawMarket, marketplace;
+        bool leftRawMarket, rightRawMarket, marketplace, leftDock, rightDock;
+        bool ClandestineDockWest_DiscountUsed, ClandestineDockEast_DiscountUsed;
         string leftName, middleName, rightName;
         Card cardToBuild;
         // int ID;
@@ -130,6 +131,9 @@ namespace SevenWonders
             marketplace = ((CommercialDiscountEffect.Goods)
                 Enum.Parse(typeof(CommercialDiscountEffect.Goods), qscoll["goodsDiscount"]) == CommercialDiscountEffect.Goods.BothNeighbors);
 
+            leftDock = qscoll["hasClandestineDockWest"] != null;
+            rightDock = qscoll["hasClandestineDockEast"] != null;
+
             PLAYER_COIN = int.Parse(qscoll["coin"]);
 
             CreateDag(middleDag, qscoll["PlayerResources"]);
@@ -150,6 +154,12 @@ namespace SevenWonders
             leftRawImage.Source = FindResource(leftRawMarket ? "1r" : "2r") as BitmapImage;
             rightRawImage.Source = FindResource(rightRawMarket ? "1r" : "2r") as BitmapImage;
             leftManuImage.Source = rightManuImage.Source = FindResource(marketplace ? "1m" : "2m") as BitmapImage;
+
+            if (leftDock)
+                clandestineDockWestImage.Source = FindResource("Icons/Clandestine_Dock_West") as BitmapImage;
+
+            if (rightDock)
+                clandestineDockEastImage.Source = FindResource("Icons/Clandestine_Dock_East") as BitmapImage;
 
             if (leaderDiscountCardId != null)
             {
@@ -331,6 +341,16 @@ namespace SevenWonders
             {
                 int coinsRequired = (isResourceRawMaterial && leftRawMarket) || (isResourceGoods && marketplace) ? 1 : 2;
 
+                if (leftDock)
+                {
+                    if (!ClandestineDockWest_DiscountUsed)
+                    {
+                        ClandestineDockWest_DiscountUsed = true;
+                        coinsRequired -= 1;
+                        clandestineDockWestImage.Opacity = 0.5;
+                    }
+                }
+
                 if ((PLAYER_COIN - (leftcoin + rightcoin)) < coinsRequired)
                 {
                     MessageBox.Show("You cannot afford this resource");
@@ -342,6 +362,16 @@ namespace SevenWonders
             else if (location == 'R')
             {
                 int coinsRequired = (isResourceRawMaterial && rightRawMarket) || (isResourceGoods && marketplace) ? 1 : 2;
+
+                if (rightDock)
+                {
+                    if (!ClandestineDockEast_DiscountUsed)
+                    {
+                        ClandestineDockEast_DiscountUsed = true;
+                        coinsRequired -= 1;
+                        clandestineDockEastImage.Opacity = 0.5;
+                    }
+                }
 
                 if ((PLAYER_COIN - (leftcoin + rightcoin)) < coinsRequired)
                 {
@@ -505,6 +535,9 @@ namespace SevenWonders
             leftcoin = 0;
             rightcoin = 0;
             usedBilkis = false;
+            ClandestineDockWest_DiscountUsed = ClandestineDockEast_DiscountUsed = false;
+            clandestineDockWestImage.Opacity = 1.0;
+            clandestineDockEastImage.Opacity = 1.0;
             imgBilkisPower.Opacity = 1.0;
 
             resourcesNeeded = cardCost.Total();

@@ -440,7 +440,7 @@ namespace SevenWonders
                 Score sc = s.Value;
 
                 strFinalScore += string.Format("&{0}={1},{2},{3},{4},{5},{6},{7},{8},{9}",
-                    s.Key, sc.military, sc.coins, sc.wonders, sc.civilian, sc.commerce, sc.guilds, sc.science, sc.leaders, sc.Total());
+                    s.Key, sc.military, sc.coins, sc.wonders, sc.civilian, sc.commerce, sc.guilds, sc.science, sc.leaders, sc.cities, sc.Total());
             }
 
             gmCoordinator.SendMessageToAll(strFinalScore);
@@ -756,6 +756,7 @@ namespace SevenWonders
             // Hatshepsut: Each purchase of one or more resources from  a neighbor grants 1 coin from the bank (max 2 per turn, if resources from both neighbors are used)
             bool hasHatshepsut = p.playedStructure.Exists(x => x.Id == CardId.Hatshepsut);
 
+            // TODO: fix this for the case when a Clandestine Dock has allowed us to use a neighbor's resource without paying him anything.
             if (nLeftCoins != 0)
             {
                 p.leftNeighbour.addTransaction(nLeftCoins);
@@ -917,6 +918,8 @@ namespace SevenWonders
             strCommerce += string.Format("&coin={0}", p.coin);
             strCommerce += string.Format("&resourceDiscount={0}", p.rawMaterialsDiscount.ToString());
             strCommerce += string.Format("&goodsDiscount={0}", p.goodsDiscount.ToString());
+            if (p.hasClandestineDockWest) strCommerce += "&hasClandestineDockWest=";
+            if (p.hasClandestineDockEast) strCommerce += "&hasClandestineDockEast=";
 
             if (p.currentStageOfWonder < p.playerBoard.numOfStages)
                 strCommerce += string.Format("&WonderStageCard={0}", Card.CardNameFromStringName(p.playerBoard.name, p.currentStageOfWonder + 1));

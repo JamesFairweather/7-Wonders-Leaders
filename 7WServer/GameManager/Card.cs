@@ -448,11 +448,8 @@ namespace SevenWonders
             BothNeighbors,
         };
 
-        public string effectString { get; }
-
-        public CommercialDiscountEffect(string effectString)
+        public CommercialDiscountEffect()
         {
-            this.effectString = effectString;
         }
     };
 
@@ -630,7 +627,7 @@ namespace SevenWonders
                         break;
 
                     case Effect.Type.Commerce:
-                        effect = new CommercialDiscountEffect(createParams[25]);
+                        effect = new CommercialDiscountEffect( /*createParams[25] */);
                         break;
 
                     case Effect.Type.CoinsPoints:
