@@ -500,6 +500,12 @@ namespace SevenWonders
                         if (e.cardsConsidered == CoinsAndPointsEffect.CardsConsidered.PlayerAndNeighbors || e.cardsConsidered == CoinsAndPointsEffect.CardsConsidered.Player)
                         {
                             coin += e.coinsGrantedAtTimeOfPlayMultiplier * playedStructure.Where(x => x.structureType == e.classConsidered).Count();
+
+                            if (e.classConsidered == StructureType.ConflictToken)
+                            {
+                                // Slave Market
+                                coin += conflictTokenOne + conflictTokenTwo + conflictTokenThree;
+                            }
                         }
                     }
                 }
