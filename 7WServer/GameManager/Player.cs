@@ -180,7 +180,9 @@ namespace SevenWonders
         /// True if the player has played a card or wonder stage with a diplomacy effect for this
         /// age.  Default is false.  Only applicable with the Cities expansion pack.
         /// </summary>
-        public bool diplomacyEnabled;
+        public bool diplomacyEnabled = false;
+
+        public bool hasArchitectCabinet = false;
 
         //stored actions for the turn
         private List<Effect> actions = new List<Effect>();
@@ -362,6 +364,10 @@ namespace SevenWonders
                         addTransaction(9);
                         rightNeighbour.addTransaction(2);
                         leftNeighbour.addTransaction(2);
+                        break;
+
+                    case CardId.Architect_Cabinet:
+                        hasArchitectCabinet = true;
                         break;
                 }
             }
@@ -1121,6 +1127,21 @@ namespace SevenWonders
                 // e.g. We're building a science structure while Archimedes is in play for this player, or a military structure
                 // when Leonidas is in play.
                 ++nWildResources;
+            }
+
+            if (hasArchitectCabinet)
+            {
+                // Wonder stages have no resource cost, but the coin cost (Petra's second stage) must still be paid.
+                if (coin < cost.coin)
+                {
+                    // not enough coins in the treasury
+                    return Buildable.InsufficientCoins;
+                }
+                else
+                {
+                    // Otherwise it's free
+                    return Buildable.True;
+                }
             }
 
             //can player afford cost with DAG resources
