@@ -3,30 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Collections;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
-using System.IO;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 
 namespace SevenWonders
 {
-    /* 
-    struct CoinCost
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
     {
-        int bank;
-        int leftNeighbor;
-        int rightNeighbor;
-    };
-    */
-
-    class Program
-    {
-        static GMCoordinator gmCoordinator;
-
-        static void Main(string[] args)
+        public MainWindow()
         {
-            gmCoordinator = new GMCoordinator();
+            InitializeComponent();
+
+            GMCoordinator gmCoordinator = new GMCoordinator();
 
             /*
             // TODO: test whether we can use other names, such as "James", "Mike", "Greg", "Ricky", "John", "Kevin"
@@ -127,12 +125,6 @@ namespace SevenWonders
             if (testResMan.canAfford(new Cost("SSOWB")) != true)
                 throw new Exception();
                 */
-
-
-            while (true)
-            {
-                Thread.Sleep(1000);
-            }
         }
     }
 }
