@@ -199,10 +199,13 @@ namespace SevenWonders
         public Boolean changeNickName {get; set; }
         public String newNickName {get; set; }
 
-        public CommercialDiscountEffect.RawMaterials rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.None;
-        public CommercialDiscountEffect.Goods goodsDiscount = CommercialDiscountEffect.Goods.None;
+        public bool hasWestTradingPost = false;
+        public bool hasEastTradingPost = false;
+        public bool hasMarketplace = false;
         public bool hasClandestineDockWest = false;
         public bool hasClandestineDockEast = false;
+        public bool hasSecretWarehouse = false;
+        public int nBlackMarket = 0;    // this is an integer instead of a boolean because it's possible to have more than one Black Market Effect
 
         public AIMoveBehaviour AIBehaviour;
 
@@ -360,10 +363,18 @@ namespace SevenWonders
                         leftNeighbour.addTransaction(1);
                         break;
 
+                    case CardId.Secret_Warehouse:
+                        hasSecretWarehouse = true;
+                        break;
+
                     case CardId.Gambling_House:
                         addTransaction(9);
                         rightNeighbour.addTransaction(2);
                         leftNeighbour.addTransaction(2);
+                        break;
+
+                    case CardId.Black_Market:
+                        nBlackMarket += 1;
                         break;
 
                     case CardId.Architect_Cabinet:
@@ -376,7 +387,7 @@ namespace SevenWonders
                 switch (card.Id)
                 {
                     case CardId.Marketplace:
-                        goodsDiscount = CommercialDiscountEffect.Goods.BothNeighbors;
+                        hasMarketplace = true;
                         break;
 
                     case CardId.Clandestine_Dock_West:
@@ -388,21 +399,15 @@ namespace SevenWonders
                         break;
 
                     case CardId.West_Trading_Post:
-                        if (rawMaterialsDiscount == CommercialDiscountEffect.RawMaterials.None)
-                            rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.LeftNeighbor;
-                        else if (rawMaterialsDiscount == CommercialDiscountEffect.RawMaterials.RightNeighbor)
-                            rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.BothNeighbors;
+                        hasWestTradingPost = true;
                         break;
 
                     case CardId.East_Trading_Post:
-                        if (rawMaterialsDiscount == CommercialDiscountEffect.RawMaterials.None)
-                            rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.RightNeighbor;
-                        else if (rawMaterialsDiscount == CommercialDiscountEffect.RawMaterials.LeftNeighbor)
-                            rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.BothNeighbors;
+                        hasEastTradingPost = true;
                         break;
 
                     case CardId.Olympia_B_s1:
-                        rawMaterialsDiscount = CommercialDiscountEffect.RawMaterials.BothNeighbors;
+                        hasWestTradingPost = hasEastTradingPost = true;
                         break;
                 }
             }

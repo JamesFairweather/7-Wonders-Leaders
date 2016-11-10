@@ -434,20 +434,6 @@ namespace SevenWonders
 
     public class CommercialDiscountEffect : Effect
     {
-        public enum RawMaterials
-        {
-            None,
-            LeftNeighbor,
-            RightNeighbor,
-            BothNeighbors,
-        };
-
-        public enum Goods
-        {
-            None,
-            BothNeighbors,
-        };
-
         public CommercialDiscountEffect()
         {
         }

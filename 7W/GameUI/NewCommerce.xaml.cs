@@ -35,8 +35,9 @@ namespace SevenWonders
         bool hasBilkis;
         bool usedBilkis;
         string leaderDiscountCardId;
-        bool leftRawMarket, rightRawMarket, marketplace, leftDock, rightDock;
+        bool leftRawMarket, rightRawMarket, marketplace, leftDock, rightDock, secretWarehouse;
         bool ClandestineDockWest_DiscountUsed, ClandestineDockEast_DiscountUsed;
+        int nBlackMarkets;
         string leftName, middleName, rightName;
         Card cardToBuild;
         // int ID;
@@ -107,32 +108,22 @@ namespace SevenWonders
                 }
             }
 
-            leftRawMarket = false;
-            rightRawMarket = false;
-
-            CommercialDiscountEffect.RawMaterials rawMaterialsDiscount = (CommercialDiscountEffect.RawMaterials)
-                Enum.Parse(typeof(CommercialDiscountEffect.RawMaterials), qscoll["resourceDiscount"]);
-
-            switch (rawMaterialsDiscount)
-            {
-                case CommercialDiscountEffect.RawMaterials.BothNeighbors:
-                    leftRawMarket = rightRawMarket = true;
-                    break;
-
-                case CommercialDiscountEffect.RawMaterials.LeftNeighbor:
-                    leftRawMarket = true;
-                    break;
-
-                case CommercialDiscountEffect.RawMaterials.RightNeighbor:
-                    rightRawMarket = true;
-                    break;
-            }
-
-            marketplace = ((CommercialDiscountEffect.Goods)
-                Enum.Parse(typeof(CommercialDiscountEffect.Goods), qscoll["goodsDiscount"]) == CommercialDiscountEffect.Goods.BothNeighbors);
-
+            leftRawMarket = qscoll["hasWestTradingPost"] != null;
+            rightRawMarket = qscoll["hasEastTradingPost"] != null;
+            marketplace = qscoll["hasMarketplace"] != null;
             leftDock = qscoll["hasClandestineDockWest"] != null;
             rightDock = qscoll["hasClandestineDockEast"] != null;
+            secretWarehouse = qscoll["hasSecretWarehouse"] != null;
+
+            string strBlackMarkets = qscoll["nBlackMarket"];
+            if (strBlackMarkets != null)
+            {
+                nBlackMarkets = int.Parse(strBlackMarkets);
+            }
+            else
+            {
+                nBlackMarkets = 0;
+            }
 
             PLAYER_COIN = int.Parse(qscoll["coin"]);
 

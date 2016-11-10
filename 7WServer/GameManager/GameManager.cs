@@ -916,10 +916,13 @@ namespace SevenWonders
             strCommerce += BuildResourceString("Right", p.rightNeighbour);
 
             strCommerce += string.Format("&coin={0}", p.coin);
-            strCommerce += string.Format("&resourceDiscount={0}", p.rawMaterialsDiscount.ToString());
-            strCommerce += string.Format("&goodsDiscount={0}", p.goodsDiscount.ToString());
+            if (p.hasWestTradingPost) strCommerce += "&hasWestTradingPost=";
+            if (p.hasEastTradingPost) strCommerce += "&hasEastTradingPost=";
+            if (p.hasMarketplace) strCommerce += string.Format("&hasMarketplace=");
             if (p.hasClandestineDockWest) strCommerce += "&hasClandestineDockWest=";
             if (p.hasClandestineDockEast) strCommerce += "&hasClandestineDockEast=";
+            if (p.hasSecretWarehouse) strCommerce += "&hasSecretWarehouse=";
+            if (p.nBlackMarket != 0) strCommerce += string.Format("&nBlackMarket={0}", p.nBlackMarket);
 
             if (p.currentStageOfWonder < p.playerBoard.numOfStages)
                 strCommerce += string.Format("&WonderStageCard={0}", Card.CardNameFromStringName(p.playerBoard.name, p.currentStageOfWonder + 1));
