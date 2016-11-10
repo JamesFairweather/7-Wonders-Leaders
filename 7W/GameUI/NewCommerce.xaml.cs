@@ -35,7 +35,7 @@ namespace SevenWonders
         bool hasBilkis;
         bool usedBilkis;
         string leaderDiscountCardId;
-        bool leftRawMarket, rightRawMarket, marketplace, leftDock, rightDock, secretWarehouse;
+        bool leftRawMarket, rightRawMarket, marketplace, leftDock, rightDock, hasSecretWarehouse, usedSecretWarehouse;
         bool ClandestineDockWest_DiscountUsed, ClandestineDockEast_DiscountUsed;
         int nBlackMarkets;
         string leftName, middleName, rightName;
@@ -63,7 +63,9 @@ namespace SevenWonders
 
             for (int i = 0; i < playerEffectsSplit.Length; ++i)
             {
-                d.add(new ResourceEffect(true, playerEffectsSplit[i]));
+                d.add(new ResourceEffect(
+                    playerEffectsSplit[i].Length <= 2,  // only resource effects of length 1 or 2 can be used by neighbors
+                    playerEffectsSplit[i]));
             }
         }
 
@@ -113,7 +115,7 @@ namespace SevenWonders
             marketplace = qscoll["hasMarketplace"] != null;
             leftDock = qscoll["hasClandestineDockWest"] != null;
             rightDock = qscoll["hasClandestineDockEast"] != null;
-            secretWarehouse = qscoll["hasSecretWarehouse"] != null;
+            hasSecretWarehouse = qscoll["hasSecretWarehouse"] != null;
 
             string strBlackMarkets = qscoll["nBlackMarket"];
             if (strBlackMarkets != null)
@@ -157,6 +159,34 @@ namespace SevenWonders
                 middleDag.add(new ResourceEffect(false, "WSBOCGP"));
             }
 
+            if (nBlackMarkets != 0)
+            {
+                string strBlackMarketResources = "WSBOCGP";
+
+                foreach (ResourceEffect re in middleDag.getResourceList(false))
+                {
+                    // The Black Market only excludes resources produced by this
+                    // city's brown or grey structures, which only have 1 or 2 resource types
+                    // So this excludes the Caravansery, Forum, and any Wonder stages.
+                    if (re.resourceTypes.Length <= 2)
+                    {
+                        foreach (char c in re.resourceTypes)
+                        {
+                            int index = strBlackMarketResources.IndexOf(c);
+
+                            if (index >= 0)
+                                strBlackMarketResources = strBlackMarketResources.Remove(index, 1);
+                        }
+                    }
+                }
+
+                if (strBlackMarketResources != string.Empty)
+                {
+                    for (int i = 0; i < nBlackMarkets; i++)
+                        middleDag.add(new ResourceEffect(false, strBlackMarketResources));
+                }
+            }
+
             hasBilkis = qscoll["Bilkis"] != null;
 
             if (hasBilkis)
@@ -165,6 +195,11 @@ namespace SevenWonders
 
                 // Add Bilkis' choice
                 middleDag.add(new ResourceEffect(false, "WSBOCGP"));
+            }
+
+            if (hasSecretWarehouse)
+            {
+                SecretWarehouseImage.Source = FindResource("Icons/Secret_Warehouse") as BitmapImage;
             }
 
             //generate mutable elements (DAG buttons, Price representations, currentResources, etc.)
@@ -327,6 +362,25 @@ namespace SevenWonders
                     usedBilkis = true;
                     imgBilkisPower.Opacity = 0.5;
                 }
+
+                if (hasSecretWarehouse && rce.canBeUsedByNeighbors && !usedSecretWarehouse)
+                {
+                    // If the Secret Warehouse is activated, and this resource cannot be used by neighbors (i.e. it's a brown or grey card)
+                    // and the ability hasn't be used already, lets see if it can be used here.  Test whether adding a second one of these
+                    // resources to the resource string would cause the resources needed to drop by 2.  If so, the ability can be used, and
+                    // is applied automatically.
+                    if (middleDag.eliminate(cardCost.Copy(), false, strPossibleNewResourceList + resource).Total() == resourcesNeeded - 2)
+                    {
+                        // Visually indicate that this ability has been used.
+                        SecretWarehouseImage.Opacity = 0.5;
+
+                        // Add a second copy of this resource to the list of used resources
+                        strPossibleNewResourceList += resource;
+
+                        // the ability has been used for this turn.
+                        usedSecretWarehouse = true;
+                    }
+                }
             }
             else if (location == 'L')
             {
@@ -374,8 +428,8 @@ namespace SevenWonders
             }
 
             // The resource chosen is good: it is required and affordable.
-            resourcesNeeded--;
             strCurrentResourcesUsed = strPossibleNewResourceList;
+            resourcesNeeded = cardCost.Total() - strCurrentResourcesUsed.Length;
 
             if (location == 'L')
             {
@@ -530,6 +584,8 @@ namespace SevenWonders
             clandestineDockWestImage.Opacity = 1.0;
             clandestineDockEastImage.Opacity = 1.0;
             imgBilkisPower.Opacity = 1.0;
+            usedSecretWarehouse = false;
+            SecretWarehouseImage.Opacity = 1.0;
 
             resourcesNeeded = cardCost.Total();
 

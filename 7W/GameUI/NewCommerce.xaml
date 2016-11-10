@@ -17,6 +17,7 @@
         <Image Height="38" HorizontalAlignment="Left" Margin="412,81,0,0" Name="rightRawImage" Stretch="Fill" VerticalAlignment="Top" Width="129" />
         <Image Height="38" HorizontalAlignment="Left" Margin="412,125,0,0" Name="rightManuImage" Stretch="Fill" VerticalAlignment="Top" Width="129" />
         <Image Height="38" HorizontalAlignment="Left" Margin="412,169,0,0" Name="clandestineDockEastImage" Stretch="Fill" VerticalAlignment="Top" Width="129" />
+        <Image Height="38" HorizontalAlignment="Left" Margin="246,119,0,0" Name="SecretWarehouseImage" Stretch="Fill" VerticalAlignment="Top" Width="68" />
         <Image Margin="235,456,319,94" Source="../Resources/Images/bilkispowerbutton.png" Name="imgBilkisPower" ToolTip="Bilkis allows you to purchase any resource for 1 coin, once per turn." Visibility="Hidden"/>
         <StackPanel Height="267" HorizontalAlignment="Center" Margin="51,210,386,0" Name="leftDagPanel" VerticalAlignment="Top" Width="154" Orientation="Vertical" />
         <StackPanel Height="267" HorizontalAlignment="Center" Margin="210,210,165,0" Name="middleDagPanel" VerticalAlignment="Top" Width="216" Orientation="Vertical" />
