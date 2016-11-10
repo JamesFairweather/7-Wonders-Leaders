@@ -80,6 +80,7 @@ namespace SevenWonders
              * Uncomment if you want the UI to display this window, then exit.
              * 
             NameValueCollection testScores = HttpUtility.ParseQueryString("JaPlayer1=1,2,3,4,5,6,7,8,9,69&Player2=2,2,2,2,2,2,2,2,2,22&Player3=-3,-3,-3,-3,-3,-3,-3,-3,-3,33");
+            NameValueCollection testScores = HttpUtility.ParseQueryString("Player1=1,2,3,4,5,6,7,8,9,69&Player2=2,2,2,2,2,2,2,2,2,22&Player3=-3,-3,-3,-3,-3,-3,-3,-3,-3,33&Player4=4,4,4,4,4,4,4,4,4,44&Player5=5,5,5,5,5,5,5,5,5,55&Player6=6,6,6,6,6,6,6,6,6,66&Player7=7,7,7,7,7,7,7,7,7,77");
             NameValueCollection testScores = HttpUtility.ParseQueryString("Player1=1,2,3,4,5,6,7,8,9,69&Player2=2,2,2,2,2,2,2,2,2,22&Player3=-3,-3,-3,-3,-3,-3,-3,-3,-3,33&Player4=4,4,4,4,4,4,4,4,4,44&Player5=5,5,5,5,5,5,5,5,5,55&Player6=6,6,6,6,6,6,6,6,6,66&Player7=7,7,7,7,7,7,7,7,7,77&Player8=8,8,8,8,8,8,8,8,8,88");
             FinalScore finalScoreUI = new FinalScore(this, testScores);
             finalScoreUI.ShowDialog();

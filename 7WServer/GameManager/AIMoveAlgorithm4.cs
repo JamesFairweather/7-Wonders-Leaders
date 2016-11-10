@@ -174,6 +174,45 @@ namespace SevenWonders
 
             if (c == null)
             {
+                // play a city card, if there is one
+                List<Card> cityCardList = player.hand.FindAll(x => x.structureType == StructureType.City && player.isCardBuildable(x) == Buildable.True);
+
+                if (cityCardList.Count > 0)
+                {
+                    // Try to find a card that causes other players to lose cards
+                    c = cityCardList.Find(x => x.effect is LossOfCoinsEffect);
+
+                    if (c == null)
+                    {
+                        c = cityCardList.Find(x => x.effect is CopyScienceSymbolFromNeighborEffect);
+                    }
+
+                    if (c == null)
+                    {
+                        c = cityCardList.Find(x => x.effect is MilitaryEffect);
+                    }
+
+                    if (c == null)
+                    {
+                        c = cityCardList.Find(x => x.effect is DiplomacyEffect);
+                    }
+
+                    if (c == null)
+                    {
+                        // play a point-scoring card.
+                        c = cityCardList.Find(x => x.effect is CoinsAndPointsEffect);
+                    }
+
+                    // if none of the above criteria match, it means this card is has a commerce special effect,
+                    // such as the Secret Warehouse, Black Market, Clandestine Dock, or Architect Cabinet, which
+                    // this AI has not been programmed to think about.  So in that case, just play the first
+                    // card in the list of playable city cards.
+                    c = cityCardList[0];
+                }
+            }
+
+            if (c == null)
+            {
                 //Discard the non-buildable Red cards
                 foreach (Card card in player.hand)
                 {
@@ -193,6 +232,7 @@ namespace SevenWonders
             }
             else
             {
+                // If a card is not found that matches any of the above criteria, discard the first card listed.
                 c = player.hand[0];
                 Console.WriteLine(player.nickname + " Action: Discard {0}", c.Id);
                 gm.playCard(player, c, BuildAction.Discard, true);

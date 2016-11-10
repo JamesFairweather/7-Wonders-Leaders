@@ -548,11 +548,10 @@ namespace SevenWonders
                 }
                 else
                 {
-                    throw new NotImplementedException();
                     // TODO: implement a client handler for paying debt tokens
                     //
-                    // phase = GamePhase.Debt;
-                    // gm.gmCoordinator.sendMessage(this, "GetDebtTokens");
+                    phase = GamePhase.Debt;
+                    gm.gmCoordinator.sendMessage(this, "GetDebtTokens");
                 }
             }
         }

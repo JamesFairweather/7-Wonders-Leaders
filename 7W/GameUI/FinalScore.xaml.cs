@@ -30,7 +30,7 @@ namespace SevenWonders
 
             FontFamily ourFont = new FontFamily("Lucida Handwriting");
 
-            Width = 60 + (scores.Count) * 66;
+            Width = 78 + (scores.Count) * 62;
 
             int column = 1;
             foreach (string s in scores.AllKeys)
