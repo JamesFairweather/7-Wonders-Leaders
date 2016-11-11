@@ -191,6 +191,8 @@ namespace SevenWonders
 
         private int coinsToLose = 0;
 
+        private bool waitingForDebtTokenResponse = false;
+
         //Player's left and right neighbours
         public Player leftNeighbour { get; set; }
 
@@ -548,10 +550,10 @@ namespace SevenWonders
                 }
                 else
                 {
-                    // TODO: implement a client handler for paying debt tokens
-                    //
-                    phase = GamePhase.Debt;
-                    gm.gmCoordinator.sendMessage(this, "GetDebtTokens");
+                    // we have to wait for this player to respond to this message.  Not all players will receive this message,
+                    // but more than one may.
+                    waitingForDebtTokenResponse = true;
+                    gm.gmCoordinator.sendMessage(this, string.Format("GetDebtTokens&coin={0}&coinsToLose={1}", coin, coinsToLose));
                 }
             }
         }

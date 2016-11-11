@@ -137,6 +137,9 @@
     <Compile Include="GameUI\FinalScore.xaml.cs">
       <DependentUpon>FinalScore.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GameUI\GetDebtToken.xaml.cs">
+      <DependentUpon>GetDebtToken.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GameUI\LeaderDraft.xaml.cs">
       <DependentUpon>LeaderDraft.xaml</DependentUpon>
     </Compile>
@@ -155,6 +158,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="GameUI\FinalScore.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GameUI\GetDebtToken.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -272,9 +279,7 @@
   <ItemGroup>
     <Resource Include="7WondersIcon.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="GameManager\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="Resources\Images\Icons\2VP.png" />
     <Resource Include="Resources\Images\Icons\3vp.png" />
