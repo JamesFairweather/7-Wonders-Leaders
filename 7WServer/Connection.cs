@@ -5,6 +5,7 @@ using System.Text;
 using System.Net.Sockets;
 using System.Threading;
 using System.IO;
+using NLog;
 
 namespace SevenWonders
 {
@@ -28,6 +29,8 @@ namespace SevenWonders
         // public int numberOFAI;
 
         Server host;
+
+        private static Logger logger = LogManager.GetLogger("SevenWondersServer");
 
         public Connection(TcpClient tcpCon, Server h)
         {
@@ -67,7 +70,7 @@ namespace SevenWonders
             // Read the account information from the client
             currentUser = srReceiver.ReadLine();
 
-            Console.WriteLine("Accepted a new connection from user {0}", currentUser);
+            logger.Info("Accepted a new connection from user {0}", currentUser);
 
             // swSender.WriteLine(currentUser);
             // swSender.Flush();
@@ -115,7 +118,7 @@ namespace SevenWonders
             //The user's name is invalid.
             else
             {
-                Console.WriteLine("Invalid username attempted to connect (Connection.AcceptClient())");
+                logger.Info("Invalid username attempted to connect (Connection.AcceptClient())");
                 CloseConnection();
 
                 throw new System.Exception();

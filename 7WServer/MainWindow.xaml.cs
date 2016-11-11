@@ -22,7 +22,7 @@ namespace SevenWonders
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static Logger logger = LogManager.GetLogger("SevenWonderServer");
+        private static Logger logger = LogManager.GetLogger("SevenWondersServer");
         GMCoordinator gmCoordinator;
 
         public MainWindow()
@@ -31,7 +31,9 @@ namespace SevenWonders
 
             Closing += MainWindow_Closing;
 
-            logger.Info("Hello, World!");
+            Content = "";
+
+            logger.Info("Seven Wonders server application started.");
 
             gmCoordinator = new GMCoordinator();
 

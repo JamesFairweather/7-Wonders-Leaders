@@ -70,9 +70,9 @@ namespace SevenWonders
             var c = Enumerable.Range(0, cardList.Count);
             var shuffledcards = c.OrderBy(a => Guid.NewGuid()).ToArray();
 
-            Console.Write("Shuffled card array: [");
-            Console.Write("{0}, ", string.Join(", ", shuffledcards));
-            Console.WriteLine(" ]");
+            // Console.Write("Shuffled card array: [");
+            // Console.Write("{0}, ", string.Join(", ", shuffledcards));
+            // Console.WriteLine(" ]");
 
             List<Card> d = new List<Card>(cardList.Count);
 

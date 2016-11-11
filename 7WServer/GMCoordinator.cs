@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Net;
+using NLog;
 
 namespace SevenWonders
 {
@@ -26,6 +27,8 @@ namespace SevenWonders
 
         public bool leadersEnabled = false;
         public bool citiesEnabled = false;
+
+        private static Logger logger = LogManager.GetLogger("SevenWondersServer");
 
         /// <summary>
         /// Create a new server.
@@ -114,7 +117,7 @@ namespace SevenWonders
                 //This is the string received from Server
                 String message = e.message;
 
-                Console.WriteLine("Message received.  From: {0}; Message={1}", nickname, message);
+                logger.Info("Message received.  From: {0}; Message={1}", nickname, message);
 
                 if (message.Length >= 4 && message.Substring(0, 4) == "####")
                 {
@@ -180,7 +183,7 @@ namespace SevenWonders
                             //Do not accept any more players
                             host.acceptClient = false;
 
-                            Console.WriteLine("All players have hit Ready.  Game is starting now with {0} AI players", players.Where(x => x.isAI == true).Count());
+                            logger.Info("All players have hit Ready.  Game is starting now with {0} AI players", players.Where(x => x.isAI == true).Count());
 
                             gameManager = new GameManager(this, players);
 
