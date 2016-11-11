@@ -42,6 +42,11 @@ namespace SevenWonders
             ResetGMCoordinator();
         }
 
+        public void Shutdown()
+        {
+            host.stopListening();
+        }
+
         public void ResetGMCoordinator()
         {
             // default mode is no expansion packs

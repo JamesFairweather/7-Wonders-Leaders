@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.ComponentModel;
+using NLog;
 
 namespace SevenWonders
 {
@@ -20,11 +22,18 @@ namespace SevenWonders
     /// </summary>
     public partial class MainWindow : Window
     {
+        private static Logger logger = LogManager.GetLogger("SevenWonderServer");
+        GMCoordinator gmCoordinator;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            GMCoordinator gmCoordinator = new GMCoordinator();
+            Closing += MainWindow_Closing;
+
+            logger.Info("Hello, World!");
+
+            gmCoordinator = new GMCoordinator();
 
             /*
             // TODO: test whether we can use other names, such as "James", "Mike", "Greg", "Ricky", "John", "Kevin"
@@ -125,6 +134,12 @@ namespace SevenWonders
             if (testResMan.canAfford(new Cost("SSOWB")) != true)
                 throw new Exception();
                 */
+        }
+
+        public void MainWindow_Closing(object sender, CancelEventArgs e)
+        {
+            gmCoordinator.Shutdown();
+            // Handle closing logic, set e.Cancel as needed
         }
     }
 }
