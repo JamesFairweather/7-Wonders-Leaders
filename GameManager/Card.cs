@@ -260,18 +260,24 @@ namespace SevenWonders
 
             foreach (char c in initStr)
             {
-                switch (c)
+                if (Char.IsDigit(c))
                 {
-                    case '$': ++coin; break;
-                    case 'W': ++wood; break;
-                    case 'S': ++stone; break;
-                    case 'B': ++clay; break;
-                    case 'O': ++ore; break;
-                    case 'C': ++cloth; break;
-                    case 'G': ++glass; break;
-                    case 'P': ++papyrus; break;
-                    default:
-                        throw new Exception();
+                    coin = (int)Char.GetNumericValue(c);
+                }
+                else
+                {
+                    switch (c)
+                    {
+                        case 'W': ++wood; break;
+                        case 'S': ++stone; break;
+                        case 'B': ++clay; break;
+                        case 'O': ++ore; break;
+                        case 'C': ++cloth; break;
+                        case 'G': ++glass; break;
+                        case 'P': ++papyrus; break;
+                        default:
+                            throw new Exception();
+                    }
                 }
             }
         }
@@ -301,6 +307,24 @@ namespace SevenWonders
         {
             return wood + stone + clay + ore + cloth + glass + papyrus;
         }
+
+        public string CostAsString()
+        {
+            string ret = "";
+
+            Cost c = Copy();
+
+            while (c.wood-- != 0) ret += 'W';
+            while (c.stone-- != 0) ret += 'S';
+            while (c.clay-- != 0) ret += 'B';
+            while (c.ore-- != 0) ret += 'O';
+            while (c.cloth-- != 0) ret += 'C';
+            while (c.glass-- != 0) ret += 'G';
+            while (c.papyrus-- != 0) ret += 'P';
+
+            return ret;
+        }
+
     };
 
     public enum Buildable
@@ -667,14 +691,6 @@ namespace SevenWonders
                         throw new Exception(string.Format("No effect class for this effect: {0}", effectType.ToString()));
                 }
             }
-
-            /*
-            // Load the image associated with this card.  Commented-out for now.
-            BitmapImage bmpImg = new BitmapImage();
-            bmpImg.BeginInit();
-            bmpImg.UriSource = new Uri("pack://application:,,,/7W;component/Resources/Images/icons/" + iconName + ".png");
-            bmpImg.EndInit();
-            */
         }
 
 
@@ -697,4 +713,29 @@ namespace SevenWonders
             return (CardId)Enum.Parse(typeof(CardId), nameAsString);
         }
     }
+
+    public struct CommerceOptions
+    {
+        public Buildable buildable;
+
+        public struct CommerceCost
+        {
+            // Usually prefer to pay the bank (i.e. Bilkis) a coin over using commerce, but not always.
+            public int bankCoins;
+
+            // For this option, how man
+            public int leftCoins;
+            public int rightCoins;
+
+            // I'm not sure yet whether this information should be here or in a higher level.  Normally you can tell
+            // whether a resource was purchased by looking at left/right coins, but if a player has the Clandestine Dock,
+            // it's possible to purchase a resource from a neighbor without paying for it as the Dock effect is cumulative
+            // with the Trading Post and Marketplace.
+            // public bool purchasedResourceFromLeftNeighbor;
+            // public bool purchasedResourceFromRightNeighbor;
+        }
+
+        // List of valid combinations for performing the transaction.
+        public List<CommerceCost> commerceOptions;
+    };
 }

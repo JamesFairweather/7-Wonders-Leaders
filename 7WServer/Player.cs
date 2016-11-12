@@ -987,6 +987,92 @@ namespace SevenWonders
             bUIRequiresUpdating = true;
         }
 
+        /*
+        public CardCost GetCost(Card card)
+        {
+            CardCost cardCost = new CardCost();
+
+            if (playedStructure.Exists(x => x.Id == card.Id))
+            {
+                cardCost.buildable = Buildable.StructureAlreadyBuilt;
+                return cardCost;
+            }
+
+            // These cards are free for one reason or another.
+            if (card.cost.coin == 0 && card.cost.wood == 0 && card.cost.stone == 0 && card.cost.clay == 0 &&
+                card.cost.ore == 0 && card.cost.cloth == 0 && card.cost.glass == 0 && card.cost.papyrus == 0)
+            {
+                // No resource or coin cost
+                cardCost.buildable = Buildable.True;
+            }
+            else if (playedStructure.Exists(x => (x.chain[0] == card.strName) || (x.chain[1] == card.strName)))
+            {
+                // if the player owns the prerequiste, Return T immediately
+                cardCost.buildable = Buildable.True;
+            }
+            else if (card.structureType == StructureType.Guild && playedStructure.Exists(x => x.Id == CardId.Ramses))
+            {
+                // Ramses: The player can build any Guild card for free.
+                cardCost.buildable = Buildable.True;
+            }
+            else if (card.structureType == StructureType.WonderStage && hasArchitectCabinet && card.cost.coin == 0)
+            {
+                // Architect Cabinet: Don't have to pay Wonder Stage resource costs
+                cardCost.buildable = Buildable.True;
+            }
+
+            if (cardCost.buildable == Buildable.True)
+                return cardCost;
+
+            // The card has some resource or coin cost.
+
+            // Examine the coin cost first
+
+            int coinCost = card.cost.coin;
+
+            if (card.structureType == StructureType.Leader)
+            {
+                if (playerBoard.name == "Roma (A)" || playedStructure.Exists(x => x.Id == CardId.Maecenas))
+                {
+                    coinCost = 0;
+                }
+                else if (playerBoard.name == "Roma (B)")
+                {
+                    coinCost = Math.Max(0, coinCost - 2);
+                }
+                else if (leftNeighbour.playerBoard.name == "Roma (B)" || rightNeighbour.playerBoard.name == "Roma (B)")
+                {
+                    coinCost -= 1;
+                }
+            }
+
+            if (coin < coinCost)
+            {
+                // if the card has a coin cost and we don't have enough money, the card is not buildable.
+                cardCost.buildable = Buildable.InsufficientCoins;
+                return cardCost;
+            }
+
+            // At this point, the player has sufficient coins to cover the coin cost, and the card has
+            // at least one resource or coin cost, so now we start looking at the player's resources
+            // and those of his neighbors.
+
+            // build a resource string from
+            string strResource = card.cost.CostAsString();
+
+            foreach (char ch in strResource)
+            {
+                // search for a matching resource in the player's city and the neighboring cities.
+                // Some cards may have a wild resource depending on their type.  Any flex resources
+                // need to have _both_ options checked.  I will return a list of possible commerce
+                // options if the card is only affordable with commerce.
+
+                dag.getResourceList(true);
+
+            }
+            return cardCost;
+        }
+        */
         /// <summary>
         /// Determines if a given card is buildable.
         /// Returns "T" if it is, returns "F" if it is not
@@ -995,6 +1081,7 @@ namespace SevenWonders
         /// <returns></returns>
         public Buildable isCardBuildable(Card card)
         {
+            /*
             //retrieve the cost
             Cost cost = card.cost;
 
@@ -1062,6 +1149,9 @@ namespace SevenWonders
                 return Buildable.CommerceRequired;
 
             return Buildable.InsufficientResources;
+            */
+
+            return Buildable.InsufficientResources;
         }
 
         /// <summary>
@@ -1073,6 +1163,7 @@ namespace SevenWonders
         /// <returns></returns>
         private Buildable isCostAffordableWithDAG(Cost cost, int nWildResources)
         {
+            /*
             // the passed-in cost structure must not be modified.  C# doesn't support const correctness?!?
             // WTF!
             cost = cost.Copy();
@@ -1090,6 +1181,7 @@ namespace SevenWonders
 
             //can I afford the cost with resources in my DAG?
             if (dag.canAfford(cost, nWildResources)) return Buildable.True;
+            */
 
             return Buildable.InsufficientResources;
         }
@@ -1101,6 +1193,7 @@ namespace SevenWonders
         /// <returns></returns>
         private Buildable isCostAffordableWithCommerce(Cost cost, int nWildResources)
         {
+            /*
             cost = cost.Copy();
 
             cost.coin = 0;
@@ -1115,7 +1208,7 @@ namespace SevenWonders
 
             //determine if the combined DAG can afford the cost
             if (combinedDAG.canAfford(cost, nWildResources)) return Buildable.CommerceRequired;
-
+            */
             return Buildable.InsufficientResources;
         }
 
@@ -1126,6 +1219,7 @@ namespace SevenWonders
         /// <returns></returns>
         public Buildable isStageBuildable()
         {
+            /*
             //check if the current Stage is already the maximum stage
             if (currentStageOfWonder >= playerBoard.numOfStages)
                 return Buildable.StructureAlreadyBuilt;
@@ -1164,6 +1258,7 @@ namespace SevenWonders
             //can player afford cost by conducting commerce?
             if (isCostAffordableWithCommerce(cost, nWildResources) == Buildable.CommerceRequired)
                 return Buildable.CommerceRequired;
+            */
 
             //absolutely all options exhausted. return F
             return Buildable.InsufficientResources;

@@ -91,6 +91,22 @@ namespace SevenWonders
                 return;
             }
 
+            // Dictionary<Card, CardCost> cardValues = new Dictionary<Card, CardCost>(player.hand.Count);
+
+            // Card cost:
+
+            // NotBuildable
+            // Free (the city has sufficient resources)
+            // Coin cost to the bank only (flex brown, double, some City cards)
+            // Commerce Required (can be constructed by paying neighbors for their resources)
+            // If Commerce is required, how many coins to each neighbor and/or the bank
+
+            /*
+            foreach (Card crd in player.hand)
+            {
+                player.GetCost(crd);
+            }
+            */
             // Build Guild cards in the 3rd age (except for the Courtesan's Guild, which requires entering a special Game Phase
             // that the AI has not been programmed to think about.
             Card c = player.hand.Find(x => x.structureType == StructureType.Guild && x.Id != CardId.Courtesans_Guild && player.isCardBuildable(x) == Buildable.True);

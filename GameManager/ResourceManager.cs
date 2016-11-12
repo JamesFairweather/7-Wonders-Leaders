@@ -83,14 +83,18 @@ namespace SevenWonders
         }
 
        /**
-	     * Remove all letters that appear in B FROM A, then return the newly trimmed A
+         * Remove all letters that appear in B FROM A, then return the newly trimmed A
          * The interpretation of this, with respect to this program, is that given a Cost A, and available resources B
          * the return value represents unpaid Costs after using the B resources
          * For example, if the return value is "", then we know that with A was affordable with resources B
          * If the return value is "W", then we know that a Wood still must be paid.
-	     * @param A = COST
-	     * @param B = RESOURCES
-	     */
+         * @param A = COST
+         * @param B = RESOURCES
+         * 
+         * Note, there's a major bug with this: for the flex resource structures, only the first resource
+         * is considered, which means that some structures that are affordable using the 2nd option are
+         * returned as Not Buildable.
+         */
         public Cost eliminate(Cost structureCost, bool stopAfterAMatchIsFound, string resourceString)
         {
             // interesting.  structs do not need to be instantiated.  Classes do.  But structs
@@ -264,6 +268,79 @@ namespace SevenWonders
             }
 
             return returnedList;
+        }
+        public CommerceOptions GetCommerceOptions(Cost cost)
+        {
+            CommerceOptions commOptions = new CommerceOptions();
+            commOptions.commerceOptions = new List<CommerceOptions.CommerceCost>();
+
+            if (cost.coin == 0 && cost.wood == 0 && cost.stone == 0 && cost.clay == 0 &&
+                cost.ore == 0 && cost.cloth == 0 && cost.glass == 0 && cost.papyrus == 0)
+            {
+                // No resource or coin cost
+                commOptions.buildable = Buildable.True;
+                return commOptions;
+            }
+
+            string strCost = cost.CostAsString();
+
+            if (strCost != string.Empty)
+            {
+                // Clone the resourceList
+                List<ResourceEffect> availableResources = new List<ResourceEffect>(resources.Count);
+                resources.ForEach(item =>
+                {
+                    availableResources.Add(item);
+                });
+
+                // The card has a resource (non-coin) cost.  Start by looking at this city's resources
+                while (strCost != string.Empty)
+                {
+                    ResourceEffect re = availableResources.Find(x => x.resourceTypes.Contains(strCost[0]));
+
+                    if (re != null)
+                    {
+                        // if this is a double-resource (Sawmill/Quarry/Foundry/Brickyard), and the next two resources
+                        // we are trying to find are the same type, count this match as two instead of one.
+                        int nResourcesMatched = re.IsDoubleResource() && strCost.Length > 1 && strCost[0] == strCost[1] ? 2 : 1;
+
+                        strCost = strCost.Substring(nResourcesMatched);
+
+                        // this resource structure has been used, remove it from the available list.
+                        availableResources.Remove(re);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (strCost.Length == 0)
+            {
+                if (cost.coin != 0)
+                {
+                    CommerceOptions.CommerceCost co = new CommerceOptions.CommerceCost();
+                    co.bankCoins = cost.coin;
+
+                    commOptions.commerceOptions.Add(co);
+                    commOptions.buildable = Buildable.CommerceRequired;
+                }
+                else
+                {
+                    commOptions.buildable = Buildable.True;
+                }
+
+                return commOptions;
+            }
+            else
+            {
+                commOptions.buildable = Buildable.InsufficientResources;
+            }
+
+            // Look at other resources
+
+            return commOptions;
         }
     }
 }
