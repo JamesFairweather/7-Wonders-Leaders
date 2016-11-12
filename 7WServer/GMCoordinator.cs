@@ -189,14 +189,14 @@ namespace SevenWonders
 
                             //S[n], n = number of players in this game
 
-                            string strCreateUIMsg = string.Format("StrtGame{0}", gameManager.player.Count);
+                            string strCreateUIMsg = string.Format("StrtGame&PlayerCount={0}&PlayerNames=", gameManager.player.Count);
 
                             foreach (Player p in gameManager.player.Values)
                             {
-                                strCreateUIMsg += string.Format(",{0}", p.nickname);
+                                strCreateUIMsg += string.Format("{0},", p.nickname);
                             }
 
-                            SendMessageToAll(strCreateUIMsg);
+                            SendMessageToAll(strCreateUIMsg.TrimEnd(','));
 
                             //set up the game, send information on boards to players, etc.
                             gameManager.beginningOfSessionActions();

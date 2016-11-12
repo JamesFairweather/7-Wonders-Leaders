@@ -403,37 +403,23 @@ namespace SevenWonders
                     break;
                     
                 case "StrtGame":
-                    //Handle when game cannot start
-                    if (message[1] == '0')
+                    qcoll = HttpUtility.ParseQueryString(message.Substring(msgParamIndex + 1));
+                    int nPlayers = int.Parse(qcoll["PlayerCount"]);
+                    //tell the server UI initialisation is done
+
+                    // I may be able to set this to playerNames, but I'm not sure about thread safety.
+                    playerNames = qcoll["PlayerNames"].Split(',');
+
+                    if (playerNames.Length != nPlayers)
                     {
-                        //re-enable the ready button
-                        Application.Current.Dispatcher.Invoke(new Action(delegate
-                        {
-                            tableUI.btnReady.IsEnabled = true;
-                        }));
+                        throw new Exception(string.Format("Server said there were {0} players, but sent {1} names.", nPlayers, playerNames.Length));
                     }
-                    //game is starting
-                    else
+
+                    //close the TableUI
+                    Application.Current.Dispatcher.Invoke(new Action(delegate
                     {
-                        //tell the server UI initialisation is done
-
-                        // find out the number of players.
-                        int nPlayers = int.Parse(message.Substring(8, 1));
-
-                        // I may be able to set this to playerNames, but I'm not sure about thread safety.
-                        playerNames = message.Substring(10).Split(',');
-
-                        if (playerNames.Length != nPlayers)
-                        {
-                            throw new Exception(string.Format("Server said there were {0} players, but sent {1} names.", nPlayers, playerNames.Length));
-                        }
-
-                        //close the TableUI
-                        Application.Current.Dispatcher.Invoke(new Action(delegate
-                        {
-                            tableUI.Close();
-                        }));
-                    }
+                        tableUI.Close();
+                    }));
                     messageHandled = true;
                     break;
 
