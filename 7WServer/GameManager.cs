@@ -48,6 +48,9 @@ namespace SevenWonders
         // playing.  All other phases are special.
         private GamePhase prevPhase;
 
+        // The manager is waiting for at least one debt response from a non-AI player.
+        public bool bWaitingForDebtResponse = false;
+
         // private Random rnd;  TODO: re-enable this
 
         private static Logger logger = LogManager.GetLogger("SevenWondersServer");
@@ -847,7 +850,7 @@ namespace SevenWonders
         /// </summary>
         public void executeActionsAtEndOfTurn()
         {
-            if (phase == GamePhase.LeaderDraft || phase == GamePhase.LeaderRecruitment || phase == GamePhase.Playing)
+            if ((phase == GamePhase.LeaderDraft || phase == GamePhase.LeaderRecruitment || phase == GamePhase.Playing) && !bWaitingForDebtResponse)
             {
                 //make AI moves
                 foreach (Player p in player.Values)
@@ -1109,7 +1112,16 @@ namespace SevenWonders
             }
         }
 
-        protected int numOfPlayersThatHaveTakenTheirTurn = 0;
+        public void HandleDebtResponse(string playerNickname, int nDebtTokens)
+        {
+            Player p = player[playerNickname];
+
+            p.takeDebtTokens(nDebtTokens);
+
+            turnTaken();
+        }
+
+        int numOfPlayersThatHaveTakenTheirTurn = 0;
 
         bool SetSpecialPhase(Player p, GamePhase specialPhase)
         {
@@ -1136,7 +1148,27 @@ namespace SevenWonders
         {
             numOfPlayersThatHaveTakenTheirTurn++;
 
-            if ((numOfPlayersThatHaveTakenTheirTurn == numOfPlayers) || phase == GamePhase.Babylon || phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon || phase == GamePhase.RomaB || phase == GamePhase.Courtesan)
+            bool allDebtResponsesReceived = false;
+
+            if (bWaitingForDebtResponse)
+            {
+                List<Player> pl = player.Values.ToList();
+
+                // If all players have replied to the debt question, the game can continue.
+                if (pl.Find(x => x.waitingForDebtTokenResponse) == null)
+                    allDebtResponsesReceived = true;
+            }
+
+            // Some phases require a response from all players.  Others from just one.  Debt is different
+            // in that it could be everyone or just one player that needs to respond to a message that they
+            // have a debt to pay.
+            if ((numOfPlayersThatHaveTakenTheirTurn == numOfPlayers) ||
+                phase == GamePhase.Babylon ||
+                phase == GamePhase.Halikarnassos ||
+                phase == GamePhase.Solomon ||
+                phase == GamePhase.RomaB ||
+                phase == GamePhase.Courtesan ||
+                (bWaitingForDebtResponse && allDebtResponsesReceived))
             {
                 //reset the number of players that have taken their turn
                 numOfPlayersThatHaveTakenTheirTurn = 0;
@@ -1156,7 +1188,6 @@ namespace SevenWonders
 
                 foreach (Player p in player.Values)
                 {
-
                     // do this action first, so that if they discard their other card, Halikarnassos could built it if they
                     // are building from the discard pile.
                     // I will need to go through this logic carefully.  Babylon (B) must play or discard their last
@@ -1173,11 +1204,23 @@ namespace SevenWonders
                     if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.RomaB);
                     if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Courtesan);
 
+                    bWaitingForDebtResponse = false;    // clear this, will set again if necessary
+                    if (!bSpecialPhase)
+                    {
+                        if (p.waitingForDebtTokenResponse)
+                        {
+                            bWaitingForDebtResponse = true;
+                            bSpecialPhase = true;
+                        }
+                    }
+
                     if (bSpecialPhase)
                         break;
                 }
 
-                //all players have completed their turn
+                //all players have completed their turn and all special actions are resolved.  We can move on to the
+                // next turn: pass your hand to your neighbor or, if it's the end of the age, resolve military conflicts
+                // and begin the next age.
                 if (!bSpecialPhase)
                 {
                     switch (phase)
@@ -1233,10 +1276,13 @@ namespace SevenWonders
                     }
                 }
 
-                updateAllGameUI();
+                if (!bWaitingForDebtResponse)
+                {
+                    updateAllGameUI();
 
-                if (gameConcluded)
-                    endOfSessionActions();
+                    if (gameConcluded)
+                        endOfSessionActions();
+                }
             }
         }
     }

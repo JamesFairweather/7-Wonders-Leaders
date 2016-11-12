@@ -397,7 +397,7 @@ namespace SevenWonders
                     messageHandled = true;
                     break;
 
-                case "RespFail":
+                case "Failed":
                     MessageBox.Show(message.Substring(msgParamIndex + 1));
                     messageHandled = true;
                     break;

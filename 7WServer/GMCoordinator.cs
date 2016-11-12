@@ -273,7 +273,7 @@ namespace SevenWonders
                         }
                         else
                         {
-                            host.sendMessageToUser(nickname, "RespFail There are already 7 players at this table.  Cannot add another player.");
+                            host.sendMessageToUser(nickname, "Failed&Message=There are already 7 players at this table.  Cannot add another player.");
                         }
                     }
                     //"ar": remove AI in the GameManager
@@ -292,6 +292,12 @@ namespace SevenWonders
 
                         SendUpdatedPlayers();
                     }
+                }
+                else if (message.Substring(0, 12) == "DebtResponse")
+                {
+                    NameValueCollection nvc = HttpUtility.ParseQueryString(message.Substring(13));
+
+                    gameManager.HandleDebtResponse(nickname, int.Parse(nvc["DebtTokens"]));
                 }
                 else
                 {

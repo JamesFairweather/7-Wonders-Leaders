@@ -396,7 +396,7 @@ namespace SevenWonders
                     }
                 }
 
-                if ((PLAYER_COIN - (leftcoin + rightcoin)) < coinsRequired)
+                if ((PLAYER_COIN - (cardCost.coin + leftcoin + rightcoin)) < coinsRequired)
                 {
                     MessageBox.Show("You cannot afford this resource");
                     return;
@@ -418,7 +418,7 @@ namespace SevenWonders
                     }
                 }
 
-                if ((PLAYER_COIN - (leftcoin + rightcoin)) < coinsRequired)
+                if ((PLAYER_COIN - (cardCost.coin + leftcoin + rightcoin)) < coinsRequired)
                 {
                     MessageBox.Show("You cannot afford this resource");
                     return;

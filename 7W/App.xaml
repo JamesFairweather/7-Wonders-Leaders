@@ -41,7 +41,7 @@
         <BitmapImage x:Key="Icons/arena" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/arena.png"/>
         <BitmapImage x:Key="Icons/Aristotle" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Aristotle.png"/>
         <BitmapImage x:Key="Icons/Aspasia" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Aspasia.png"/>
-        <BitmapImage x:Key="Icons/Bazar" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Bazar.png"/>
+        <BitmapImage x:Key="Icons/bazar" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Bazar.png"/>
         <BitmapImage x:Key="Icons/Berenice" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Berenice.png"/>
         <BitmapImage x:Key="Icons/Bilkis" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Bilkis.png"/>
         <BitmapImage x:Key="Icons/Bilkis2" UriSource="pack://application:,,,/7W;component/Resources/Images/icons/Bilkis2.png"/>

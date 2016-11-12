@@ -191,7 +191,7 @@ namespace SevenWonders
 
         private int coinsToLose = 0;
 
-        private bool waitingForDebtTokenResponse = false;
+        public bool waitingForDebtTokenResponse = false;
 
         //Player's left and right neighbours
         public Player leftNeighbour { get; set; }
@@ -538,6 +538,8 @@ namespace SevenWonders
             coin -= (coinsToLose - nDebtTokens);
 
             coinsToLose = 0;
+
+            waitingForDebtTokenResponse = false;
         }
 
         public void loseCoins()
