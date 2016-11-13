@@ -176,6 +176,11 @@ namespace ResourceUnitTest
             // it should be buildable but the algorithm must realize that it must take the ore from the wood/ore option.
 
             Verify(Verify2(new Cost("WOO"), new List<ResourceEffect> { wood_ore, stone_wood, caravansery }, null, null).buildable == Buildable.True);
+            Verify(Verify2(new Cost("WWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, wood_ore, wood_clay }, null, null).buildable == Buildable.InsufficientResources);
+            Verify(Verify2(new Cost("WWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, wood_ore, wood_clay, papyrus }, null, null).buildable == Buildable.True);
+            Verify(Verify2(new Cost("PWWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, wood_ore, wood_clay, papyrus }, null, null).buildable == Buildable.InsufficientResources);
+            Verify(Verify2(new Cost("PWGWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, wood_ore, wood_clay, caravansery, papyrus, papyrus, forum }, null, null).buildable == Buildable.True);
+            Verify(Verify2(new Cost("PWGWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, stone_clay, wood_ore, wood_clay, papyrus, papyrus, forum }, null, null).buildable == Buildable.True);
 
             // CoinCost cc;
 

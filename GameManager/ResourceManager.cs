@@ -270,14 +270,42 @@ namespace SevenWonders
             return returnedList;
         }
 
-        static void ReduceRecursively(string strCost, List<ResourceEffect> availableResources, List<ResourceEffect> thisList, List<List<ResourceEffect>> goodPaths/* true if all the cost string has been reduced to zero */ )
+        static void ReduceRecursively(string strCost, List<ResourceEffect> availableResources, Stack<ResourceEffect> thisList, List<List<ResourceEffect>> resourceOptions )
         {
             if (strCost == string.Empty)
             {
                 // success!  This combination of resources reduced the cost to zero.
-                List<ResourceEffect> goodList = new List<ResourceEffect>(thisList.Count);
-                thisList.ForEach(x => { goodList.Add(x); });
-                goodPaths.Add(goodList);
+
+                // if we already have this combination, don't add it again.
+                bool alreadyHaveIt = false;
+                foreach (List<ResourceEffect> resList in resourceOptions)
+                {
+                    List<ResourceEffect> dup = new List<ResourceEffect>(resList.Count);
+                    resList.ForEach(x => { dup.Add(x); });
+                    foreach (ResourceEffect re in thisList)
+                    {
+                        dup.Remove(re);
+                    }
+
+                    if (dup.Count == 0)
+                    {
+                        alreadyHaveIt = true;
+                        break;
+                    }
+                }
+
+                if (!alreadyHaveIt)
+                {
+                    // Clone this resource stack option and add it to the final list.
+                    List<ResourceEffect> validResourceList = new List<ResourceEffect>(thisList.Count);
+                    foreach (ResourceEffect r in thisList)
+                    {
+                        validResourceList.Add(r);
+                    }
+                    resourceOptions.Add(validResourceList);
+                }
+
+                // we have reached the end of this recursion path.
                 return;
             }
 
@@ -289,25 +317,31 @@ namespace SevenWonders
 
                     if (ind != -1)
                     {
-
-                        // clone the list and move down a level of recursion.
+                        // This structure has one or more of the resources needed to build
+                        // the card under consideration.
+                        // clone the list and move down a level of recursion.  I have to clone it first because
+                        // I can't modify the list by removing members as it's under recursion first foreach, above.
+                        // But what I can do would be to not use ResourceEffects, but rather a superstructure that
+                        // also contains fields for neighbors and for whether the entry has already been examined
                         List<ResourceEffect> newList = new List<ResourceEffect>(availableResources.Count - 1);
                         availableResources.ForEach(x =>
                         {
                             if (x == res)
                             {
-                                thisList.Add(x);
+                                // if this is the resource under consideration, add it to the current resource stack
+                                thisList.Push(x);
                             }
                             else
                             {
+                                // otherwise add it to the cloned list so it will be considered.
                                 newList.Add(x);
                             }
                         });
 
-                        ReduceRecursively(strCost.Remove(ind, 1), newList, thisList, goodPaths);   // doesn't matter whether it leads to a good path or not
+                        ReduceRecursively(strCost.Remove(ind, 1), newList, thisList, resourceOptions);   // doesn't matter whether it leads to a good path or not
 
                         // pop the last ResourceEffect off, then move on to the next resource choice for this structure
-                        thisList.Remove(res);
+                        thisList.Pop();
                     }
 
                     // if this resource isn't in the cost string, move on to the next option in the resource string.
@@ -339,25 +373,27 @@ namespace SevenWonders
                     resrcList.Add(item);
                 });
 
+                int resIndex = 0;
+
                 // The card has a resource (non-coin) cost.  Start by looking at this city's resources
-                while (strCost != string.Empty)
+                while (resIndex < strCost.Length)
                 {
-                    ResourceEffect re = resrcList.Find(x => x.IsSimpleResource() && x.resourceTypes.Contains(strCost[0]));
+                    ResourceEffect re = resrcList.Find(x => x.IsSimpleResource() && x.resourceTypes.Contains(strCost[resIndex]));
 
                     if (re != null)
                     {
                         // if this is a double-resource (Sawmill/Quarry/Foundry/Brickyard), and the next two resources
                         // we are trying to find are the same type, count this match as two instead of one.
-                        int nResourcesMatched = re.IsDoubleResource() && strCost.Length > 1 && strCost[0] == strCost[1] ? 2 : 1;
+                        int nResourcesMatched = re.IsDoubleResource() && strCost.Length > 1 && strCost[resIndex] == strCost[resIndex+1] ? 2 : 1;
 
-                        strCost = strCost.Substring(nResourcesMatched);
+                        strCost = strCost.Remove(resIndex, nResourcesMatched);
 
                         // this resource structure has been used, remove it from the available list.
                         resrcList.Remove(re);
                     }
                     else
                     {
-                        break;
+                        resIndex++;
                     }
                 }
 
@@ -372,7 +408,7 @@ namespace SevenWonders
                     });
 
                     List<List<ResourceEffect>> requiredResourcesLists = new List<List<ResourceEffect>>();
-                    List<ResourceEffect> myList = new List<ResourceEffect>();
+                    Stack<ResourceEffect> myList = new Stack<ResourceEffect>();
 
                     ReduceRecursively(strCost, resrcList, myList, requiredResourcesLists);
 
