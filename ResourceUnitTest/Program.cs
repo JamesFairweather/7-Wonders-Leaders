@@ -174,17 +174,26 @@ namespace ResourceUnitTest
 
             // here's a more intersesting case: the structure costs wood and 2 ore, with two flexes and a caravansery.
             // it should be buildable but the algorithm must realize that it must take the ore from the wood/ore option.
-
             Verify(Verify2(new Cost("WOO"), new List<ResourceEffect> { wood_ore, stone_wood, caravansery }, null, null).buildable == Buildable.True);
 
-            Verify(Verify2(new Cost("WWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, wood_ore, wood_clay }, null, null).buildable == Buildable.InsufficientResources);
+            // Make sure it's not a problem to have an unused resource in the middle of the string
+            Verify(Verify2(new Cost("WOO"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, null, null).buildable == Buildable.True);
+            Verify(Verify2(new Cost("WBOO"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, null, null).buildable == Buildable.True);
+            Verify(Verify2(new Cost("BSOO"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, null, null).buildable == Buildable.True);
+            Verify(Verify2(new Cost("WWBS"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, null, null).buildable == Buildable.True);
             Verify(Verify2(new Cost("WWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, wood_ore, wood_clay, papyrus }, null, null).buildable == Buildable.True);
+            Verify(Verify2(new Cost("WWOOPPG"), new List<ResourceEffect> { papyrus, papyrus, stone_wood, clay_ore, wood_ore, wood_clay, forum, caravansery }, null, null).buildable == Buildable.True);
+            Verify(Verify2(new Cost("WWOOPPG"), new List<ResourceEffect> { papyrus, papyrus, stone_wood, clay_ore, stone_clay, wood_ore, wood_clay, forum }, null, null).buildable == Buildable.True);
+            Verify(Verify2(new Cost("WWSOO"), new List<ResourceEffect> { stone_wood, clay_ore, stone_clay, wood_ore, wood_clay }, null, null).buildable == Buildable.True);
+            Verify(Verify2(new Cost("WWSBOO"), new List<ResourceEffect> { clay_2, stone_wood, clay_ore, stone_clay, wood_ore, wood_clay }, null, null).buildable == Buildable.True);
+
+            Verify(Verify2(new Cost("WWSS"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, null, null).buildable == Buildable.InsufficientResources);
+            Verify(Verify2(new Cost("WWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, wood_ore, wood_clay }, null, null).buildable == Buildable.InsufficientResources);
             Verify(Verify2(new Cost("PWWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, wood_ore, wood_clay, papyrus }, null, null).buildable == Buildable.InsufficientResources);
 
             // This one has more than one success path as it contains more resources than requirements.
-            Verify(Verify2(new Cost("WWOOPPG"), new List<ResourceEffect> { papyrus, papyrus, stone_wood, clay_ore, wood_ore, wood_clay, forum, caravansery }, null, null).buildable == Buildable.True);
-
-            Verify(Verify2(new Cost("WWOOPPG"), new List<ResourceEffect> { papyrus, papyrus, stone_wood, clay_ore, stone_clay, wood_ore, wood_clay, forum }, null, null).buildable == Buildable.True);
+            Verify(Verify2(new Cost("WWSBOO"), new List<ResourceEffect> { stone_wood, clay_ore, stone_clay, wood_ore, wood_clay }, null, null).buildable == Buildable.InsufficientResources);
+            Verify(Verify2(new Cost("WWSBOO"), new List<ResourceEffect> { clay_2, stone_wood, clay_ore, wood_ore, wood_clay }, null, null).buildable == Buildable.InsufficientResources);
 
             // CoinCost cc;
 
