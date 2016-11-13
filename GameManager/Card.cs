@@ -424,6 +424,11 @@ namespace SevenWonders
         {
             return resourceTypes.Length == 2 && resourceTypes[0] == resourceTypes[1];
         }
+
+        public bool IsSimpleResource()
+        {
+            return resourceTypes.Length == 1 || IsDoubleResource();
+        }
     }
 
     public class ScienceEffect : Effect

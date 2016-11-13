@@ -269,6 +269,52 @@ namespace SevenWonders
 
             return returnedList;
         }
+
+        static void ReduceRecursively(string strCost, List<ResourceEffect> availableResources, List<ResourceEffect> thisList, List<List<ResourceEffect>> goodPaths/* true if all the cost string has been reduced to zero */ )
+        {
+            if (strCost == string.Empty)
+            {
+                // success!  This combination of resources reduced the cost to zero.
+                List<ResourceEffect> goodList = new List<ResourceEffect>(thisList.Count);
+                thisList.ForEach(x => { goodList.Add(x); });
+                goodPaths.Add(goodList);
+                return;
+            }
+
+            foreach (ResourceEffect res in availableResources)
+            {
+                foreach (char resType in res.resourceTypes)
+                {
+                    int ind = strCost.IndexOf(resType);
+
+                    if (ind != -1)
+                    {
+
+                        // clone the list and move down a level of recursion.
+                        List<ResourceEffect> newList = new List<ResourceEffect>(availableResources.Count - 1);
+                        availableResources.ForEach(x =>
+                        {
+                            if (x == res)
+                            {
+                                thisList.Add(x);
+                            }
+                            else
+                            {
+                                newList.Add(x);
+                            }
+                        });
+
+                        ReduceRecursively(strCost.Remove(ind, 1), newList, thisList, goodPaths);   // doesn't matter whether it leads to a good path or not
+
+                        // pop the last ResourceEffect off, then move on to the next resource choice for this structure
+                        thisList.Remove(res);
+                    }
+
+                    // if this resource isn't in the cost string, move on to the next option in the resource string.
+                }
+            }
+        }
+
         public CommerceOptions GetCommerceOptions(Cost cost)
         {
             CommerceOptions commOptions = new CommerceOptions();
@@ -287,16 +333,16 @@ namespace SevenWonders
             if (strCost != string.Empty)
             {
                 // Clone the resourceList
-                List<ResourceEffect> availableResources = new List<ResourceEffect>(resources.Count);
-                resources.ForEach(item =>
+                List<ResourceEffect> resrcList = new List<ResourceEffect>(resources.Count);
+                resources.FindAll(x => x.IsSimpleResource()).ForEach(item =>
                 {
-                    availableResources.Add(item);
+                    resrcList.Add(item);
                 });
 
                 // The card has a resource (non-coin) cost.  Start by looking at this city's resources
                 while (strCost != string.Empty)
                 {
-                    ResourceEffect re = availableResources.Find(x => x.resourceTypes.Contains(strCost[0]));
+                    ResourceEffect re = resrcList.Find(x => x.IsSimpleResource() && x.resourceTypes.Contains(strCost[0]));
 
                     if (re != null)
                     {
@@ -307,11 +353,35 @@ namespace SevenWonders
                         strCost = strCost.Substring(nResourcesMatched);
 
                         // this resource structure has been used, remove it from the available list.
-                        availableResources.Remove(re);
+                        resrcList.Remove(re);
                     }
                     else
                     {
                         break;
+                    }
+                }
+
+                if (strCost != string.Empty)
+                {
+                    // now we have to eliminate the cost using complex resources:
+                    // flex cards, Forum, Caravansery, and Black Market
+                    resrcList.Clear();
+                    resources.FindAll(x => x.IsSimpleResource() == false).ForEach(item =>
+                    {
+                        resrcList.Add(item);
+                    });
+
+                    List<List<ResourceEffect>> requiredResourcesLists = new List<List<ResourceEffect>>();
+                    List<ResourceEffect> myList = new List<ResourceEffect>();
+
+                    ReduceRecursively(strCost, resrcList, myList, requiredResourcesLists);
+
+                    if (requiredResourcesLists.Count > 0)
+                    {
+                        // at least one of these paths returned a complete elimination of the cost string
+                        strCost = string.Empty;
+
+                        // now go through the requiredResourcesLists and see if any did not use any neighbor's resources
                     }
                 }
             }
