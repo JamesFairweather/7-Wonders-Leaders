@@ -201,42 +201,30 @@ namespace ResourceUnitTest
             Verify(Verify2(new Cost("WWSBOO"), new List<ResourceEffect> { stone_wood, clay_ore, stone_clay, wood_ore, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>()).buildable == Buildable.InsufficientResources);
             Verify(Verify2(new Cost("WWSBOO"), new List<ResourceEffect> { clay_2, stone_wood, clay_ore, wood_ore, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>()).buildable == Buildable.InsufficientResources);
 
+            ///////////////////////////
+            // Start of commerce tests
+            ///////////////////////////
+
             costResult = Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_1, }, new List<ResourceEffect>());
             Verify(costResult.buildable == Buildable.CommerceRequired);
             Verify(costResult.commerceOptions.Count == 1);
             Verify(costResult.commerceOptions[0].bankCoins == 0);
             Verify(costResult.commerceOptions[0].leftCoins == 2);
             Verify(costResult.commerceOptions[0].rightCoins == 0);
-            // CoinCost cc;
 
-            /*
-            if (testResMan.canAfford(new Cost("O")) != false)
-                throw new Exception();
+            costResult = Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect> { clay_1, }, new List<ResourceEffect>() { stone_2 });
+            Verify(costResult.buildable == Buildable.CommerceRequired);
+            Verify(costResult.commerceOptions.Count == 1);
+            Verify(costResult.commerceOptions[0].bankCoins == 0);
+            Verify(costResult.commerceOptions[0].leftCoins == 0);
+            Verify(costResult.commerceOptions[0].rightCoins == 2);
 
-            testResMan.add(clay_ore);
-
-            if (testResMan.canAfford(new Cost("O")) != true)
-                throw new Exception();
-
-            testResMan.add(stone_2);
-
-            if (testResMan.canAfford(new Cost("SSW")) != true)
-                throw new Exception();
-
-            if (testResMan.canAfford(new Cost("SSWW")) != false)
-                throw new Exception();
-
-            testResMan.add(wood_ore);
-
-            if (testResMan.canAfford(new Cost("SSWW")) != true)
-                throw new Exception();
-
-            if (testResMan.canAfford(new Cost("SSOWWB")) != false)
-                throw new Exception();
-
-            if (testResMan.canAfford(new Cost("SSOWB")) != true)
-                throw new Exception();
-                */
+            costResult = Verify2(new Cost("SS"), new List<ResourceEffect>(), new List<ResourceEffect> { clay_1, }, new List<ResourceEffect>() { stone_2 });
+            Verify(costResult.buildable == Buildable.CommerceRequired);
+            Verify(costResult.commerceOptions.Count == 1);
+            Verify(costResult.commerceOptions[0].bankCoins == 0);
+            Verify(costResult.commerceOptions[0].leftCoins == 0);
+            Verify(costResult.commerceOptions[0].rightCoins == 4);
 
             // After we have a list of options for building a card, we can apply commercial effects,
             // then resolve the options into:
