@@ -327,9 +327,11 @@ namespace SevenWonders
 
                     if (ind != -1)
                     {
+                        int nResourceCostsToRemove = res.IsDoubleResource() && ((remainingCost.Length - ind) > 1) && (remainingCost[ind] == remainingCost[ind + 1]) ? 2 : 1;
+
                         // This resource matches one (or more) of the required resources.  Remove the matched
                         // resource from the remainingCost and move down a level of recusion.
-                        ReduceRecursively(remainingCost.Remove(ind, 1), availableResources, i + 1, validResourceStack, resourceOptions);   // doesn't matter whether it leads to a good path or not
+                        ReduceRecursively(remainingCost.Remove(ind, nResourceCostsToRemove), availableResources, i + 1, validResourceStack, resourceOptions);
                     }
 
                     // if this resource isn't in the cost string, move on to the next option in the resource
@@ -358,84 +360,41 @@ namespace SevenWonders
 
             if (strCost != string.Empty)
             {
-                /*
-                // Clone the resourceList
-                List<ResourceEffect> resrcList = new List<ResourceEffect>(resources.Count);
-                resources.FindAll(x => x.IsSimpleResource()).ForEach(item =>
+                List<List<int>> requiredResourcesLists = new List<List<int>>();
+                Stack<int> myList = new Stack<int>();
+
+                ReduceRecursively(strCost, /*resrcList*/resources, 0, myList, requiredResourcesLists);
+
+                if (requiredResourcesLists.Count > 0)
                 {
-                    resrcList.Add(item);
-                });
+                    // at least one of these paths returned a complete elimination of the cost string
+                    strCost = string.Empty;
 
-                int resIndex = 0;
-
-                // The card has a resource (non-coin) cost.  Start by looking at this city's resources
-                while (resIndex < strCost.Length)
-                {
-                    ResourceEffect re = resrcList.Find(x => x.IsSimpleResource() && x.resourceTypes.Contains(strCost[resIndex]));
-
-                    if (re != null)
-                    {
-                        // if this is a double-resource (Sawmill/Quarry/Foundry/Brickyard), and the next two resources
-                        // we are trying to find are the same type, count this match as two instead of one.
-                        int nResourcesMatched = re.IsDoubleResource() && strCost.Length > 1 && strCost[resIndex] == strCost[resIndex+1] ? 2 : 1;
-
-                        strCost = strCost.Remove(resIndex, nResourcesMatched);
-
-                        // this resource structure has been used, remove it from the available list.
-                        resrcList.Remove(re);
-                    }
-                    else
-                    {
-                        resIndex++;
-                    }
-                }
-                */
-
-                if (strCost != string.Empty)
-                {
-                    /*
-                    // now we have to eliminate the cost using complex resources:
-                    // flex cards, Forum, Caravansery, and Black Market
-                    resrcList.Clear();
-                    resources.FindAll(x => x.IsSimpleResource() == false).ForEach(item =>
-                    {
-                        resrcList.Add(item);
-                    });
-                    */
-
-                    List<List<int>> requiredResourcesLists = new List<List<int>>();
-                    Stack<int> myList = new Stack<int>();
-
-                    ReduceRecursively(strCost, /*resrcList*/resources, 0, myList, requiredResourcesLists);
-
-                    if (requiredResourcesLists.Count > 0)
-                    {
-                        // at least one of these paths returned a complete elimination of the cost string
-                        strCost = string.Empty;
-
-                        // now go through the requiredResourcesLists and see if any did not use any neighbor's resources
-                    }
+                    // now go through the requiredResourcesLists and see if any did not use any neighbor's resources
                 }
             }
 
-            if (strCost.Length == 0)
+            if (strCost == string.Empty)
             {
-                if (cost.coin != 0)
+                if (cost.coin == 0)
                 {
+                    commOptions.buildable = Buildable.True;
+                }
+                else
+                {
+                    // Commerce is required (but only with the bank).
                     CommerceOptions.CommerceCost co = new CommerceOptions.CommerceCost();
                     co.bankCoins = cost.coin;
 
                     commOptions.commerceOptions.Add(co);
                     commOptions.buildable = Buildable.CommerceRequired;
                 }
-                else
-                {
-                    commOptions.buildable = Buildable.True;
-                }
 
                 return commOptions;
             }
 
+            // if we get here, the structure cannot be built using this city's resources.  We will have to
+            // consider whether it can be built using neighboring city resources.
 
             // This structure cannot be built using this city's resources.  So now we need to consider resources
             // in the two neighboring cites.
