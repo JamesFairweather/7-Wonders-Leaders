@@ -341,7 +341,7 @@ namespace SevenWonders
             }
         }
 
-        public CommerceOptions GetCommerceOptions(Cost cost)
+        public CommerceOptions GetCommerceOptions(Cost cost, List<ResourceEffect> leftResources, List<ResourceEffect> rightResources)
         {
             CommerceOptions commOptions = new CommerceOptions();
             commOptions.commerceOptions = new List<CommerceOptions.CommerceCost>();
@@ -358,6 +358,7 @@ namespace SevenWonders
 
             if (strCost != string.Empty)
             {
+                /*
                 // Clone the resourceList
                 List<ResourceEffect> resrcList = new List<ResourceEffect>(resources.Count);
                 resources.FindAll(x => x.IsSimpleResource()).ForEach(item =>
@@ -388,9 +389,11 @@ namespace SevenWonders
                         resIndex++;
                     }
                 }
+                */
 
                 if (strCost != string.Empty)
                 {
+                    /*
                     // now we have to eliminate the cost using complex resources:
                     // flex cards, Forum, Caravansery, and Black Market
                     resrcList.Clear();
@@ -398,11 +401,12 @@ namespace SevenWonders
                     {
                         resrcList.Add(item);
                     });
+                    */
 
                     List<List<int>> requiredResourcesLists = new List<List<int>>();
                     Stack<int> myList = new Stack<int>();
 
-                    ReduceRecursively(strCost, resrcList, 0, myList, requiredResourcesLists);
+                    ReduceRecursively(strCost, /*resrcList*/resources, 0, myList, requiredResourcesLists);
 
                     if (requiredResourcesLists.Count > 0)
                     {
@@ -431,8 +435,17 @@ namespace SevenWonders
 
                 return commOptions;
             }
+
+
+            // This structure cannot be built using this city's resources.  So now we need to consider resources
+            // in the two neighboring cites.
+            if (false)
+            {
+
+            }
             else
             {
+                // There are insufficient resources available to construct this structure.
                 commOptions.buildable = Buildable.InsufficientResources;
             }
 

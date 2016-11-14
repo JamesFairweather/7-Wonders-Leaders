@@ -24,7 +24,7 @@ namespace ResourceUnitTest
                 resMan.add(x);
             });
 
-            return resMan.GetCommerceOptions(cost);
+            return resMan.GetCommerceOptions(cost, leftResources, rightResources);
         }
 
         static void Main(string[] args)
@@ -159,15 +159,16 @@ namespace ResourceUnitTest
             // Check that last one again, to confirm it's not buildable if the resource required is missing.
             Verify(Verify2(new Cost("5C"), new List<ResourceEffect> { papyrus, }, null, null).buildable == Buildable.InsufficientResources);
 
-            Verify(Verify2(new Cost("WW"), new List<ResourceEffect> { wood_2, }, null, null).buildable == Buildable.True);
+           //  Verify(Verify2(new Cost("WW"), new List<ResourceEffect> { wood_2, }, null, null).buildable == Buildable.True);
 
+            /*
             costResult = Verify2(new Cost("4WW"), new List<ResourceEffect> { wood_2, }, null, null);
             Verify(costResult.buildable == Buildable.CommerceRequired);
             Verify(costResult.commerceOptions.Count == 1);
             Verify(costResult.commerceOptions[0].bankCoins == 4);
             Verify(costResult.commerceOptions[0].leftCoins == 0);
             Verify(costResult.commerceOptions[0].rightCoins == 0);
-
+            */
             Verify(Verify2(new Cost("WW"), new List<ResourceEffect> { wood_1, wood_clay }, null, null).buildable == Buildable.True);
             Verify(Verify2(new Cost("WWB"), new List<ResourceEffect> { wood_1, wood_clay }, null, null).buildable == Buildable.InsufficientResources);
             Verify(Verify2(new Cost("WWB"), new List<ResourceEffect> { wood_ore, stone_wood, caravansery }, null, null).buildable == Buildable.True);
@@ -185,7 +186,7 @@ namespace ResourceUnitTest
             Verify(Verify2(new Cost("WWOOPPG"), new List<ResourceEffect> { papyrus, papyrus, stone_wood, clay_ore, wood_ore, wood_clay, forum, caravansery }, null, null).buildable == Buildable.True);
             Verify(Verify2(new Cost("WWOOPPG"), new List<ResourceEffect> { papyrus, papyrus, stone_wood, clay_ore, stone_clay, wood_ore, wood_clay, forum }, null, null).buildable == Buildable.True);
             Verify(Verify2(new Cost("WWSOO"), new List<ResourceEffect> { stone_wood, clay_ore, stone_clay, wood_ore, wood_clay }, null, null).buildable == Buildable.True);
-            Verify(Verify2(new Cost("WWSBOO"), new List<ResourceEffect> { clay_2, stone_wood, clay_ore, stone_clay, wood_ore, wood_clay }, null, null).buildable == Buildable.True);
+            Verify(Verify2(new Cost("WWSBOO"), new List<ResourceEffect> { clay_1, stone_wood, clay_ore, stone_clay, wood_ore, wood_clay }, null, null).buildable == Buildable.True);
 
             Verify(Verify2(new Cost("WWSS"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, null, null).buildable == Buildable.InsufficientResources);
             Verify(Verify2(new Cost("WWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, wood_ore, wood_clay }, null, null).buildable == Buildable.InsufficientResources);
@@ -195,6 +196,12 @@ namespace ResourceUnitTest
             Verify(Verify2(new Cost("WWSBOO"), new List<ResourceEffect> { stone_wood, clay_ore, stone_clay, wood_ore, wood_clay }, null, null).buildable == Buildable.InsufficientResources);
             Verify(Verify2(new Cost("WWSBOO"), new List<ResourceEffect> { clay_2, stone_wood, clay_ore, wood_ore, wood_clay }, null, null).buildable == Buildable.InsufficientResources);
 
+            costResult = Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_1, }, new List<ResourceEffect>());
+            Verify(costResult.buildable == Buildable.CommerceRequired);
+            Verify(costResult.commerceOptions.Count == 1);
+            Verify(costResult.commerceOptions[0].bankCoins == 0);
+            Verify(costResult.commerceOptions[0].leftCoins == 2);
+            Verify(costResult.commerceOptions[0].rightCoins == 0);
             // CoinCost cc;
 
             /*
