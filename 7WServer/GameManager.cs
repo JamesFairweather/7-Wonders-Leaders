@@ -881,6 +881,7 @@ namespace SevenWonders
 
         private string BuildResourceString(string who, Player plyr, bool isSelf = false)
         {
+            /*
             string strRet = string.Format("&{0}Resources=", who);
 
             foreach (ResourceEffect se in plyr.dag.getResourceList(isSelf))
@@ -889,6 +890,10 @@ namespace SevenWonders
             }
 
             return strRet.TrimEnd(',');
+            */
+
+            throw new NotImplementedException();
+            return null;
         }
 
         private string MakeHandString(Player p, List<Card> cardList, bool buildingFromDiscardedCards = false)

@@ -18,6 +18,17 @@ namespace SevenWonders
         // Also the Secret Warehouse and Black Market are in there somewhere.
         List<ResourceEffect> resources = new List<ResourceEffect>();
 
+        public enum CommercePreferences
+        {
+            PreferLeftResources,            // buy from left neighbor before right.
+            PreferRightResources,           // buy from right neighbor before left.
+            PreferLeftResourcesOneRight,    // buy one resource from the right neighbor, the rest from the left
+            PreferRightResourcesOneLeft,    // buy one resource from the left neighbor, the rest from the right
+        };
+
+        // minimal cost (i.e. buy from neighbor you get discounts from
+        // Hatshepsut - try to buy one from each neighbor.
+
         //Add an OR resource
         public void add(ResourceEffect s)
         {
@@ -69,6 +80,7 @@ namespace SevenWonders
             resources.Insert(insertionIndex+1, s);
         }
 
+        /*
         public IEnumerable<ResourceEffect> getResourceList(bool isSelf)
         {
             if (isSelf)
@@ -81,6 +93,7 @@ namespace SevenWonders
                 return resources.Where(x => x.canBeUsedByNeighbors == true);
             }
         }
+        */
 
        /**
          * Remove all letters that appear in B FROM A, then return the newly trimmed A
@@ -95,6 +108,7 @@ namespace SevenWonders
          * is considered, which means that some structures that are affordable using the 2nd option are
          * returned as Not Buildable.
          */
+         /*
         public Cost eliminate(Cost structureCost, bool stopAfterAMatchIsFound, string resourceString)
         {
             // interesting.  structs do not need to be instantiated.  Classes do.  But structs
@@ -169,13 +183,14 @@ namespace SevenWonders
 
             return c;
         }
-
+        */
         /**
          * Given a resource DAG graph, determine if a cost is affordable
          * @return
          */
         public bool canAfford(Cost cost, int nWildResources)
         {
+            /*
             foreach (ResourceEffect e in resources)
             {
                 if (eliminate(cost, true, e.resourceTypes).IsZero())
@@ -197,10 +212,14 @@ namespace SevenWonders
             // if the player doesn't have a coin.
             if (nWildResources >= cost.Total())
                 return true;
+            */
+
+            throw new NotImplementedException();
 
             return false;
         }
 
+        /*
         /// <summary>
         /// Combine the player's resource list with those of his neighboring cities into a single ResourceList, to see whether a card
         /// could be afforded using commerce.
@@ -269,8 +288,29 @@ namespace SevenWonders
 
             return returnedList;
         }
+        */
 
-        static void ReduceRecursively(string remainingCost, List<ResourceEffect> availableResources, int startResource, Stack<int> validResourceStack, List<List<int>> resourceOptions )
+        enum ResourceOwner
+        {
+            Self,
+            Left,
+            Right,
+        };
+
+        struct ResourceUsed
+        {
+            public ResourceUsed(ResourceOwner o, int i)
+            {
+                this.owner = o;
+                this.index = i;
+            }
+
+            public ResourceOwner owner { get; private set; }   // who owns this resource
+
+            public int index { get; private set; }             // index into the owner's resource list
+        }
+
+        static void ReduceRecursively(string remainingCost, List<ResourceEffect> myResources, int resourceLevel, List<ResourceEffect> leftResources, int leftResourceLevel, List<ResourceEffect> rightResources, int rightResourceLevel, Stack<ResourceUsed> validResourceStack, List<List<ResourceUsed>> resourceOptions )
         {
             if (remainingCost == string.Empty)
             {
@@ -282,11 +322,11 @@ namespace SevenWonders
                 // resources include the flex card with both wood and ore on it,
                 // or the Caravansery.
                 bool alreadyHaveIt = false;
-                foreach (List<int> resList in resourceOptions)
+                foreach (List<ResourceUsed> resList in resourceOptions)
                 {
-                    List<int> dup = new List<int>(resList.Count);
+                    List<ResourceUsed> dup = new List<ResourceUsed>(resList.Count);
                     resList.ForEach(x => { dup.Add(x); });
-                    foreach (int re in validResourceStack)
+                    foreach (ResourceUsed re in validResourceStack)
                     {
                         dup.Remove(re);
                     }
@@ -301,12 +341,11 @@ namespace SevenWonders
                 if (!alreadyHaveIt)
                 {
                     // Clone this resource stack option and add it to the final list.
-                    List<int> validResourceList = new List<int>(validResourceStack.Count);
-                    foreach (int r in validResourceStack)
+                    List<ResourceUsed> validResourceList = new List<ResourceUsed>(validResourceStack.Count);
+                    foreach (ResourceUsed r in validResourceStack)
                     {
                         validResourceList.Add(r);
                     }
-                    validResourceList.Sort();       // is there any advantage to sorting this list?
                     resourceOptions.Add(validResourceList);
                 }
 
@@ -315,14 +354,38 @@ namespace SevenWonders
             }
 
             // we need to check every possible path, starting at the current recursion level
-            for (int i = startResource; i < availableResources.Count; ++i)
+            for (int i = resourceLevel; i < myResources.Count + leftResources.Count + rightResources.Count; ++i)
             {
-                validResourceStack.Push(i);
+                ResourceOwner ro;
+                ResourceEffect res;
 
-                ResourceEffect res = availableResources[i];
-
-                foreach (char resType in res.resourceTypes)
+                if (i == myResources.Count && resourceOptions.Count != 0)
                 {
+                    // early exit: this structure can be built without using neighboring city resources.
+                    break;
+                }
+
+                if (0 <= i && i < myResources.Count)
+                {
+                    ro = ResourceOwner.Self;
+                    res = myResources[i];
+                }
+                else if (myResources.Count <= i && i < myResources.Count + leftResources.Count)
+                {
+                    ro = ResourceOwner.Left;
+                    res = leftResources[i - myResources.Count];
+                }
+                else
+                {
+                    ro = ResourceOwner.Right;
+                    res = rightResources[i - (myResources.Count + leftResources.Count)];
+                }
+
+                validResourceStack.Push(new ResourceUsed(ro, i));
+
+                for (int j = 0; j < res.resourceTypes.Length; j++)
+                {
+                    char resType = res.resourceTypes[j];
                     int ind = remainingCost.IndexOf(resType);
 
                     if (ind != -1)
@@ -331,7 +394,10 @@ namespace SevenWonders
 
                         // This resource matches one (or more) of the required resources.  Remove the matched
                         // resource from the remainingCost and move down a level of recusion.
-                        ReduceRecursively(remainingCost.Remove(ind, nResourceCostsToRemove), availableResources, i + 1, validResourceStack, resourceOptions);
+                        ReduceRecursively(remainingCost.Remove(ind, nResourceCostsToRemove), myResources, i + 1, leftResources, leftResourceLevel, rightResources, rightResourceLevel, validResourceStack, resourceOptions);
+
+                        if (nResourceCostsToRemove == 2)
+                            j++;
                     }
 
                     // if this resource isn't in the cost string, move on to the next option in the resource
@@ -343,72 +409,72 @@ namespace SevenWonders
             }
         }
 
+        // I don't want to find every possible resource path.  There could be hundreds of valid combinations.
+        // Instead, I want to have biases: prefer to buy from left, prefer to buy from right, prefer even,
+        // prefer cheapest option, buy 1 from each before buying a 2nd one (i.e. to get coins from Hatshepsut).
+        // just return the first path that satisfies that preference.
+
         public CommerceOptions GetCommerceOptions(Cost cost, List<ResourceEffect> leftResources, List<ResourceEffect> rightResources)
         {
             CommerceOptions commOptions = new CommerceOptions();
+
+            commOptions.buildable = Buildable.CommerceRequired;     // Default option is to assume commerce is required.
+
             commOptions.commerceOptions = new List<CommerceOptions.CommerceCost>();
 
-            if (cost.coin == 0 && cost.wood == 0 && cost.stone == 0 && cost.clay == 0 &&
-                cost.ore == 0 && cost.cloth == 0 && cost.glass == 0 && cost.papyrus == 0)
+            List<List<ResourceUsed>> requiredResourcesLists = new List<List<ResourceUsed>>();
+            Stack<ResourceUsed> resStack = new Stack<ResourceUsed>();
+
+            // kick off a recursive reduction of the resource cost.  Paths that completely eliminate the cost
+            // are returned in the requiredResourcesLists.
+            ReduceRecursively(cost.CostAsString(), resources, 0, leftResources, 0, rightResources, 0, resStack, requiredResourcesLists);
+
+            // now go through the requiredResourcesLists and see if any did not use any neighbor's resources
+            for (int i = 0; i < requiredResourcesLists.Count; ++i)
             {
-                // No resource or coin cost
-                commOptions.buildable = Buildable.True;
-                return commOptions;
-            }
+                List<ResourceUsed> resList = requiredResourcesLists[i];
+                CommerceOptions.CommerceCost co = new CommerceOptions.CommerceCost();
 
-            string strCost = cost.CostAsString();
-
-            if (strCost != string.Empty)
-            {
-                List<List<int>> requiredResourcesLists = new List<List<int>>();
-                Stack<int> myList = new Stack<int>();
-
-                ReduceRecursively(strCost, /*resrcList*/resources, 0, myList, requiredResourcesLists);
-
-                if (requiredResourcesLists.Count > 0)
+                // is there one that didn't use any resources from neighboring cities?
+                foreach (ResourceUsed res in resList)
                 {
-                    // at least one of these paths returned a complete elimination of the cost string
-                    strCost = string.Empty;
-
-                    // now go through the requiredResourcesLists and see if any did not use any neighbor's resources
+                    if (res.owner == ResourceOwner.Left)
+                    {
+                        co.leftCoins += 2;
+                    }
+                    else if (res.owner == ResourceOwner.Right)
+                    {
+                        co.rightCoins += 2;
+                    }
                 }
-            }
 
-            if (strCost == string.Empty)
-            {
-                if (cost.coin == 0)
+                if (co.leftCoins == 0 && co.rightCoins == 0)
                 {
-                    commOptions.buildable = Buildable.True;
+                    // This path didn't use any neighboring city resources
+
+                    if (cost.coin == 0)
+                    {
+                        commOptions.buildable = Buildable.True;
+                    }
+                    else
+                    {
+                        // Commerce is required (but only with the bank).
+                        co.bankCoins = cost.coin;
+
+                        commOptions.commerceOptions.Add(co);
+                    }
+
+                    return commOptions;
                 }
                 else
                 {
-                    // Commerce is required (but only with the bank).
-                    CommerceOptions.CommerceCost co = new CommerceOptions.CommerceCost();
-                    co.bankCoins = cost.coin;
-
                     commOptions.commerceOptions.Add(co);
-                    commOptions.buildable = Buildable.CommerceRequired;
                 }
-
-                return commOptions;
             }
 
-            // if we get here, the structure cannot be built using this city's resources.  We will have to
-            // consider whether it can be built using neighboring city resources.
-
-            // This structure cannot be built using this city's resources.  So now we need to consider resources
-            // in the two neighboring cites.
-            if (false)
-            {
-
-            }
-            else
-            {
-                // There are insufficient resources available to construct this structure.
+            // If we get to this point, there are insufficient resources to construct this structure.
+            if (requiredResourcesLists.Count == 0)
                 commOptions.buildable = Buildable.InsufficientResources;
-            }
-
-            // Look at other resources
 
             return commOptions;
         }
