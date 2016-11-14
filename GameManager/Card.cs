@@ -721,16 +721,30 @@ namespace SevenWonders
 
     public struct CommerceOptions
     {
-        public Buildable buildable;
-
-        public struct CommerceCost
+        public Buildable buildable
         {
-            // Usually prefer to pay the bank (i.e. Bilkis) a coin over using commerce, but not always.
-            public int bankCoins;
+            get
+            {
+                if (bAreResourceRequirementsMet)
+                {
+                    if (bankCoins != 0 || leftCoins != 0 || rightCoins != 0)
+                        return Buildable.CommerceRequired;
 
-            // For this option, how man
-            public int leftCoins;
-            public int rightCoins;
+                    return Buildable.True;
+                }
+
+                return Buildable.InsufficientResources;
+            }
+        }
+
+        public bool bAreResourceRequirementsMet;
+
+        // Usually prefer to pay the bank (i.e. Bilkis) a coin over using commerce, but not always.
+        public int bankCoins;
+
+        // For this option, how man
+        public int leftCoins;
+        public int rightCoins;
 
             // I'm not sure yet whether this information should be here or in a higher level.  Normally you can tell
             // whether a resource was purchased by looking at left/right coins, but if a player has the Clandestine Dock,
@@ -741,6 +755,5 @@ namespace SevenWonders
         }
 
         // List of valid combinations for performing the transaction.
-        public List<CommerceCost> commerceOptions;
-    };
+//        public List<CommerceCost> commerceOptions;
 }

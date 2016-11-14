@@ -18,17 +18,6 @@ namespace SevenWonders
         // Also the Secret Warehouse and Black Market are in there somewhere.
         List<ResourceEffect> resources = new List<ResourceEffect>();
 
-        public enum CommercePreferences
-        {
-            PreferLeftResources,            // buy from left neighbor before right.
-            PreferRightResources,           // buy from right neighbor before left.
-            PreferLeftResourcesOneRight,    // buy one resource from the right neighbor, the rest from the left
-            PreferRightResourcesOneLeft,    // buy one resource from the left neighbor, the rest from the right
-        };
-
-        // minimal cost (i.e. buy from neighbor you get discounts from
-        // Hatshepsut - try to buy one from each neighbor.
-
         //Add an OR resource
         public void add(ResourceEffect s)
         {
@@ -412,16 +401,23 @@ namespace SevenWonders
         // I don't want to find every possible resource path.  There could be hundreds of valid combinations.
         // Instead, I want to have biases: prefer to buy from left, prefer to buy from right, prefer even,
         // prefer cheapest option, buy 1 from each before buying a 2nd one (i.e. to get coins from Hatshepsut).
+        // This will guide the search path.  Of course, if the preferred option cannot be satisfied, we
+        // will return the first valid path we encounter.
         // just return the first path that satisfies that preference.
+        public enum CommercePreferences
+        {
+            PreferLeftResources,            // buy from left neighbor before right.
+            PreferRightResources,           // buy from right neighbor before left.
+            PreferLeftResourcesOneRight,    // buy one resource from the right neighbor, the rest from the left
+            PreferRightResourcesOneLeft,    // buy one resource from the left neighbor, the rest from the right
+        };
 
-        public CommerceOptions GetCommerceOptions(Cost cost, List<ResourceEffect> leftResources, List<ResourceEffect> rightResources)
+        // minimal cost (i.e. buy from neighbor you get discounts from
+        // Hatshepsut - try to buy one from each neighbor.
+
+        public CommerceOptions GetCommerceOptions(Cost cost, CommercePreferences pref, List<ResourceEffect> leftResources, List<ResourceEffect> rightResources)
         {
             CommerceOptions commOptions = new CommerceOptions();
-
-            commOptions.buildable = Buildable.CommerceRequired;     // Default option is to assume commerce is required.
-
-            commOptions.commerceOptions = new List<CommerceOptions.CommerceCost>();
-
             List<List<ResourceUsed>> requiredResourcesLists = new List<List<ResourceUsed>>();
             Stack<ResourceUsed> resStack = new Stack<ResourceUsed>();
 
@@ -429,52 +425,30 @@ namespace SevenWonders
             // are returned in the requiredResourcesLists.
             ReduceRecursively(cost.CostAsString(), resources, 0, leftResources, 0, rightResources, 0, resStack, requiredResourcesLists);
 
+            if (requiredResourcesLists.Count != 0)
+            {
+                commOptions.bankCoins += cost.coin;
+                commOptions.bAreResourceRequirementsMet = true;
+            }
+
             // now go through the requiredResourcesLists and see if any did not use any neighbor's resources
             for (int i = 0; i < requiredResourcesLists.Count; ++i)
             {
                 List<ResourceUsed> resList = requiredResourcesLists[i];
-                CommerceOptions.CommerceCost co = new CommerceOptions.CommerceCost();
 
                 // is there one that didn't use any resources from neighboring cities?
                 foreach (ResourceUsed res in resList)
                 {
                     if (res.owner == ResourceOwner.Left)
                     {
-                        co.leftCoins += 2;
+                        commOptions.leftCoins += 2;
                     }
                     else if (res.owner == ResourceOwner.Right)
                     {
-                        co.rightCoins += 2;
+                        commOptions.rightCoins += 2;
                     }
-                }
-
-                if (co.leftCoins == 0 && co.rightCoins == 0)
-                {
-                    // This path didn't use any neighboring city resources
-
-                    if (cost.coin == 0)
-                    {
-                        commOptions.buildable = Buildable.True;
-                    }
-                    else
-                    {
-                        // Commerce is required (but only with the bank).
-                        co.bankCoins = cost.coin;
-
-                        commOptions.commerceOptions.Add(co);
-                    }
-
-                    return commOptions;
-                }
-                else
-                {
-                    commOptions.commerceOptions.Add(co);
                 }
             }
-
-            // If we get to this point, there are insufficient resources to construct this structure.
-            if (requiredResourcesLists.Count == 0)
-                commOptions.buildable = Buildable.InsufficientResources;
 
             return commOptions;
         }
