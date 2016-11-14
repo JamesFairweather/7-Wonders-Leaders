@@ -290,185 +290,188 @@ namespace SevenWonders
         /// <param name="e"></param>
         public void receiveMessage(string message)
         {
-            if (message.Length >= 8)
+            bool messageHandled = false;
+
+            int msgParamIndex = message.IndexOf('&');
+
+            if (msgParamIndex < 0)
+                msgParamIndex = message.Length;
+
+            NameValueCollection qcoll;
+
+            switch (message.Substring(0, msgParamIndex))
             {
-                bool messageHandled = false;
+                case "UpdateUI":
+                    qcoll = HttpUtility.ParseQueryString(message.Substring(msgParamIndex + 1));
 
-                NameValueCollection qcoll;
+                    Application.Current.Dispatcher.Invoke(new Action(delegate
+                    {
+                        gameUI.updateCoinsAndCardsPlayed(qcoll);
+                    }));
+                    messageHandled = true;
+                    break;
 
-                switch (message.Substring(0, 8))
-                {
-                    case "UpdateUI":
-                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
+                case "ChngMode":
+                    // Basic/Leaders/Cities
+                    qcoll = HttpUtility.ParseQueryString(message.Substring(msgParamIndex + 1));
 
-                        Application.Current.Dispatcher.Invoke(new Action(delegate
+                    Application.Current.Dispatcher.Invoke(new Action(delegate
+                    {
+                        if (qcoll["Leaders"] != null)
                         {
-                            gameUI.updateCoinsAndCardsPlayed(qcoll);
-                        }));
-                        messageHandled = true;
-                        break;
+                            tableUI.leaders_Checkbox.IsChecked = qcoll["Leaders"] == "True";
+                            isLeadersEnabled = (bool)tableUI.leaders_Checkbox.IsChecked;
+                        }
 
-                    case "ChngMode":
-                        // Basic/Leaders/Cities
-                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
-
-                        Application.Current.Dispatcher.Invoke(new Action(delegate
+                        if (qcoll["Cities"] != null)
                         {
-                            if (qcoll["Leaders"] != null)
-                            {
-                                tableUI.leaders_Checkbox.IsChecked = qcoll["Leaders"] == "True";
-                                isLeadersEnabled = (bool)tableUI.leaders_Checkbox.IsChecked;
-                            }
+                            tableUI.cities_Checkbox.IsChecked = qcoll["Cities"] == "True";
+                        }
+                    }));
+                    messageHandled = true;
+                    break;
 
-                            if (qcoll["Cities"] != null)
-                            {
-                                tableUI.cities_Checkbox.IsChecked = qcoll["Cities"] == "True";
-                            }
-                        }));
-                        messageHandled = true;
-                        break;
+                case "Courtesn":        // send which neighboring leader is being copied.
+                    qcoll = HttpUtility.ParseQueryString(message.Substring(msgParamIndex + 1));
 
-                    case "Courtesn":        // send which neighboring leader is being copied.
-                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
+                    Application.Current.Dispatcher.Invoke(new Action(delegate
+                    {
+                        LeaderDraft leaderDraft = new LeaderDraft(this, true);
+                        leaderDraft.UpdateUI(qcoll);
+                        leaderDraft.Show();
+                    }));
+                    messageHandled = true;
+                    break;
 
-                        Application.Current.Dispatcher.Invoke(new Action(delegate
-                        {
-                            LeaderDraft leaderDraft = new LeaderDraft(this, true);
-                            leaderDraft.UpdateUI(qcoll);
-                            leaderDraft.Show();
-                        }));
-                        messageHandled = true;
-                        break;
+                case "EnableFB":
+                    isFreeBuildButtonEnabled = true;
+                    messageHandled = true;
+                    break;
 
-                    case "EnableFB":
-                        isFreeBuildButtonEnabled = true;
-                        messageHandled = true;
-                        break;
+                case "FinalSco":
+                    qcoll = HttpUtility.ParseQueryString(message.Substring(msgParamIndex + 1));
+                    Application.Current.Dispatcher.Invoke(new Action(delegate
+                    {
+                        finalScoreUI = new FinalScore(gameUI, qcoll);
+                        finalScoreUI.Show();
+                    }));
+                    messageHandled = true;
+                    break;
 
-                    case "FinalSco":
-                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
-                        Application.Current.Dispatcher.Invoke(new Action(delegate
-                        {
-                            finalScoreUI = new FinalScore(gameUI, qcoll);
-                            finalScoreUI.Show();
-                        }));
-                        messageHandled = true;
-                        break;
+                case "LdrDraft":
+                    qcoll = HttpUtility.ParseQueryString(message.Substring(msgParamIndex + 1));
+                    Application.Current.Dispatcher.Invoke(new Action(delegate
+                    {
+                        leaderDraftWindow.UpdateUI(qcoll);
+                        leaderDraftWindow.Show();
+                    }));
+                    messageHandled = true;
+                    break;
 
-                    case "LdrDraft":
-                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
-                        Application.Current.Dispatcher.Invoke(new Action(delegate
-                        {
-                            leaderDraftWindow.UpdateUI(qcoll);
-                            leaderDraftWindow.Show();
-                        }));
-                        messageHandled = true;
-                        break;
+                case "LeadrIcn":
+                    qcoll = HttpUtility.ParseQueryString(message.Substring(msgParamIndex + 1));
+                    Application.Current.Dispatcher.Invoke(new Action(delegate
+                    {
+                        gameUI.updateLeaderIcons(qcoll);
+                    }));
+                    messageHandled = true;
+                    break;
 
-                    case "LeadrIcn":
-                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
-                        Application.Current.Dispatcher.Invoke(new Action(delegate
-                        {
-                            gameUI.updateLeaderIcons(qcoll);
-                        }));
-                        messageHandled = true;
-                        break;
+                case "Military":
+                    qcoll = HttpUtility.ParseQueryString(message.Substring(msgParamIndex + 1));
 
-                    case "Military":
-                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
+                    Application.Current.Dispatcher.Invoke(new Action(delegate
+                    {
+                        gameUI.updateMilitaryTokens(qcoll);
+                    }));
+                    messageHandled = true;
+                    break;
 
-                        Application.Current.Dispatcher.Invoke(new Action(delegate
-                        {
-                            gameUI.updateMilitaryTokens(qcoll);
-                        }));
-                        messageHandled = true;
-                        break;
+                case "PlyrInfo":
+                    qcoll = HttpUtility.ParseQueryString(message.Substring(msgParamIndex + 1));
+                    Application.Current.Dispatcher.Invoke(new Action(delegate
+                    {
+                        tableUI.SetPlayerInfo(qcoll);
+                    }));
 
-                    case "PlyrInfo":
-                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
-                        Application.Current.Dispatcher.Invoke(new Action(delegate
-                        {
-                            tableUI.SetPlayerInfo(qcoll);
-                        }));
+                    messageHandled = true;
+                    break;
 
-                        messageHandled = true;
-                        break;
-
-                    case "RespFail":
-                        MessageBox.Show(message.Substring(9));
-                        messageHandled = true;
-                        break;
+                case "Failed":
+                    MessageBox.Show(message.Substring(msgParamIndex + 1));
+                    messageHandled = true;
+                    break;
                     
-                    case "StrtGame":
-                        //Handle when game cannot start
-                        if (message[1] == '0')
-                        {
-                            //re-enable the ready button
-                            Application.Current.Dispatcher.Invoke(new Action(delegate
-                            {
-                                tableUI.btnReady.IsEnabled = true;
-                            }));
-                        }
-                        //game is starting
-                        else
-                        {
-                            //tell the server UI initialisation is done
+                case "StrtGame":
+                    qcoll = HttpUtility.ParseQueryString(message.Substring(msgParamIndex + 1));
+                    int nPlayers = int.Parse(qcoll["PlayerCount"]);
+                    //tell the server UI initialisation is done
 
-                            // find out the number of players.
-                            int nPlayers = int.Parse(message.Substring(8, 1));
+                    // I may be able to set this to playerNames, but I'm not sure about thread safety.
+                    playerNames = qcoll["PlayerNames"].Split(',');
 
-                            // I may be able to set this to playerNames, but I'm not sure about thread safety.
-                            playerNames = message.Substring(10).Split(',');
+                    if (playerNames.Length != nPlayers)
+                    {
+                        throw new Exception(string.Format("Server said there were {0} players, but sent {1} names.", nPlayers, playerNames.Length));
+                    }
 
-                            if (playerNames.Length != nPlayers)
-                            {
-                                throw new Exception(string.Format("Server said there were {0} players, but sent {1} names.", nPlayers, playerNames.Length));
-                            }
+                    //close the TableUI
+                    Application.Current.Dispatcher.Invoke(new Action(delegate
+                    {
+                        tableUI.Close();
+                    }));
+                    messageHandled = true;
+                    break;
 
-                            //close the TableUI
-                            Application.Current.Dispatcher.Invoke(new Action(delegate
-                            {
-                                tableUI.Close();
-                            }));
-                        }
-                        messageHandled = true;
-                        break;
+                case "SetBoard":
+                    // Parse the query string variables into a NameValueCollection.
+                    qcoll = HttpUtility.ParseQueryString(message.Substring(msgParamIndex + 1));
 
-                    case "SetBoard":
-                        // Parse the query string variables into a NameValueCollection.
-                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
-
-                        foreach (string s in qcoll.Keys)
-                        {
-                            Application.Current.Dispatcher.Invoke(new Action(delegate
-                            {
-                                gameUI.showBoardImage(s, qcoll[s]);
-                            }));
-                        }
-
-                        // Tell game server this client is ready to receive its first UI update, which will
-                        // include coins and hand of cards.
-                        // sendToHost("r");
-
-                        messageHandled = true;
-                        break;
-
-                    case "SetPlyrH":        // Set player hand
-                        qcoll = HttpUtility.ParseQueryString(message.Substring(9));
-
+                    foreach (string s in qcoll.Keys)
+                    {
                         Application.Current.Dispatcher.Invoke(new Action(delegate
                         {
-                            gameUI.showHandPanel(qcoll);
+                            gameUI.showBoardImage(s, qcoll[s]);
                         }));
+                    }
 
-                        messageHandled = true;
-                        break;
-                }
+                    // Tell game server this client is ready to receive its first UI update, which will
+                    // include coins and hand of cards.
+                    // sendToHost("r");
 
-                if (messageHandled)
-                    return;
+                    messageHandled = true;
+                    break;
+
+                case "SetPlyrH":        // Set player hand
+                    qcoll = HttpUtility.ParseQueryString(message.Substring(msgParamIndex + 1));
+
+                    Application.Current.Dispatcher.Invoke(new Action(delegate
+                    {
+                        gameUI.showHandPanel(qcoll);
+                    }));
+
+                    messageHandled = true;
+                    break;
+
+                case "GetDebtTokens":
+                    qcoll = HttpUtility.ParseQueryString(message.Substring(msgParamIndex + 1));
+
+                    Application.Current.Dispatcher.Invoke(new Action(delegate
+                    {
+                        GetDebtToken debtTokenResponse = new GetDebtToken(this, qcoll);
+                        debtTokenResponse.Show();
+                    }));
+
+                    messageHandled = true;
+                    break;
             }
 
+            if (!messageHandled)
+            {
+                throw new NotImplementedException();
+            }
+
+            /*
             //chat
             //enable Olympia power OR Rome power
             //activate the Olympia UI
@@ -497,6 +500,7 @@ namespace SevenWonders
                 // recieved a message from the server that the client cannot handle.
                 throw new Exception();
             }
+            */
         }
 
         public Card FindCard(string name)

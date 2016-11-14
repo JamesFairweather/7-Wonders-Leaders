@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Net;
+using NLog;
 
 namespace SevenWonders
 {
@@ -26,6 +27,8 @@ namespace SevenWonders
 
         public bool leadersEnabled = false;
         public bool citiesEnabled = false;
+
+        private static Logger logger = LogManager.GetLogger("SevenWondersServer");
 
         /// <summary>
         /// Create a new server.
@@ -114,7 +117,7 @@ namespace SevenWonders
                 //This is the string received from Server
                 String message = e.message;
 
-                Console.WriteLine("Message received.  From: {0}; Message={1}", nickname, message);
+                logger.Info("Message received.  From: {0}; Message={1}", nickname, message);
 
                 if (message.Length >= 4 && message.Substring(0, 4) == "####")
                 {
@@ -180,20 +183,20 @@ namespace SevenWonders
                             //Do not accept any more players
                             host.acceptClient = false;
 
-                            Console.WriteLine("All players have hit Ready.  Game is starting now with {0} AI players", players.Where(x => x.isAI == true).Count());
+                            logger.Info("All players have hit Ready.  Game is starting now with {0} AI players", players.Where(x => x.isAI == true).Count());
 
                             gameManager = new GameManager(this, players);
 
                             //S[n], n = number of players in this game
 
-                            string strCreateUIMsg = string.Format("StrtGame{0}", gameManager.player.Count);
+                            string strCreateUIMsg = string.Format("StrtGame&PlayerCount={0}&PlayerNames=", gameManager.player.Count);
 
                             foreach (Player p in gameManager.player.Values)
                             {
-                                strCreateUIMsg += string.Format(",{0}", p.nickname);
+                                strCreateUIMsg += string.Format("{0},", p.nickname);
                             }
 
-                            SendMessageToAll(strCreateUIMsg);
+                            SendMessageToAll(strCreateUIMsg.TrimEnd(','));
 
                             //set up the game, send information on boards to players, etc.
                             gameManager.beginningOfSessionActions();
@@ -270,7 +273,7 @@ namespace SevenWonders
                         }
                         else
                         {
-                            host.sendMessageToUser(nickname, "RespFail There are already 7 players at this table.  Cannot add another player.");
+                            host.sendMessageToUser(nickname, "Failed&Message=There are already 7 players at this table.  Cannot add another player.");
                         }
                     }
                     //"ar": remove AI in the GameManager
@@ -289,6 +292,12 @@ namespace SevenWonders
 
                         SendUpdatedPlayers();
                     }
+                }
+                else if (message.Substring(0, 12) == "DebtResponse")
+                {
+                    NameValueCollection nvc = HttpUtility.ParseQueryString(message.Substring(13));
+
+                    gameManager.HandleDebtResponse(nickname, int.Parse(nvc["DebtTokens"]));
                 }
                 else
                 {

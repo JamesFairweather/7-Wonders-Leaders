@@ -4,12 +4,17 @@ using System.Linq;
 using System.Text;
 //using System.IO;
 //using System.Reflection;
+using NLog;
 
 namespace SevenWonders
 {
     public class Deck
     {
         public int age;
+
+        private static Logger logger = LogManager.GetLogger("SevenWondersServer");
+
+        static Guid shuffleGuid = Guid.NewGuid();
 
         //array of cards, which will represent the cards in the deck
         List<Card> cardList = new List<Card>();
@@ -30,6 +35,12 @@ namespace SevenWonders
                 {
                     this.cardList.Add(c);
                 }
+            }
+
+            if (age == 1)
+            {
+                // Log the shuffle GUID so this game can be played again if a bug is found.
+                logger.Info("Shuffle Guid = {0}", shuffleGuid);
             }
         }
 
@@ -67,12 +78,30 @@ namespace SevenWonders
         //shuffle the cards in the deck
         public void shuffle()
         {
-            var c = Enumerable.Range(0, cardList.Count);
-            var shuffledcards = c.OrderBy(a => Guid.NewGuid()).ToArray();
+            int[] shuffledcards = Enumerable.Range(0, cardList.Count).ToArray();
+            // var shuffledcards = c.OrderBy(a => shuffleGuid).ToArray();
+            // var g = Guid.NewGuid();
+            // var shuffledcards = c.OrderBy(a => g).ToArray();
 
-            Console.Write("Shuffled card array: [");
-            Console.Write("{0}, ", string.Join(", ", shuffledcards));
-            Console.WriteLine(" ]");
+            int randomSeed = 0;
+
+            logger.Info("Shuffle random seed = {0}", randomSeed);
+
+            Random r = new Random(randomSeed);
+
+            for (int i = shuffledcards.Length; i > 0; i--)
+            {
+                int j = r.Next(i);  // j = a random number between 0 & i.
+
+                // swap the number at jth index of the array with the ith one.
+                int k = shuffledcards[j];
+                shuffledcards[j] = shuffledcards[i - 1];
+                shuffledcards[i - 1] = k;
+            }
+
+            // Console.Write("Shuffled card array: [");
+            // Console.Write("{0}, ", string.Join(", ", shuffledcards));
+            // Console.WriteLine(" ]");
 
             List<Card> d = new List<Card>(cardList.Count);
 

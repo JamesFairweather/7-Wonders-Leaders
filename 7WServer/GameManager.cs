@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
+using NLog;
 
 namespace SevenWonders
 {
@@ -47,7 +48,12 @@ namespace SevenWonders
         // playing.  All other phases are special.
         private GamePhase prevPhase;
 
-        private Random rnd;
+        // The manager is waiting for at least one debt response from a non-AI player.
+        public bool bWaitingForDebtResponse = false;
+
+        // private Random rnd;  TODO: re-enable this
+
+        private static Logger logger = LogManager.GetLogger("SevenWondersServer");
 
         /// <summary>
         /// Shared constructor for GameManager and LeadersGameManager
@@ -69,7 +75,11 @@ namespace SevenWonders
             {
                 playerNicks[i] = players[i].name;
                 player.Add(playerNicks[i], new Player(playerNicks[i], players[i].isAI, this));
+                logger.Info("Adding player: name={0}, isAI={1}", playerNicks[i], players[i].isAI);
             }
+
+            logger.Info("LeadersEnabled: {0}", gmCoordinator.leadersEnabled);
+            logger.Info("CitiesEnabled: {0}", gmCoordinator.citiesEnabled);
 
             gameConcluded = false;
 
@@ -130,7 +140,9 @@ namespace SevenWonders
             // set the number of turns for each age.  If playing with the Cities expansion, 
             nTurnsInEachAge = gmCoordinator.citiesEnabled ? 7 : 6;
 
-            rnd = new Random();
+            // Disabled until testing is completed.
+            // TODO: re-enable this
+            // rnd = new Random();
         }
 
         /*
@@ -178,6 +190,7 @@ namespace SevenWonders
             }
 
             gmCoordinator.SendMessageToAll(strMsg);
+            logger.Info(strMsg);
 
             foreach (Player p in player.Values)
             {
@@ -460,6 +473,8 @@ namespace SevenWonders
 
             int numCardsToDeal = currentAge == 0 ? 4 : gmCoordinator.citiesEnabled ? 8 : 7;
 
+            logger.Info("Starting hands for Age {0}:", currentAge);
+
             foreach (Player p in player.Values)
             {
                 for (int j = 0; j < numCardsToDeal; j++)
@@ -467,6 +482,14 @@ namespace SevenWonders
                     Card c = deck.GetTopCard();
                     p.hand.Add(c);
                 }
+
+                string strLogString = null;
+                foreach (Card c in p.hand)
+                {
+                    strLogString += c.Id.ToString() + ",";
+                }
+
+                logger.Info("Player: {0} Cards: {1}", p.nickname, strLogString.TrimEnd(','));
             }
         }
 
@@ -542,7 +565,8 @@ namespace SevenWonders
         /// <returns></returns>
         protected Board popRandomBoard()
         {
-            int index = rnd.Next(0, board.Where(x => !x.Value.inPlay).Count());
+            // int index = rnd.Next(0, board.Where(x => !x.Value.inPlay).Count());  // TODO: put this line back
+            int index = 0;  // during testing, play a standard Wonder.
 
             KeyValuePair<Board.Wonder, Board> randomBoard = board.ElementAt(index);
 
@@ -826,7 +850,7 @@ namespace SevenWonders
         /// </summary>
         public void executeActionsAtEndOfTurn()
         {
-            if (phase == GamePhase.LeaderDraft || phase == GamePhase.LeaderRecruitment || phase == GamePhase.Playing)
+            if ((phase == GamePhase.LeaderDraft || phase == GamePhase.LeaderRecruitment || phase == GamePhase.Playing) && !bWaitingForDebtResponse)
             {
                 //make AI moves
                 foreach (Player p in player.Values)
@@ -857,6 +881,7 @@ namespace SevenWonders
 
         private string BuildResourceString(string who, Player plyr, bool isSelf = false)
         {
+            /*
             string strRet = string.Format("&{0}Resources=", who);
 
             foreach (ResourceEffect se in plyr.dag.getResourceList(isSelf))
@@ -865,6 +890,10 @@ namespace SevenWonders
             }
 
             return strRet.TrimEnd(',');
+            */
+
+            throw new NotImplementedException();
+            return null;
         }
 
         private string MakeHandString(Player p, List<Card> cardList, bool buildingFromDiscardedCards = false)
@@ -1066,6 +1095,7 @@ namespace SevenWonders
                     // prevent other players from seeing their hands until all special phases are done.
                     // Normal turn: everyone gets a hand of cards to choose from.
                     string strHand = MakeHandString(p, p.hand) + MakeCommerceInfoString(p);
+                    logger.Info(strHand);
                     strHand += "&Instructions=Choose a card from the list below to play, build a wonder stage with, or discard";
 
                     gmCoordinator.sendMessage(p, strHand);
@@ -1087,7 +1117,16 @@ namespace SevenWonders
             }
         }
 
-        protected int numOfPlayersThatHaveTakenTheirTurn = 0;
+        public void HandleDebtResponse(string playerNickname, int nDebtTokens)
+        {
+            Player p = player[playerNickname];
+
+            p.takeDebtTokens(nDebtTokens);
+
+            turnTaken();
+        }
+
+        int numOfPlayersThatHaveTakenTheirTurn = 0;
 
         bool SetSpecialPhase(Player p, GamePhase specialPhase)
         {
@@ -1114,7 +1153,27 @@ namespace SevenWonders
         {
             numOfPlayersThatHaveTakenTheirTurn++;
 
-            if ((numOfPlayersThatHaveTakenTheirTurn == numOfPlayers) || phase == GamePhase.Babylon || phase == GamePhase.Halikarnassos || phase == GamePhase.Solomon || phase == GamePhase.RomaB || phase == GamePhase.Courtesan)
+            bool allDebtResponsesReceived = false;
+
+            if (bWaitingForDebtResponse)
+            {
+                List<Player> pl = player.Values.ToList();
+
+                // If all players have replied to the debt question, the game can continue.
+                if (pl.Find(x => x.waitingForDebtTokenResponse) == null)
+                    allDebtResponsesReceived = true;
+            }
+
+            // Some phases require a response from all players.  Others from just one.  Debt is different
+            // in that it could be everyone or just one player that needs to respond to a message that they
+            // have a debt to pay.
+            if ((numOfPlayersThatHaveTakenTheirTurn == numOfPlayers) ||
+                phase == GamePhase.Babylon ||
+                phase == GamePhase.Halikarnassos ||
+                phase == GamePhase.Solomon ||
+                phase == GamePhase.RomaB ||
+                phase == GamePhase.Courtesan ||
+                (bWaitingForDebtResponse && allDebtResponsesReceived))
             {
                 //reset the number of players that have taken their turn
                 numOfPlayersThatHaveTakenTheirTurn = 0;
@@ -1134,7 +1193,6 @@ namespace SevenWonders
 
                 foreach (Player p in player.Values)
                 {
-
                     // do this action first, so that if they discard their other card, Halikarnassos could built it if they
                     // are building from the discard pile.
                     // I will need to go through this logic carefully.  Babylon (B) must play or discard their last
@@ -1151,11 +1209,23 @@ namespace SevenWonders
                     if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.RomaB);
                     if (!bSpecialPhase) bSpecialPhase = SetSpecialPhase(p, GamePhase.Courtesan);
 
+                    bWaitingForDebtResponse = false;    // clear this, will set again if necessary
+                    if (!bSpecialPhase)
+                    {
+                        if (p.waitingForDebtTokenResponse)
+                        {
+                            bWaitingForDebtResponse = true;
+                            bSpecialPhase = true;
+                        }
+                    }
+
                     if (bSpecialPhase)
                         break;
                 }
 
-                //all players have completed their turn
+                //all players have completed their turn and all special actions are resolved.  We can move on to the
+                // next turn: pass your hand to your neighbor or, if it's the end of the age, resolve military conflicts
+                // and begin the next age.
                 if (!bSpecialPhase)
                 {
                     switch (phase)
@@ -1211,10 +1281,13 @@ namespace SevenWonders
                     }
                 }
 
-                updateAllGameUI();
+                if (!bWaitingForDebtResponse)
+                {
+                    updateAllGameUI();
 
-                if (gameConcluded)
-                    endOfSessionActions();
+                    if (gameConcluded)
+                        endOfSessionActions();
+                }
             }
         }
     }

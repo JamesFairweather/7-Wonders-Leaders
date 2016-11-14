@@ -87,6 +87,16 @@ namespace SevenWonders
             return;
             */
 
+            /* Test code for displaying the debt token window without having to play a game.
+             * Uncomment if you want the UI to display this window, then exit.
+             * 
+            //NameValueCollection testDebtWindow = HttpUtility.ParseQueryString("GetDebtTokens&coin=15&coinsToLose=10");
+            NameValueCollection testDebtWindow = HttpUtility.ParseQueryString("GetDebtTokens&coin=10&coinsToLose=15");
+            GetDebtToken d = new GetDebtToken(coordinator, testDebtWindow);
+            d.ShowDialog();
+            return;
+            */
+
             JoinTableUI joinGameDlg = new JoinTableUI();
             bool succeeded = (bool)joinGameDlg.ShowDialog();
 

@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.IO;
+using System.Windows;
 
 namespace SevenWonders
 {
@@ -68,7 +69,12 @@ namespace SevenWonders
             // Start the TCP listener and listen for connections
             tcpListener.Start();
 
-            Console.WriteLine("Seven Wonders server ready.  Listening for a connection at {0}", tcpListener.LocalEndpoint);
+            Application.Current.Dispatcher.Invoke(
+                new Action(delegate
+                {
+                    Application.Current.MainWindow.Content +=
+                    string.Format("Seven Wonders server ready.  Listening for a connection at {0}", tcpListener.LocalEndpoint);
+                }));
 
             try
             {
@@ -193,8 +199,6 @@ namespace SevenWonders
 
         public void sendMessageToAll(String Message)
         {
-            Console.WriteLine("Sending message to all Users: {0}", Message);
-
             foreach (TcpClient c in userMap.Values)
             {
                 StreamWriter sw = new StreamWriter(c.GetStream());

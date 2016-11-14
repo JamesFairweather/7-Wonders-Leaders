@@ -62,6 +62,8 @@ Technical stories:
 - If you build a Press with Halikarnassos free build from the discard pile, it may not find the "right" press
   as the one in Age 2 is different from the one in Age 1.
 
+- Make the card selection UI into a separate window.  See if there's a nicer-looking control for it.
+
 Original text below:
 
 MainWindow constructor

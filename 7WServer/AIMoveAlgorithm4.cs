@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NLog;
 
 namespace SevenWonders
 {
@@ -10,6 +11,7 @@ namespace SevenWonders
         int maxOBW = 2;
         int maxStone = 3;
         int maxLPG = 1;
+        private static Logger logger = LogManager.GetLogger("SevenWondersServer");
 
         public void makeMove(Player player, GameManager gm)
         {
@@ -17,6 +19,7 @@ namespace SevenWonders
             //if not, Discard Red Cards
             //otherwise, discard first card
 
+            /*
             string strOutput = string.Format("{0} hand: [ ", player.nickname);
 
             if (gm.phase == GamePhase.LeaderRecruitment)
@@ -38,7 +41,8 @@ namespace SevenWonders
 
             strOutput += "]";
 
-            Console.WriteLine(strOutput);
+            logger.Info(strOutput);
+            */
 
             if (gm.phase == GamePhase.LeaderDraft || gm.phase == GamePhase.LeaderRecruitment)
             {
@@ -75,18 +79,34 @@ namespace SevenWonders
 
                 if (bestLeader != null)
                 {
-                    Console.WriteLine(player.nickname + "Drafted leader: {0}", bestLeader.Id);
+                    logger.Info(player.nickname + "Drafted leader: {0}", bestLeader.Id);
                     gm.playCard(player, bestLeader, BuildAction.BuildStructure, true, false, 0, 0);
                 }
                 else
                 {
-                    Console.WriteLine(player.nickname + " Action: Discard {0}", player.draftedLeaders[0].Id);
+                    logger.Info(player.nickname + " Action: Discard {0}", player.draftedLeaders[0].Id);
                     gm.playCard(player, player.draftedLeaders[0], BuildAction.Discard, true);
                 }
 
                 return;
             }
 
+            // Dictionary<Card, CardCost> cardValues = new Dictionary<Card, CardCost>(player.hand.Count);
+
+            // Card cost:
+
+            // NotBuildable
+            // Free (the city has sufficient resources)
+            // Coin cost to the bank only (flex brown, double, some City cards)
+            // Commerce Required (can be constructed by paying neighbors for their resources)
+            // If Commerce is required, how many coins to each neighbor and/or the bank
+
+            /*
+            foreach (Card crd in player.hand)
+            {
+                player.GetCost(crd);
+            }
+            */
             // Build Guild cards in the 3rd age (except for the Courtesan's Guild, which requires entering a special Game Phase
             // that the AI has not been programmed to think about.
             Card c = player.hand.Find(x => x.structureType == StructureType.Guild && x.Id != CardId.Courtesans_Guild && player.isCardBuildable(x) == Buildable.True);
@@ -218,7 +238,7 @@ namespace SevenWonders
                 {
                     if (card.structureType == StructureType.Military && player.isCardBuildable(card) != Buildable.True)
                     {
-                        Console.WriteLine(player.nickname + " Action: Discard {0}", card.Id);
+                        logger.Info(player.nickname + " Action: Discard {0}", card.Id);
                         gm.playCard(player, card, BuildAction.Discard, true);
                         return;
                     }
@@ -227,14 +247,14 @@ namespace SevenWonders
 
             if (c != null)
             {
-                Console.WriteLine(player.nickname + " Action: Construct {0}", c.Id);
+                logger.Info(player.nickname + " Action: Construct {0}", c.Id);
                 gm.playCard(player, c, BuildAction.BuildStructure, true);
             }
             else
             {
                 // If a card is not found that matches any of the above criteria, discard the first card listed.
                 c = player.hand[0];
-                Console.WriteLine(player.nickname + " Action: Discard {0}", c.Id);
+                logger.Info(player.nickname + " Action: Discard {0}", c.Id);
                 gm.playCard(player, c, BuildAction.Discard, true);
             }
         }

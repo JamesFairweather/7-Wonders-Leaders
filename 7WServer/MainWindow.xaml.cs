@@ -22,7 +22,7 @@ namespace SevenWonders
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static Logger logger = LogManager.GetLogger("SevenWonderServer");
+        private static Logger logger = LogManager.GetLogger("SevenWondersServer");
         GMCoordinator gmCoordinator;
 
         public MainWindow()
@@ -31,7 +31,9 @@ namespace SevenWonders
 
             Closing += MainWindow_Closing;
 
-            logger.Info("Hello, World!");
+            Content = "";
+
+            logger.Info("Seven Wonders server application started.");
 
             gmCoordinator = new GMCoordinator();
 
@@ -65,74 +67,7 @@ namespace SevenWonders
 
             /*
             // Resources (single)
-            ResourceEffect wood_1 = new ResourceEffect(true, "W");
-            ResourceEffect stone_1 = new ResourceEffect(true, "S");
-            ResourceEffect clay_1 = new ResourceEffect(true, "B");
-            ResourceEffect ore_1 = new ResourceEffect(true, "O");
 
-            // Resources (either/or)
-            ResourceEffect wood_clay = new ResourceEffect(true, "WB");
-            ResourceEffect stone_clay = new ResourceEffect(true, "SB");
-            ResourceEffect clay_ore = new ResourceEffect(true, "BO");
-            ResourceEffect stone_wood = new ResourceEffect(true, "SW");
-            ResourceEffect wood_ore = new ResourceEffect(true, "WO");
-            ResourceEffect stone_ore = new ResourceEffect(true, "OS");
-
-            // Resources (double)
-            ResourceEffect wood_2 = new ResourceEffect(true, "WW");
-            ResourceEffect stone_2 = new ResourceEffect(true, "SS");
-            ResourceEffect clay_2 = new ResourceEffect(true, "BB");
-            ResourceEffect ore_2 = new ResourceEffect(true, "OO");
-
-            // Goods
-            ResourceEffect cloth = new ResourceEffect(true, "C");
-            ResourceEffect glass = new ResourceEffect(true, "G");
-            ResourceEffect papyrus = new ResourceEffect(true, "P");
-
-            // Choose any, but can only be used by player, not neighbors
-            ResourceEffect forum = new ResourceEffect(false, "CGP");
-            ResourceEffect caravansery = new ResourceEffect(false, "WSBO");
-
-            // Discount effects
-            CommercialDiscountEffect east_trading_post = new CommercialDiscountEffect("RR");
-            CommercialDiscountEffect west_trading_post = new CommercialDiscountEffect("LR");
-            CommercialDiscountEffect marketplace = new CommercialDiscountEffect("BG");
-
-            ResourceManager testResMan = new ResourceManager();
-
-            testResMan.add(wood_1);
-
-            // CoinCost cc;
-
-            if (testResMan.canAfford(new Cost("W")) != true)
-                throw new Exception();
-
-            if (testResMan.canAfford(new Cost("O")) != false)
-                throw new Exception();
-
-            testResMan.add(clay_ore);
-
-            if (testResMan.canAfford(new Cost("O")) != true)
-                throw new Exception();
-
-            testResMan.add(stone_2);
-
-            if (testResMan.canAfford(new Cost("SSW")) != true)
-                throw new Exception();
-
-            if (testResMan.canAfford(new Cost("SSWW")) != false)
-                throw new Exception();
-
-            testResMan.add(wood_ore);
-
-            if (testResMan.canAfford(new Cost("SSWW")) != true)
-                throw new Exception();
-
-            if (testResMan.canAfford(new Cost("SSOWWB")) != false)
-                throw new Exception();
-
-            if (testResMan.canAfford(new Cost("SSOWB")) != true)
-                throw new Exception();
                 */
         }
 

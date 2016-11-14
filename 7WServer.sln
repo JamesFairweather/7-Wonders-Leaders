@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameManager", "GameManager\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "7WServer", "7WServer\7WServer.csproj", "{22CEF225-29CD-4DDD-8A11-11E0B8ACAF99}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceUnitTest", "ResourceUnitTest\ResourceUnitTest.csproj", "{E398064F-FE9B-4FED-92C6-25B15A6518B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,14 @@ Global
 		{22CEF225-29CD-4DDD-8A11-11E0B8ACAF99}.Release|Any CPU.Build.0 = Release|Any CPU
 		{22CEF225-29CD-4DDD-8A11-11E0B8ACAF99}.Release|x86.ActiveCfg = Release|Any CPU
 		{22CEF225-29CD-4DDD-8A11-11E0B8ACAF99}.Release|x86.Build.0 = Release|Any CPU
+		{E398064F-FE9B-4FED-92C6-25B15A6518B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E398064F-FE9B-4FED-92C6-25B15A6518B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E398064F-FE9B-4FED-92C6-25B15A6518B3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E398064F-FE9B-4FED-92C6-25B15A6518B3}.Debug|x86.Build.0 = Debug|Any CPU
+		{E398064F-FE9B-4FED-92C6-25B15A6518B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E398064F-FE9B-4FED-92C6-25B15A6518B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E398064F-FE9B-4FED-92C6-25B15A6518B3}.Release|x86.ActiveCfg = Release|Any CPU
+		{E398064F-FE9B-4FED-92C6-25B15A6518B3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
