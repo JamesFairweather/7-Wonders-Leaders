@@ -70,12 +70,12 @@ namespace SevenWonders
         }
 
         [Flags]
-        public enum MarketEffects
+        public enum CommerceEffects
         {
             None = 0,
             Marketplace = 1,
-            // WestTradingPost = 2,
-            // EastTradingPost = 4,
+            WestTradingPost = 2,
+            EastTradingPost = 4,
             // Bilkis = 8,
             // ClandestineDockWest = 16,
             // ClandestineDockEast = 32,
@@ -84,16 +84,16 @@ namespace SevenWonders
             // BlackMarket2 = 256,     // Black Market card and China B's wonder stage 
         }
 
-        MarketEffects marketEffects = MarketEffects.None;
+        CommerceEffects marketEffects = CommerceEffects.None;
 
-        public void SetMarketEffect(MarketEffects me)
+        public void SetCommerceEffect(CommerceEffects me)
         {
             this.marketEffects = me;
         }
 
-        public void AddMarketEffect(MarketEffects me)
+        public void AddCommerceEffect(CommerceEffects me)
         {
-            SetMarketEffect(this.marketEffects | me);
+            SetCommerceEffect(this.marketEffects | me);
         }
 
         /*
@@ -490,10 +490,11 @@ namespace SevenWonders
                 commOptions.bAreResourceRequirementsMet = true;
             }
 
-            int neighborManufacturedGoodCost = ((marketEffects & MarketEffects.Marketplace) == MarketEffects.Marketplace) ? 1 : 2;   // Without any marketplace effects, each purchased resource costs 2 coins
-            int neighborRawMaterialsCost = 2;   // Without any marketplace effects, each purchased resource costs 2 coins
-
             // Now go through the list of resources used and tabulate the total for each neighbor.
+            int neighborManufacturedGoodCost = ((marketEffects & CommerceEffects.Marketplace) == CommerceEffects.Marketplace) ? 1 : 2;
+            int leftNeighborRawMaterialsCost = ((marketEffects & CommerceEffects.WestTradingPost) == CommerceEffects.WestTradingPost) ? 1 : 2;
+            int rightNeighborRawMaterialsCost = ((marketEffects & CommerceEffects.EastTradingPost) == CommerceEffects.EastTradingPost) ? 1 : 2;
+
             foreach (ResourceUsed res in requiredResourcesLists)
             {
                 if (res.owner == ResourceOwner.Left)
@@ -506,9 +507,9 @@ namespace SevenWonders
                     }
                     else
                     {
-                        commOptions.leftCoins += neighborRawMaterialsCost;
+                        commOptions.leftCoins += leftNeighborRawMaterialsCost;
                         if (res.usedDoubleResource)
-                            commOptions.leftCoins += neighborRawMaterialsCost;
+                            commOptions.leftCoins += leftNeighborRawMaterialsCost;
                     }
                 }
                 else if (res.owner == ResourceOwner.Right)
@@ -520,9 +521,9 @@ namespace SevenWonders
                     }
                     else
                     {
-                        commOptions.rightCoins += neighborRawMaterialsCost;
+                        commOptions.rightCoins += rightNeighborRawMaterialsCost;
                         if (res.usedDoubleResource)
-                            commOptions.rightCoins += neighborRawMaterialsCost;
+                            commOptions.rightCoins += rightNeighborRawMaterialsCost;
                     }
                 }
             }
