@@ -302,39 +302,41 @@ namespace SevenWonders
             public bool usedDoubleResource;
         }
 
-        static void ReduceRecursively(string remainingCost, CommercePreferences pref, List<ResourceEffect> myResources, int ourResourceLevel, List<ResourceEffect> leftResources, int leftResourceLevel, List<ResourceEffect> rightResources, int rightResourceLevel, Stack<ResourceUsed> validResourceStack, List<ResourceUsed> resourceOptions )
+        static void ReduceRecursively(string remainingCost, CommercePreferences pref, List<ResourceEffect> myResources, int myResIndex, List<ResourceEffect> leftResources, int leftResIndex, List<ResourceEffect> rightResources, int rightResIndex, Stack<ResourceUsed> usedResources, List<ResourceUsed> outputResourceList)
         {
             if (remainingCost == string.Empty)
             {
                 // success!  This combination of resources reduced the cost to zero.
 
                 // copy the resource stack to the output
-                foreach (ResourceUsed r in validResourceStack)
-                    resourceOptions.Add(r);
+                foreach (ResourceUsed r in usedResources)
+                {
+                    outputResourceList.Add(r);
+                }
 
                 // end
                 return;
             }
 
             // we need to check every possible path, starting at the current recursion level
-            while ((ourResourceLevel < myResources.Count ||
-                leftResourceLevel < leftResources.Count ||
-                rightResourceLevel < rightResources.Count) &&
-                (resourceOptions.Count == 0))
+            while ((myResIndex < myResources.Count ||
+                leftResIndex < leftResources.Count ||
+                rightResIndex < rightResources.Count) &&
+                (outputResourceList.Count == 0))
             {
                 ResourceOwner ro;
                 ResourceEffect res = null;
 
-                int ourInc= 0;
+                int myInc= 0;
                 int leftInc = 0;
                 int rightInc = 0;
 
-                if (ourResourceLevel < myResources.Count)
+                if (myResIndex < myResources.Count)
                 {
                     ro = ResourceOwner.Self;
-                    res = myResources[ourResourceLevel];
-                    ourInc = 1;
-                    validResourceStack.Push(new ResourceUsed(ro, ourResourceLevel));
+                    res = myResources[myResIndex];
+                    myInc = 1;
+                    usedResources.Push(new ResourceUsed(ro, myResIndex));
                 }
                 else
                 {
@@ -343,37 +345,37 @@ namespace SevenWonders
                     if ((pref & CommercePreferences.BuyFromLeftNeighbor) == CommercePreferences.BuyFromLeftNeighbor)
                     {
                         // search using the left neighbor's resources before the right one.
-                        if (leftResourceLevel < leftResources.Count)
+                        if (leftResIndex < leftResources.Count)
                         {
                             ro = ResourceOwner.Left;
-                            res = leftResources[leftResourceLevel];
+                            res = leftResources[leftResIndex];
                             leftInc = 1;
-                            validResourceStack.Push(new ResourceUsed(ro, leftResourceLevel));
+                            usedResources.Push(new ResourceUsed(ro, leftResIndex));
                         }
-                        else if (rightResourceLevel < rightResources.Count)
+                        else if (rightResIndex < rightResources.Count)
                         {
                             ro = ResourceOwner.Right;
-                            res = rightResources[rightResourceLevel];
+                            res = rightResources[rightResIndex];
                             rightInc = 1;
-                            validResourceStack.Push(new ResourceUsed(ro, rightResourceLevel));
+                            usedResources.Push(new ResourceUsed(ro, rightResIndex));
                         }
                     }
                     else if ((pref & CommercePreferences.BuyFromRightNeighbor) == CommercePreferences.BuyFromRightNeighbor)
                     {
                         // search using the right neighbor's resources before the left one.
-                        if (rightResourceLevel < rightResources.Count)
+                        if (rightResIndex < rightResources.Count)
                         {
                             ro = ResourceOwner.Right;
-                            res = rightResources[rightResourceLevel];
+                            res = rightResources[rightResIndex];
                             rightInc = 1;
-                            validResourceStack.Push(new ResourceUsed(ro, rightResourceLevel));
+                            usedResources.Push(new ResourceUsed(ro, rightResIndex));
                         }
-                        else if (leftResourceLevel < leftResources.Count)
+                        else if (leftResIndex < leftResources.Count)
                         {
                             ro = ResourceOwner.Left;
-                            res = leftResources[leftResourceLevel];
+                            res = leftResources[leftResIndex];
                             leftInc = 1;
-                            validResourceStack.Push(new ResourceUsed(ro, leftResourceLevel));
+                            usedResources.Push(new ResourceUsed(ro, leftResIndex));
                         }
                     }
 
@@ -384,9 +386,9 @@ namespace SevenWonders
                     }
                 }
 
-                for (int w = 0; w < res.resourceTypes.Length && (resourceOptions.Count == 0); w++)
+                for (int resIndex = 0; resIndex < res.resourceTypes.Length && (outputResourceList.Count == 0); resIndex++)
                 {
-                    char resType = res.resourceTypes[w];
+                    char resType = res.resourceTypes[resIndex];
                     int ind = remainingCost.IndexOf(resType);
 
                     if (ind != -1)
@@ -395,22 +397,22 @@ namespace SevenWonders
 
                         if (nResourceCostsToRemove == 2)
                         {
-                            w++;
+                            resIndex++;
 
                             // note that both resources provided by this
                             // double-resource card were used (for cost-calculating purposes).
-                            ResourceUsed ru = validResourceStack.Pop();
+                            ResourceUsed ru = usedResources.Pop();
                             ru.usedDoubleResource = true;
-                            validResourceStack.Push(ru);
+                            usedResources.Push(ru);
                         }
 
                         // This resource matches one (or more) of the required resources.  Remove the matched
                         // resource from the remainingCost and move down a level of recusion.
                         ReduceRecursively(remainingCost.Remove(ind, nResourceCostsToRemove), pref,
-                            myResources, ourResourceLevel + ourInc,
-                            leftResources, leftResourceLevel + leftInc,
-                            rightResources, rightResourceLevel + rightInc,
-                            validResourceStack, resourceOptions);
+                            myResources, myResIndex + myInc,
+                            leftResources, leftResIndex + leftInc,
+                            rightResources, rightResIndex + rightInc,
+                            usedResources, outputResourceList);
                     }
 
                     // if this resource isn't in the cost string, move on to the next option in the resource
@@ -418,12 +420,12 @@ namespace SevenWonders
                 }
 
                 // pop the last ResourceEffect off, then move on to the next resource choice for this structure
-                validResourceStack.Pop();
+                usedResources.Pop();
 
                 // increment the resource counter (only one of these is ever set to 1, the other two will be 0.
-                ourResourceLevel += ourInc;
-                leftResourceLevel += leftInc;
-                rightResourceLevel += rightInc;
+                myResIndex += myInc;
+                leftResIndex += leftInc;
+                rightResIndex += rightInc;
             }
         }
 
