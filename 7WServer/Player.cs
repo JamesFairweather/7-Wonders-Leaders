@@ -1208,7 +1208,7 @@ namespace SevenWonders
 
             List<ResourceEffect> leftResources = leftNeighbour.dag.getResourceList(false).ToList();
             List<ResourceEffect> rightResources = rightNeighbour.dag.getResourceList(false).ToList();
-            CommerceOptions co = dag.GetCommerceOptions(cost, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, leftResources, rightResources);
+            CommerceOptions co = dag.GetCommerceOptions(cost, leftResources, rightResources, ResourceManager.CommercePreferences.BuyFromLeftNeighbor);
 
             if (co.bAreResourceRequirementsMet)
             {

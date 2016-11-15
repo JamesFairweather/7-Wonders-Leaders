@@ -27,7 +27,7 @@ namespace ResourceUnitTest
 
             resMan.SetCommerceEffect(commerceEffects);
 
-            CommerceOptions co = resMan.GetCommerceOptions(cost, pref, leftResources, rightResources);
+            CommerceOptions co = resMan.GetCommerceOptions(cost, leftResources, rightResources, pref);
 
             Verify(co.bAreResourceRequirementsMet == expectedResult.bAreResourceRequirementsMet);
             Verify(co.bankCoins == expectedResult.bankCoins);
@@ -349,6 +349,63 @@ namespace ResourceUnitTest
             expectedResult.rightCoins = 1;
             Verify2(new Cost("SS"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_2 }, new List<ResourceEffect> { stone_1 }, ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost, expectedResult);
 
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("WOO"), new List<ResourceEffect> { wood_ore, caravansery }, new List<ResourceEffect> { stone_2, wood_2, clay_2, }, new List<ResourceEffect> { papyrus, clay_2, ore_2 }, ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.CommerceEffects.EastTradingPost, expectedResult);
+
+            // In this test, we are looking for 3 resources, but for two of them, the only source is in my own
+            // resource stack.  The wood has to be purchased from a neighbor
+            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("WOO"), new List<ResourceEffect> { wood_ore, caravansery }, new List<ResourceEffect> { stone_2, wood_2, clay_2, }, new List<ResourceEffect> { papyrus, glass, stone_2, clay_2 }, ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.CommerceEffects.EastTradingPost, expectedResult);
+
+            // In this test, we are looking for 4 resources, but for two of them, the only source is in my own
+            // resource stack.  The wood has to be purchased from the non-preferred neighbor while the papyrus
+            // is purchased for a discounted amount from the preferred neighbor
+            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("PWOO"), new List<ResourceEffect> { wood_ore, caravansery },
+                new List<ResourceEffect> { papyrus, stone_2, wood_2, clay_2, },
+                new List<ResourceEffect> { papyrus, glass, stone_2, clay_2 },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
+
+            // Test for special flags.
+            expectedResult.bAreResourceRequirementsMet = false;
+            expectedResult.leftCoins = expectedResult.rightCoins = 0;
+            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.CommerceEffects.None, expectedResult);
+
+            expectedResult.bAreResourceRequirementsMet = true;
+            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect>(), new List<ResourceEffect>(),
+                ResourceManager.CommercePreferences.BuyFromLeftNeighbor | ResourceManager.CommercePreferences.OneResourceDiscount,
+                ResourceManager.CommerceEffects.None, expectedResult);
+
+            Verify2(new Cost("SSS"), new List<ResourceEffect> { stone_2 }, new List<ResourceEffect>(), new List<ResourceEffect>(),
+                ResourceManager.CommercePreferences.BuyFromLeftNeighbor | ResourceManager.CommercePreferences.OneResourceDiscount,
+                ResourceManager.CommerceEffects.None, expectedResult);
+
+            Verify2(new Cost("SSSS"), new List<ResourceEffect> { stone_1, stone_2 }, new List<ResourceEffect>(), new List<ResourceEffect>(),
+                ResourceManager.CommercePreferences.BuyFromLeftNeighbor | ResourceManager.CommercePreferences.OneResourceDiscount,
+                ResourceManager.CommerceEffects.None, expectedResult);
+
+            // same test as above, but now we have a one-resource discount due to a leader effect, so we
+            // no longer have to buy the wood from our left neighbor
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("PWOO"), new List<ResourceEffect> { wood_ore, caravansery },
+                new List<ResourceEffect> { papyrus, stone_2, wood_2, clay_2, },
+                new List<ResourceEffect> { papyrus, glass, stone_2, clay_2 },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor | ResourceManager.CommercePreferences.OneResourceDiscount,
+                ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
+
+            // Test double-resources.  Only one of the double-resources is needed
+            // from the left neighbor, but both are being purchased, which is an error.
+            expectedResult.leftCoins = 2;
+            Verify2(new Cost("SS"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_2 }, new List<ResourceEffect>(),
+                ResourceManager.CommercePreferences.BuyFromLeftNeighbor | ResourceManager.CommercePreferences.OneResourceDiscount,
+                ResourceManager.CommerceEffects.None, expectedResult);
 
             // After we have a list of options for building a card, we can apply commercial effects,
             // then resolve the options into:

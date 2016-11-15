@@ -207,7 +207,7 @@ namespace SevenWonders
             List<ResourceEffect> leftResourcesRequired = new List<ResourceEffect>();
             List<ResourceEffect> rightResourcesRequired = new List<ResourceEffect>();
 
-            CommerceOptions co = GetCommerceOptions(cost, CommercePreferences.BuyFromLeftNeighbor, leftResourcesRequired, rightResourcesRequired);
+            CommerceOptions co = GetCommerceOptions(cost, leftResourcesRequired, rightResourcesRequired, CommercePreferences.BuyFromLeftNeighbor);
 
             if (nWildResources != 0)
             {
@@ -341,8 +341,18 @@ namespace SevenWonders
             public bool usedDoubleResource;
         }
 
-        static void ReduceRecursively(string remainingCost, CommercePreferences pref, List<ResourceEffect> myResources, int myResIndex, List<ResourceEffect> leftResources, int leftResIndex, List<ResourceEffect> rightResources, int rightResIndex, Stack<ResourceUsed> usedResources, List<ResourceUsed> outputResourceList)
+        static bool ReduceRecursively(string remainingCost, CommercePreferences pref, List<ResourceEffect> myResources, int myResIndex, List<ResourceEffect> leftResources, int leftResIndex, List<ResourceEffect> rightResources, int rightResIndex, Stack<ResourceUsed> usedResources, List<ResourceUsed> outputResourceList)
         {
+            bool retVal = false;
+
+            if (((pref & CommercePreferences.OneResourceDiscount) == CommercePreferences.OneResourceDiscount) &&
+                (remainingCost.Length == 1))
+            {
+                // if the 1-resource discount is in effect (Imhotep, Archimedes, etc.), and there's only a single
+                // resource left to match, we're done.
+                remainingCost = string.Empty;
+            }
+
             if (remainingCost == string.Empty)
             {
                 // success!  This combination of resources reduced the cost to zero.
@@ -354,7 +364,7 @@ namespace SevenWonders
                 }
 
                 // end
-                return;
+                return true;
             }
 
             // we need to check every possible path, starting at the current recursion level
@@ -447,7 +457,7 @@ namespace SevenWonders
 
                         // This resource matches one (or more) of the required resources.  Remove the matched
                         // resource from the remainingCost and move down a level of recusion.
-                        ReduceRecursively(remainingCost.Remove(ind, nResourceCostsToRemove), pref,
+                        retVal |= ReduceRecursively(remainingCost.Remove(ind, nResourceCostsToRemove), pref,
                             myResources, myResIndex + myInc,
                             leftResources, leftResIndex + leftInc,
                             rightResources, rightResIndex + rightInc,
@@ -466,6 +476,8 @@ namespace SevenWonders
                 leftResIndex += leftInc;
                 rightResIndex += rightInc;
             }
+
+            return retVal;
         }
 
         // I don't want to find every possible resource path.  There could be hundreds of valid combinations.
@@ -476,17 +488,17 @@ namespace SevenWonders
         [Flags]
         public enum CommercePreferences
         {
-            // BuyFromCheaperNeighbor = 0,     // buy from the neighbor which will keep the cost to minimum (i.e. consider the effects of trading posts and Clandestine Docks)
+            BuyFromCheaperNeighbor = 0,     // buy from the neighbor which will keep the cost to minimum (i.e. consider the effects of trading posts and Clandestine Docks)
             BuyFromLeftNeighbor = 1,        // prefer to buy from the left neighbor (maybe they have a trading post pointed at you, or they're losing)
             BuyFromRightNeighbor = 2,       // prefer to buy from the right neighbor (maybe they have a trading post pointed at you, or they're losing)
             // BuyOneFromEachNeighbor = 4,     // after buying a resource from the preferred neighbor, buy one from the other neighbor (to get extra coins from Hatshepsut) (not implemented yet)
-            // OneResourceDiscount = 8,        // Imhotep, Archimedes, Leonidas, Hammurabi (not implemented yet)
+            OneResourceDiscount = 8,        // Imhotep, Archimedes, Leonidas, Hammurabi (not implemented yet)
         };
 
         // minimal cost (i.e. buy from neighbor you get discounts from
         // Hatshepsut - try to buy one from each neighbor.
 
-        public CommerceOptions GetCommerceOptions(Cost cost, CommercePreferences pref, List<ResourceEffect> leftResources, List<ResourceEffect> rightResources)
+        public CommerceOptions GetCommerceOptions(Cost cost, List<ResourceEffect> leftResources, List<ResourceEffect> rightResources, CommercePreferences pref = CommercePreferences.BuyFromCheaperNeighbor)
         {
             CommerceOptions commOptions = new CommerceOptions();
             List<ResourceUsed> requiredResourcesLists = new List<ResourceUsed>();
@@ -494,12 +506,12 @@ namespace SevenWonders
 
             // kick off a recursive reduction of the resource cost.  Paths that completely eliminate the cost
             // are returned in the requiredResourcesLists.
-            ReduceRecursively(cost.CostAsString(), pref, resources, 0, leftResources, 0, rightResources, 0, resStack, requiredResourcesLists);
+            commOptions.bAreResourceRequirementsMet = 
+                ReduceRecursively(cost.CostAsString(), pref, resources, 0, leftResources, 0, rightResources, 0, resStack, requiredResourcesLists);
 
-            if (requiredResourcesLists.Count != 0 || cost.CostAsString() == string.Empty)
+            if (commOptions.bAreResourceRequirementsMet)
             {
                 commOptions.bankCoins += cost.coin;
-                commOptions.bAreResourceRequirementsMet = true;
             }
 
             // Now go through the list of resources used and tabulate the total for each neighbor.
