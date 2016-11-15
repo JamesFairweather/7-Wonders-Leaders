@@ -96,7 +96,6 @@ namespace SevenWonders
             SetCommerceEffect(this.marketEffects | me);
         }
 
-        /*
         public IEnumerable<ResourceEffect> getResourceList(bool isSelf)
         {
             if (isSelf)
@@ -109,7 +108,6 @@ namespace SevenWonders
                 return resources.Where(x => x.canBeUsedByNeighbors == true);
             }
         }
-        */
 
        /**
          * Remove all letters that appear in B FROM A, then return the newly trimmed A
@@ -124,8 +122,8 @@ namespace SevenWonders
          * is considered, which means that some structures that are affordable using the 2nd option are
          * returned as Not Buildable.
          */
-         /*
-        public Cost eliminate(Cost structureCost, bool stopAfterAMatchIsFound, string resourceString)
+
+        public Cost eliminate(Cost structureCost, string resourceString)
         {
             // interesting.  structs do not need to be instantiated.  Classes do.  But structs
             // can only be PoD types, they cannot contain functions.
@@ -140,7 +138,7 @@ namespace SevenWonders
                         if (c.wood != 0)
                         {
                             --c.wood;
-                            if (stopAfterAMatchIsFound) return c;
+                            // if (stopAfterAMatchIsFound) return c;
                         }
                         break;
 
@@ -148,7 +146,7 @@ namespace SevenWonders
                         if (c.stone != 0)
                         {
                             --c.stone;
-                            if (stopAfterAMatchIsFound) return c;
+                            // if (stopAfterAMatchIsFound) return c;
                         }
                         break;
 
@@ -156,7 +154,7 @@ namespace SevenWonders
                         if (c.clay != 0)
                         {
                             --c.clay;
-                            if (stopAfterAMatchIsFound) return c;
+                            // if (stopAfterAMatchIsFound) return c;
                         }
                         break;
 
@@ -164,7 +162,7 @@ namespace SevenWonders
                         if (c.ore != 0)
                         {
                             --c.ore;
-                            if (stopAfterAMatchIsFound) return c;
+                            // if (stopAfterAMatchIsFound) return c;
                         }
                         break;
 
@@ -172,7 +170,7 @@ namespace SevenWonders
                         if (c.cloth != 0)
                         {
                             --c.cloth;
-                            if (stopAfterAMatchIsFound) return c;
+                            // if (stopAfterAMatchIsFound) return c;
                         }
                         break;
 
@@ -180,7 +178,7 @@ namespace SevenWonders
                         if (c.glass != 0)
                         {
                             --c.glass;
-                            if (stopAfterAMatchIsFound) return c;
+                            // if (stopAfterAMatchIsFound) return c;
                         }
                         break;
 
@@ -188,7 +186,7 @@ namespace SevenWonders
                         if (c.papyrus != 0)
                         {
                             --c.papyrus;
-                            if (stopAfterAMatchIsFound) return c;
+                            // if (stopAfterAMatchIsFound) return c;
                         }
                         break;
 
@@ -199,13 +197,28 @@ namespace SevenWonders
 
             return c;
         }
-        */
+
         /**
          * Given a resource DAG graph, determine if a cost is affordable
          * @return
          */
         public bool canAfford(Cost cost, int nWildResources)
         {
+            List<ResourceEffect> leftResourcesRequired = new List<ResourceEffect>();
+            List<ResourceEffect> rightResourcesRequired = new List<ResourceEffect>();
+
+            CommerceOptions co = GetCommerceOptions(cost, CommercePreferences.BuyFromLeftNeighbor, leftResourcesRequired, rightResourcesRequired);
+
+            if (nWildResources != 0)
+            {
+                // TODO: make the Resource Manager aware of this special resource.
+                throw new NotImplementedException();
+            }
+
+            if (co.bAreResourceRequirementsMet)
+            {
+                return leftResourcesRequired.Count == 0 && rightResourcesRequired.Count == 0;
+            }
             /*
             foreach (ResourceEffect e in resources)
             {
@@ -221,16 +234,15 @@ namespace SevenWonders
                         return true;
                 }
             }
+            */
 
+            // TODO: implement this
             // If the number of wild resources (i.e. Bilkis/Archimedes/Leonidas/Imhotep/Hammurabi)
             // is greater than or equal to the remaining cost after all other resource options have
             // been spent, the structure is afforable.  I'll remove Bilkis from the list of wilds
             // if the player doesn't have a coin.
-            if (nWildResources >= cost.Total())
-                return true;
-            */
-
-            throw new NotImplementedException();
+            // if (nWildResources >= (leftResourcesRequired.Count + rightResourcesRequired.Count))
+            //    return true;
 
             return false;
         }

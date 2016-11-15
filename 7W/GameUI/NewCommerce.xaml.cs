@@ -337,7 +337,7 @@ namespace SevenWonders
                 return;
             }
             // else if (ResourceManager.eliminate(cardCost.Copy(), false, strPossibleNewResourceList).Total() == previous)
-            else if (middleDag.eliminate(cardCost.Copy(), false, strPossibleNewResourceList).Total() == previous)
+            else if (middleDag.eliminate(cardCost.Copy(), strPossibleNewResourceList).Total() == previous)
             {
                 MessageBox.Show("This resource will not help you pay for your cost");
                 return;
@@ -369,7 +369,7 @@ namespace SevenWonders
                     // and the ability hasn't be used already, lets see if it can be used here.  Test whether adding a second one of these
                     // resources to the resource string would cause the resources needed to drop by 2.  If so, the ability can be used, and
                     // is applied automatically.
-                    if (middleDag.eliminate(cardCost.Copy(), false, strPossibleNewResourceList + resource).Total() == resourcesNeeded - 2)
+                    if (middleDag.eliminate(cardCost.Copy(), strPossibleNewResourceList + resource).Total() == resourcesNeeded - 2)
                     {
                         // Visually indicate that this ability has been used.
                         SecretWarehouseImage.Opacity = 0.5;
@@ -489,7 +489,7 @@ namespace SevenWonders
         /// </summary>
         private void generateCostPanel()
         {
-            generateCostPanelAndUpdateSubtotal(middleDag.eliminate(cardCost.Copy(), false, strCurrentResourcesUsed));
+            generateCostPanelAndUpdateSubtotal(middleDag.eliminate(cardCost.Copy(), strCurrentResourcesUsed));
         }
 
         /// <summary>

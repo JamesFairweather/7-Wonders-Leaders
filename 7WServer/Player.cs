@@ -1081,7 +1081,6 @@ namespace SevenWonders
         /// <returns></returns>
         public Buildable isCardBuildable(Card card)
         {
-            /*
             //retrieve the cost
             Cost cost = card.cost;
 
@@ -1149,9 +1148,6 @@ namespace SevenWonders
                 return Buildable.CommerceRequired;
 
             return Buildable.InsufficientResources;
-            */
-
-            return Buildable.InsufficientResources;
         }
 
         /// <summary>
@@ -1163,7 +1159,6 @@ namespace SevenWonders
         /// <returns></returns>
         private Buildable isCostAffordableWithDAG(Cost cost, int nWildResources)
         {
-            /*
             // the passed-in cost structure must not be modified.  C# doesn't support const correctness?!?
             // WTF!
             cost = cost.Copy();
@@ -1181,7 +1176,6 @@ namespace SevenWonders
 
             //can I afford the cost with resources in my DAG?
             if (dag.canAfford(cost, nWildResources)) return Buildable.True;
-            */
 
             return Buildable.InsufficientResources;
         }
@@ -1208,7 +1202,19 @@ namespace SevenWonders
 
             //determine if the combined DAG can afford the cost
             if (combinedDAG.canAfford(cost, nWildResources)) return Buildable.CommerceRequired;
-            */
+
+            return Buildable.InsufficientResources;
+                        */
+
+            List<ResourceEffect> leftResources = leftNeighbour.dag.getResourceList(false).ToList();
+            List<ResourceEffect> rightResources = rightNeighbour.dag.getResourceList(false).ToList();
+            CommerceOptions co = dag.GetCommerceOptions(cost, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, leftResources, rightResources);
+
+            if (co.bAreResourceRequirementsMet)
+            {
+                return Buildable.CommerceRequired;
+            }
+
             return Buildable.InsufficientResources;
         }
 
@@ -1219,7 +1225,6 @@ namespace SevenWonders
         /// <returns></returns>
         public Buildable isStageBuildable()
         {
-            /*
             //check if the current Stage is already the maximum stage
             if (currentStageOfWonder >= playerBoard.numOfStages)
                 return Buildable.StructureAlreadyBuilt;
@@ -1258,7 +1263,6 @@ namespace SevenWonders
             //can player afford cost by conducting commerce?
             if (isCostAffordableWithCommerce(cost, nWildResources) == Buildable.CommerceRequired)
                 return Buildable.CommerceRequired;
-            */
 
             //absolutely all options exhausted. return F
             return Buildable.InsufficientResources;
