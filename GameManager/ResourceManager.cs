@@ -292,14 +292,17 @@ namespace SevenWonders
             {
                 this.owner = o;
                 this.index = i;
+                this.usedDoubleResource = false;
             }
 
             public ResourceOwner owner { get; private set; }   // who owns this resource
 
             public int index { get; private set; }             // index into the owner's resource list
+
+            public bool usedDoubleResource;
         }
 
-        static void ReduceRecursively(string remainingCost, List<ResourceEffect> myResources, int resourceLevel, List<ResourceEffect> leftResources, int leftResourceLevel, List<ResourceEffect> rightResources, int rightResourceLevel, Stack<ResourceUsed> validResourceStack, List<List<ResourceUsed>> resourceOptions )
+        static void ReduceRecursively(string remainingCost, List<ResourceEffect> myResources, int ourResourceLevel, List<ResourceEffect> leftResources, int leftResourceLevel, List<ResourceEffect> rightResources, int rightResourceLevel, Stack<ResourceUsed> validResourceStack, List<ResourceUsed> resourceOptions )
         {
             if (remainingCost == string.Empty)
             {
@@ -310,6 +313,7 @@ namespace SevenWonders
                 // required.  e.g. a cost string has both Wood and Ore and the
                 // resources include the flex card with both wood and ore on it,
                 // or the Caravansery.
+                /*
                 bool alreadyHaveIt = false;
                 foreach (List<ResourceUsed> resList in resourceOptions)
                 {
@@ -337,13 +341,17 @@ namespace SevenWonders
                     }
                     resourceOptions.Add(validResourceList);
                 }
+                                    */
+
+                foreach (ResourceUsed r in validResourceStack)
+                    resourceOptions.Add(r);
 
                 // we have reached the end of this recursion path.
                 return;
             }
 
             // we need to check every possible path, starting at the current recursion level
-            for (int i = resourceLevel; i < myResources.Count + leftResources.Count + rightResources.Count; ++i)
+            for (int i = ourResourceLevel; (i < myResources.Count + leftResources.Count + rightResources.Count) && (resourceOptions.Count == 0); ++i)
             {
                 ResourceOwner ro;
                 ResourceEffect res;
@@ -372,21 +380,29 @@ namespace SevenWonders
 
                 validResourceStack.Push(new ResourceUsed(ro, i));
 
-                for (int j = 0; j < res.resourceTypes.Length; j++)
+                for (int w = 0; w < res.resourceTypes.Length && (resourceOptions.Count == 0); w++)
                 {
-                    char resType = res.resourceTypes[j];
+                    char resType = res.resourceTypes[w];
                     int ind = remainingCost.IndexOf(resType);
 
                     if (ind != -1)
                     {
                         int nResourceCostsToRemove = res.IsDoubleResource() && ((remainingCost.Length - ind) > 1) && (remainingCost[ind] == remainingCost[ind + 1]) ? 2 : 1;
 
+                        if (nResourceCostsToRemove == 2)
+                        {
+                            w++;
+
+                            // note that both resources provided by this
+                            // double-resource card were used (for cost-calculating purposes).
+                            ResourceUsed ru = validResourceStack.Pop();
+                            ru.usedDoubleResource = true;
+                            validResourceStack.Push(ru);
+                        }
+
                         // This resource matches one (or more) of the required resources.  Remove the matched
                         // resource from the remainingCost and move down a level of recusion.
                         ReduceRecursively(remainingCost.Remove(ind, nResourceCostsToRemove), myResources, i + 1, leftResources, leftResourceLevel, rightResources, rightResourceLevel, validResourceStack, resourceOptions);
-
-                        if (nResourceCostsToRemove == 2)
-                            j++;
                     }
 
                     // if this resource isn't in the cost string, move on to the next option in the resource
@@ -418,35 +434,33 @@ namespace SevenWonders
         public CommerceOptions GetCommerceOptions(Cost cost, CommercePreferences pref, List<ResourceEffect> leftResources, List<ResourceEffect> rightResources)
         {
             CommerceOptions commOptions = new CommerceOptions();
-            List<List<ResourceUsed>> requiredResourcesLists = new List<List<ResourceUsed>>();
+            List<ResourceUsed> requiredResourcesLists = new List<ResourceUsed>();
             Stack<ResourceUsed> resStack = new Stack<ResourceUsed>();
 
             // kick off a recursive reduction of the resource cost.  Paths that completely eliminate the cost
             // are returned in the requiredResourcesLists.
             ReduceRecursively(cost.CostAsString(), resources, 0, leftResources, 0, rightResources, 0, resStack, requiredResourcesLists);
 
-            if (requiredResourcesLists.Count != 0)
+            if (requiredResourcesLists.Count != 0 || cost.CostAsString() == string.Empty)
             {
                 commOptions.bankCoins += cost.coin;
                 commOptions.bAreResourceRequirementsMet = true;
             }
 
             // now go through the requiredResourcesLists and see if any did not use any neighbor's resources
-            for (int i = 0; i < requiredResourcesLists.Count; ++i)
-            {
-                List<ResourceUsed> resList = requiredResourcesLists[i];
 
-                // is there one that didn't use any resources from neighboring cities?
-                foreach (ResourceUsed res in resList)
+            // is there one that didn't use any resources from neighboring cities?
+            foreach (ResourceUsed res in requiredResourcesLists)
+            {
+                int neighborResourceCoinCost = res.usedDoubleResource ? 4 : 2;
+
+                if (res.owner == ResourceOwner.Left)
                 {
-                    if (res.owner == ResourceOwner.Left)
-                    {
-                        commOptions.leftCoins += 2;
-                    }
-                    else if (res.owner == ResourceOwner.Right)
-                    {
-                        commOptions.rightCoins += 2;
-                    }
+                    commOptions.leftCoins += neighborResourceCoinCost;
+                }
+                else if (res.owner == ResourceOwner.Right)
+                {
+                    commOptions.rightCoins += neighborResourceCoinCost;
                 }
             }
 
