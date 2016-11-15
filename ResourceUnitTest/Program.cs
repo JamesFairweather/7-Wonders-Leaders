@@ -403,6 +403,7 @@ namespace ResourceUnitTest
             // Test double-resources.  Only one of the double-resources is needed
             // from the left neighbor, but both are being purchased, which is an error.
             expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 0;
             Verify2(new Cost("SS"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_2 }, new List<ResourceEffect>(),
                 ResourceManager.CommercePreferences.BuyFromLeftNeighbor | ResourceManager.CommercePreferences.OneResourceDiscount,
                 ResourceManager.CommerceEffects.None, expectedResult);
@@ -413,6 +414,23 @@ namespace ResourceUnitTest
             // * prefer to pay left neighbor (may be minimal cost, mat be higher than minimal)
             // * prefer to pay right neighbor (may be minimal cost, may be higher than minimal)
             // 
+
+            // What's the best way to handle wild-card resources?  Adding a check at the end works
+            // except for buying doubled resources from neighbors :(
+            // I could also put a new resource source on the list (before Bilkis)
+
+            // Secret Warehouse.  How am I going to implement this?  The way the implementation has
+            // been done so far, is for the search algorithm to return the first resource stack that
+            // is able to build the card that meets a certain search criteria (i.e. prefer left or
+            // right neighbors).  It may be that when I try to do minimal cost this whole scheme
+            // completely breaks down and I have to go back to doing an (cost string length)^(resource combinations)
+            // search, then sort the options by cost.  The problem is knowing which resource to double.
+            // For example, suppose you're building PWWOO, and you have W/O.  Both neighbors have wood
+            // but not ore.  You have a trading post or dock pointed at one.  It's better to use the
+            // Secret Warehouse to build the Ore and buy the wood rather than the other way around.
+            // Hmm, it may be that I'll have to note when I use an flex card and go back and do it
+            // the other way.  I may have to do the same thing for the Black Market anyway, actually.
+            // using one of its resources may be more efficient than using another.
 
             Console.WriteLine("Resource Manager tests completed.  All unit tests passed.");
         }

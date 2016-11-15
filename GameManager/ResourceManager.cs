@@ -345,6 +345,12 @@ namespace SevenWonders
         {
             bool retVal = false;
 
+            /*
+             * This is an alternate way to implement the wild-card resource.  Unforunately it has a bug with
+             * double-resources, which would need to be handled by changing the nResourceCostsToRemove, below.
+             * Instead, the one resource discount is handled by adding a wild card resource for this structure
+             * and then removing it afterwards.  I've left this code in here for now in case I change my mind
+             * again and decide it's better to do it this way than the temporary resource.
             if (((pref & CommercePreferences.OneResourceDiscount) == CommercePreferences.OneResourceDiscount) &&
                 (remainingCost.Length == 1))
             {
@@ -352,6 +358,7 @@ namespace SevenWonders
                 // resource left to match, we're done.
                 remainingCost = string.Empty;
             }
+            */
 
             if (remainingCost == string.Empty)
             {
@@ -504,10 +511,25 @@ namespace SevenWonders
             List<ResourceUsed> requiredResourcesLists = new List<ResourceUsed>();
             Stack<ResourceUsed> resStack = new Stack<ResourceUsed>();
 
+            ResourceEffect wildResource = null;
+
+            if ((pref & CommercePreferences.OneResourceDiscount) == CommercePreferences.OneResourceDiscount)
+            {
+                // Add a single resource that matches any single resource in the cost list.
+                wildResource = new ResourceEffect(false, "WSBOPCG");
+                resources.Add(wildResource);
+            }
+
             // kick off a recursive reduction of the resource cost.  Paths that completely eliminate the cost
             // are returned in the requiredResourcesLists.
             commOptions.bAreResourceRequirementsMet = 
                 ReduceRecursively(cost.CostAsString(), pref, resources, 0, leftResources, 0, rightResources, 0, resStack, requiredResourcesLists);
+
+            if (wildResource != null)
+            {
+                // now we can remove the wild resource
+                resources.Remove(wildResource);
+            }
 
             if (commOptions.bAreResourceRequirementsMet)
             {
