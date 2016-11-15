@@ -69,6 +69,33 @@ namespace SevenWonders
             resources.Insert(insertionIndex+1, s);
         }
 
+        [Flags]
+        public enum MarketEffects
+        {
+            None = 0,
+            Marketplace = 1,
+            // WestTradingPost = 2,
+            // EastTradingPost = 4,
+            // Bilkis = 8,
+            // ClandestineDockWest = 16,
+            // ClandestineDockEast = 32,
+            // SecretWarehouse = 64,
+            // BlackMarket1 = 128,     // Black Market card or China B's wonder stage
+            // BlackMarket2 = 256,     // Black Market card and China B's wonder stage 
+        }
+
+        MarketEffects marketEffects = MarketEffects.None;
+
+        public void SetMarketEffect(MarketEffects me)
+        {
+            this.marketEffects = me;
+        }
+
+        public void AddMarketEffect(MarketEffects me)
+        {
+            SetMarketEffect(this.marketEffects | me);
+        }
+
         /*
         public IEnumerable<ResourceEffect> getResourceList(bool isSelf)
         {
@@ -437,10 +464,11 @@ namespace SevenWonders
         [Flags]
         public enum CommercePreferences
         {
-            BuyFromCheaperNeighbor = 0,     // buy from the neighbor which will keep the cost to minimum (i.e. consider the effects of trading posts and Clandestine Docks)
+            // BuyFromCheaperNeighbor = 0,     // buy from the neighbor which will keep the cost to minimum (i.e. consider the effects of trading posts and Clandestine Docks)
             BuyFromLeftNeighbor = 1,        // prefer to buy from the left neighbor (maybe they have a trading post pointed at you, or they're losing)
             BuyFromRightNeighbor = 2,       // prefer to buy from the right neighbor (maybe they have a trading post pointed at you, or they're losing)
-            BuyOneFromEachNeighbor = 4,     // after buying a resource from the preferred neighbor, buy one from the other neighbor (to get extra coins from Hatshepsut)
+            // BuyOneFromEachNeighbor = 4,     // after buying a resource from the preferred neighbor, buy one from the other neighbor (to get extra coins from Hatshepsut) (not implemented yet)
+            // OneResourceDiscount = 8,        // Imhotep, Archimedes, Leonidas, Hammurabi (not implemented yet)
         };
 
         // minimal cost (i.e. buy from neighbor you get discounts from
@@ -462,20 +490,40 @@ namespace SevenWonders
                 commOptions.bAreResourceRequirementsMet = true;
             }
 
-            // now go through the requiredResourcesLists and see if any did not use any neighbor's resources
+            int neighborManufacturedGoodCost = ((marketEffects & MarketEffects.Marketplace) == MarketEffects.Marketplace) ? 1 : 2;   // Without any marketplace effects, each purchased resource costs 2 coins
+            int neighborRawMaterialsCost = 2;   // Without any marketplace effects, each purchased resource costs 2 coins
 
-            // is there one that didn't use any resources from neighboring cities?
+            // Now go through the list of resources used and tabulate the total for each neighbor.
             foreach (ResourceUsed res in requiredResourcesLists)
             {
-                int neighborResourceCoinCost = res.usedDoubleResource ? 4 : 2;
-
                 if (res.owner == ResourceOwner.Left)
                 {
-                    commOptions.leftCoins += neighborResourceCoinCost;
+                    ResourceEffect re = leftResources[res.index];
+
+                    if (re.IsManufacturedGood())
+                    {
+                        commOptions.leftCoins += neighborManufacturedGoodCost;
+                    }
+                    else
+                    {
+                        commOptions.leftCoins += neighborRawMaterialsCost;
+                        if (res.usedDoubleResource)
+                            commOptions.leftCoins += neighborRawMaterialsCost;
+                    }
                 }
                 else if (res.owner == ResourceOwner.Right)
                 {
-                    commOptions.rightCoins += neighborResourceCoinCost;
+                    ResourceEffect re = rightResources[res.index];
+                    if (re.IsManufacturedGood())
+                    {
+                        commOptions.rightCoins += neighborManufacturedGoodCost;
+                    }
+                    else
+                    {
+                        commOptions.rightCoins += neighborRawMaterialsCost;
+                        if (res.usedDoubleResource)
+                            commOptions.rightCoins += neighborRawMaterialsCost;
+                    }
                 }
             }
 

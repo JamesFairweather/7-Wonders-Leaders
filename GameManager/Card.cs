@@ -429,6 +429,11 @@ namespace SevenWonders
         {
             return resourceTypes.Length == 1 || IsDoubleResource();
         }
+
+        public bool IsManufacturedGood()
+        {
+            return resourceTypes[0] == 'P' || resourceTypes[0] == 'C' || resourceTypes[0] == 'G';
+        }
     }
 
     public class ScienceEffect : Effect

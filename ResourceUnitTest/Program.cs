@@ -16,7 +16,7 @@ namespace ResourceUnitTest
         }
 
         static void Verify2(Cost cost, List<ResourceEffect> cityResources, List<ResourceEffect> leftResources, List<ResourceEffect> rightResources,
-            ResourceManager.CommercePreferences pref, CommerceOptions expectedResult)
+            ResourceManager.CommercePreferences pref, ResourceManager.MarketEffects marketEffects, CommerceOptions expectedResult)
         {
             ResourceManager resMan = new ResourceManager();
 
@@ -24,6 +24,8 @@ namespace ResourceUnitTest
             {
                 resMan.add(x);
             });
+
+            resMan.SetMarketEffect(marketEffects);
 
             CommerceOptions co = resMan.GetCommerceOptions(cost, pref, leftResources, rightResources);
 
@@ -131,10 +133,10 @@ namespace ResourceUnitTest
 
             expectedResult.bAreResourceRequirementsMet = true;
 
-            Verify2(new Cost(), new List<ResourceEffect>(), new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost(), new List<ResourceEffect>(), new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.bankCoins = 3;
-            Verify2(new Cost("3"), new List<ResourceEffect>(), new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("3"), new List<ResourceEffect>(), new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             // Verify(costResult.commerceOptions[0].purchasedResourceFromLeftNeighbor == false);
             // Verify(costResult.commerceOptions[0].purchasedResourceFromRightNeighbor == false);
@@ -142,158 +144,183 @@ namespace ResourceUnitTest
             expectedResult.bankCoins = 0;
             expectedResult.bAreResourceRequirementsMet = false;
 
-            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             // Given a list of available resources (i.e. this city's resources and those of its neighbors),
             // we want to know a list of commere options for building it.
 
             // Can we build a single-resource card with that resource missing?
-            Verify2(new Cost("S"), new List<ResourceEffect> { wood_1, }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("S"), new List<ResourceEffect> { wood_1, }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             // Can we build a single-resource card with that resource present?
             expectedResult.bAreResourceRequirementsMet = true;
-            Verify2(new Cost("S"), new List<ResourceEffect> { stone_1, }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("S"), new List<ResourceEffect> { stone_1, }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.bankCoins = 5;
-            Verify2(new Cost("5C"), new List<ResourceEffect> { cloth, }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("5C"), new List<ResourceEffect> { cloth, }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             // Check that last one again, to confirm it's not buildable if the resource required is missing.
             expectedResult.bAreResourceRequirementsMet = false;
             expectedResult.bankCoins = 0;
-            Verify2(new Cost("5C"), new List<ResourceEffect> { papyrus, }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("5C"), new List<ResourceEffect> { papyrus, }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.bAreResourceRequirementsMet = true;
-            Verify2(new Cost("WW"), new List<ResourceEffect> { wood_2, }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("WW"), new List<ResourceEffect> { wood_2, }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.bankCoins = 4;
-            Verify2(new Cost("4WW"), new List<ResourceEffect> { wood_2, }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("4WW"), new List<ResourceEffect> { wood_2, }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.bankCoins = 0;
-            Verify2(new Cost("OWW"), new List<ResourceEffect> { wood_2, ore_1 }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
-            Verify2(new Cost("OWW"), new List<ResourceEffect> { wood_2, ore_2 }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
-            Verify2(new Cost("WW"), new List<ResourceEffect> { wood_1, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("OWW"), new List<ResourceEffect> { wood_2, ore_1 }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("OWW"), new List<ResourceEffect> { wood_2, ore_2 }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("WW"), new List<ResourceEffect> { wood_1, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
             expectedResult.bAreResourceRequirementsMet = false;
-            Verify2(new Cost("WWB"), new List<ResourceEffect> { wood_1, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("WWB"), new List<ResourceEffect> { wood_1, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
             expectedResult.bAreResourceRequirementsMet = true;
-            Verify2(new Cost("WWB"), new List<ResourceEffect> { wood_ore, stone_wood, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("WWB"), new List<ResourceEffect> { wood_ore, stone_wood, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             // here's a more intersesting case: the structure costs wood and 2 ore, with two flexes and a caravansery.
             // it should be buildable but the algorithm must realize that it must take the ore from the wood/ore option.
-            Verify2(new Cost("WOO"), new List<ResourceEffect> { wood_ore, stone_wood, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("WOO"), new List<ResourceEffect> { wood_ore, stone_wood, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.bAreResourceRequirementsMet = false;
-            Verify2(new Cost("OOO"), new List<ResourceEffect> { ore_2 }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("OOO"), new List<ResourceEffect> { ore_2 }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
             expectedResult.bAreResourceRequirementsMet = true;
-            Verify2(new Cost("OOO"), new List<ResourceEffect> { ore_1, ore_2 }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("OOO"), new List<ResourceEffect> { ore_1, ore_2 }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             // Make sure it's not a problem to have an unused resource in the middle of the string
-            Verify2(new Cost("WOO"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
-            Verify2(new Cost("WBOO"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
-            Verify2(new Cost("BSOO"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
-            Verify2(new Cost("WWBS"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
-            Verify2(new Cost("WWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, wood_ore, wood_clay, papyrus }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
-            Verify2(new Cost("WWOOPPG"), new List<ResourceEffect> { papyrus, papyrus, stone_wood, clay_ore, wood_ore, wood_clay, forum, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
-            Verify2(new Cost("WWOOPPG"), new List<ResourceEffect> { papyrus, papyrus, stone_wood, clay_ore, stone_clay, wood_ore, wood_clay, forum }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
-            Verify2(new Cost("WWSOO"), new List<ResourceEffect> { stone_wood, clay_ore, stone_clay, wood_ore, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
-            Verify2(new Cost("WWSBOO"), new List<ResourceEffect> { clay_1, stone_wood, clay_ore, stone_clay, wood_ore, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("WOO"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("WBOO"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("BSOO"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("WWBS"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("WWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, wood_ore, wood_clay, papyrus }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("WWOOPPG"), new List<ResourceEffect> { papyrus, papyrus, stone_wood, clay_ore, wood_ore, wood_clay, forum, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("WWOOPPG"), new List<ResourceEffect> { papyrus, papyrus, stone_wood, clay_ore, stone_clay, wood_ore, wood_clay, forum }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("WWSOO"), new List<ResourceEffect> { stone_wood, clay_ore, stone_clay, wood_ore, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("WWSBOO"), new List<ResourceEffect> { clay_1, stone_wood, clay_ore, stone_clay, wood_ore, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.bAreResourceRequirementsMet = false;
-            Verify2(new Cost("WWSS"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
-            Verify2(new Cost("WWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, wood_ore, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
-            Verify2(new Cost("PWWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, wood_ore, wood_clay, papyrus }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("WWSS"), new List<ResourceEffect> { wood_ore, stone_clay, clay_ore, caravansery }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("WWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, wood_ore, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("PWWOOP"), new List<ResourceEffect> { stone_wood, clay_ore, wood_ore, wood_clay, papyrus }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             // This one has more than one success path as it contains more resources than requirements.
-            Verify2(new Cost("WWSBOO"), new List<ResourceEffect> { stone_wood, clay_ore, stone_clay, wood_ore, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
-            Verify2(new Cost("WWSBOO"), new List<ResourceEffect> { clay_2, stone_wood, clay_ore, wood_ore, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("WWSBOO"), new List<ResourceEffect> { stone_wood, clay_ore, stone_clay, wood_ore, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("WWSBOO"), new List<ResourceEffect> { clay_2, stone_wood, clay_ore, wood_ore, wood_clay }, new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             ///////////////////////////
             // Start of commerce tests
             ///////////////////////////
 
             expectedResult.bAreResourceRequirementsMet = false;
-            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect> { wood_1, }, new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect> { wood_1, }, new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.bAreResourceRequirementsMet = true;
             expectedResult.leftCoins = 2;
-            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_1, }, new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_1, }, new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.leftCoins = 0;
             expectedResult.rightCoins = 2;
-            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect> { clay_1, }, new List<ResourceEffect>() { stone_2 }, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect> { clay_1, }, new List<ResourceEffect>() { stone_2 }, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.rightCoins = 4;
-            Verify2(new Cost("SS"), new List<ResourceEffect>(), new List<ResourceEffect> { clay_1, }, new List<ResourceEffect>() { stone_2 }, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("SS"), new List<ResourceEffect>(), new List<ResourceEffect> { clay_1, }, new List<ResourceEffect>() { stone_2 }, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.leftCoins = 2;
-            Verify2(new Cost("SSB"), new List<ResourceEffect>(), new List<ResourceEffect> { clay_1, }, new List<ResourceEffect>() { stone_2 }, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
-            Verify2(new Cost("SSB"), new List<ResourceEffect> { wood_1, }, new List<ResourceEffect> { clay_1, }, new List<ResourceEffect>() { stone_2 }, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
-            Verify2(new Cost("SSBW"), new List<ResourceEffect> { wood_1, }, new List<ResourceEffect> { clay_1, }, new List<ResourceEffect>() { stone_2 }, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("SSB"), new List<ResourceEffect>(), new List<ResourceEffect> { clay_1, }, new List<ResourceEffect>() { stone_2 }, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("SSB"), new List<ResourceEffect> { wood_1, }, new List<ResourceEffect> { clay_1, }, new List<ResourceEffect>() { stone_2 }, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("SSBW"), new List<ResourceEffect> { wood_1, }, new List<ResourceEffect> { clay_1, }, new List<ResourceEffect>() { stone_2 }, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.bAreResourceRequirementsMet = false;
             expectedResult.bankCoins = expectedResult.leftCoins = expectedResult.rightCoins = 0;
-            Verify2(new Cost("SSSBB"), new List<ResourceEffect> { stone_wood, }, new List<ResourceEffect> { clay_1, }, new List<ResourceEffect>() { stone_2 }, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("SSSBB"), new List<ResourceEffect> { stone_wood, }, new List<ResourceEffect> { clay_1, }, new List<ResourceEffect>() { stone_2 }, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             List<ResourceEffect> myCity = new List<ResourceEffect> { wood_1, stone_2, stone_clay, forum, };
             List<ResourceEffect> leftCity = new List<ResourceEffect> { papyrus, cloth, ore_2, stone_wood, };
             List<ResourceEffect> rightCity = new List<ResourceEffect> { papyrus, wood_2, wood_ore, wood_clay, };
 
             expectedResult.bAreResourceRequirementsMet = true;
-            Verify2(new Cost("SSSG"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("SSSG"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.leftCoins = 2;
-            Verify2(new Cost("SSSSP"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("SSSSP"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.leftCoins = 4;
-            Verify2(new Cost("PCG"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("PCG"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.leftCoins = 4;
             expectedResult.rightCoins = 2;
-            Verify2(new Cost("WWWO"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("WWWO"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.bAreResourceRequirementsMet = false;
             expectedResult.bankCoins = expectedResult.leftCoins = expectedResult.rightCoins = 0;
-            Verify2(new Cost("BBB"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("BBB"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.bAreResourceRequirementsMet = true;
             expectedResult.leftCoins = 2;
             expectedResult.rightCoins = 2;
-            Verify2(new Cost("WWBBSS"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("WWBBSS"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             myCity = new List<ResourceEffect> { ore_1, caravansery };
 
             expectedResult.bAreResourceRequirementsMet = false;
             expectedResult.bankCoins = expectedResult.leftCoins = expectedResult.rightCoins = 0;
-            Verify2(new Cost("WWBBSS"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("WWBBSS"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.bAreResourceRequirementsMet = true;
             expectedResult.leftCoins = 2;   // stone
             expectedResult.rightCoins = 6;  // 2 wood, 2 one brick
-            Verify2(new Cost("WWBBSO"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("WWBBSO"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.leftCoins = 4;
             expectedResult.rightCoins = 0;
-            Verify2(new Cost("WWOP"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("WWOP"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.leftCoins = 0;
             expectedResult.rightCoins = 2;
-            Verify2(new Cost("WW"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromRightNeighbor, expectedResult);
+            Verify2(new Cost("WW"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.leftCoins = 0;
             expectedResult.rightCoins = 4;
-            Verify2(new Cost("WWP"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromRightNeighbor, expectedResult);
+            Verify2(new Cost("WWP"), myCity, leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.leftCoins = 4;
             expectedResult.rightCoins = 10;
 
-            Verify2(new Cost("WWWWBPP"), new List<ResourceEffect>(), leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromRightNeighbor, expectedResult);
-            Verify2(new Cost("WWWWBPP"), new List<ResourceEffect>(), leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("WWWWBPP"), new List<ResourceEffect>(), leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+            Verify2(new Cost("WWWWBPP"), new List<ResourceEffect>(), leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.rightCoins = 0;
-            Verify2(new Cost("WO"), new List<ResourceEffect>(), leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, expectedResult);
+            Verify2(new Cost("WO"), new List<ResourceEffect>(), leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.None, expectedResult);
 
             expectedResult.leftCoins = 0;
             expectedResult.rightCoins = 4;
-            Verify2(new Cost("WO"), new List<ResourceEffect>(), leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromRightNeighbor, expectedResult);
+            Verify2(new Cost("WO"), new List<ResourceEffect>(), leftCity, rightCity, ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.MarketEffects.None, expectedResult);
+
+            expectedResult.leftCoins = 1;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("P"), new List<ResourceEffect>(), new List<ResourceEffect> { papyrus, cloth }, new List<ResourceEffect> { cloth, glass }, ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.MarketEffects.Marketplace, expectedResult);
+
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("C"), new List<ResourceEffect>(), new List<ResourceEffect> { papyrus, cloth }, new List<ResourceEffect> { cloth, glass }, ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.MarketEffects.Marketplace, expectedResult);
+
+            expectedResult.leftCoins = 1;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("C"), new List<ResourceEffect>(), new List<ResourceEffect> { papyrus, cloth }, new List<ResourceEffect> { cloth, glass }, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.Marketplace, expectedResult);
+
+            expectedResult.leftCoins = 1;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("CC"), new List<ResourceEffect>(), new List<ResourceEffect> { papyrus, cloth }, new List<ResourceEffect> { cloth, glass }, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.Marketplace, expectedResult);
+
+            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("PC"), new List<ResourceEffect>(), new List<ResourceEffect> { papyrus, cloth }, new List<ResourceEffect> { cloth, glass }, ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.MarketEffects.Marketplace, expectedResult);
+
+            expectedResult.leftCoins = 1;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("PC"), new List<ResourceEffect>(), new List<ResourceEffect> { papyrus, cloth }, new List<ResourceEffect> { cloth, glass }, ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.MarketEffects.Marketplace, expectedResult);
+
 
             // After we have a list of options for building a card, we can apply commercial effects,
             // then resolve the options into:
