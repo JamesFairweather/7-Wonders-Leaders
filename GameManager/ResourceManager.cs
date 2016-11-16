@@ -76,7 +76,7 @@ namespace SevenWonders
             Marketplace = 1,
             WestTradingPost = 2,
             EastTradingPost = 4,
-            // Bilkis = 8,
+            Bilkis = 8,
             // ClandestineDockWest = 16,
             // ClandestineDockEast = 32,
             // SecretWarehouse = 64,
@@ -341,7 +341,25 @@ namespace SevenWonders
             public bool usedDoubleResource;
         }
 
-        static bool ReduceRecursively(string remainingCost, CommercePreferences pref, List<ResourceEffect> myResources, int myResIndex, List<ResourceEffect> leftResources, int leftResIndex, List<ResourceEffect> rightResources, int rightResIndex, Stack<ResourceUsed> usedResources, List<ResourceUsed> outputResourceList)
+        struct ReduceState
+        {
+            // These are static fields, they are set when the recursion begins.
+            public CommercePreferences pref;
+            public List<ResourceEffect> myResources;
+            public List<ResourceEffect> leftResources;
+            public List<ResourceEffect> rightResources;
+
+            // One of these fields is updated with each level of recursion
+            public Stack<ResourceUsed> usedResources;       // current resource stack
+            public int myResourceIndex;
+            public int leftResourceIndex;
+            public int rightResourceIndex;
+
+            // Contains the successful result.
+            public List<ResourceUsed> outputResourceList;   // output of a successful trace
+        };
+
+        static bool ReduceRecursively(ReduceState state, string remainingCost)
         {
             bool retVal = false;
 
@@ -365,9 +383,9 @@ namespace SevenWonders
                 // success!  This combination of resources reduced the cost to zero.
 
                 // copy the resource stack to the output
-                foreach (ResourceUsed r in usedResources)
+                foreach (ResourceUsed r in state.usedResources)
                 {
-                    outputResourceList.Add(r);
+                    state.outputResourceList.Add(r);
                 }
 
                 // end
@@ -375,10 +393,10 @@ namespace SevenWonders
             }
 
             // we need to check every possible path, starting at the current recursion level
-            while ((myResIndex < myResources.Count ||
-                leftResIndex < leftResources.Count ||
-                rightResIndex < rightResources.Count) &&
-                (outputResourceList.Count == 0))
+            while ((state.myResourceIndex < state.myResources.Count ||
+                state.leftResourceIndex < state.leftResources.Count ||
+                state.rightResourceIndex < state.rightResources.Count) &&
+                (state.outputResourceList.Count == 0))
             {
                 ResourceOwner ro;
                 ResourceEffect res = null;
@@ -387,51 +405,51 @@ namespace SevenWonders
                 int leftInc = 0;
                 int rightInc = 0;
 
-                if (myResIndex < myResources.Count)
+                if (state.myResourceIndex < state.myResources.Count)
                 {
                     ro = ResourceOwner.Self;
-                    res = myResources[myResIndex];
+                    res = state.myResources[state.myResourceIndex];
                     myInc = 1;
-                    usedResources.Push(new ResourceUsed(ro, myResIndex));
+                    state.usedResources.Push(new ResourceUsed(ro, state.myResourceIndex));
                 }
                 else
                 {
                     // this block means the structure cannot be afforded using only our city's resources,
                     // so we will try using our neighbors' resources.
-                    if ((pref & CommercePreferences.BuyFromLeftNeighbor) == CommercePreferences.BuyFromLeftNeighbor)
+                    if ((state.pref & CommercePreferences.BuyFromLeftNeighbor) == CommercePreferences.BuyFromLeftNeighbor)
                     {
                         // search using the left neighbor's resources before the right one.
-                        if (leftResIndex < leftResources.Count)
+                        if (state.leftResourceIndex < state.leftResources.Count)
                         {
                             ro = ResourceOwner.Left;
-                            res = leftResources[leftResIndex];
+                            res = state.leftResources[state.leftResourceIndex];
                             leftInc = 1;
-                            usedResources.Push(new ResourceUsed(ro, leftResIndex));
+                            state.usedResources.Push(new ResourceUsed(ro, state.leftResourceIndex));
                         }
-                        else if (rightResIndex < rightResources.Count)
+                        else if (state.rightResourceIndex < state.rightResources.Count)
                         {
                             ro = ResourceOwner.Right;
-                            res = rightResources[rightResIndex];
+                            res = state.rightResources[state.rightResourceIndex];
                             rightInc = 1;
-                            usedResources.Push(new ResourceUsed(ro, rightResIndex));
+                            state.usedResources.Push(new ResourceUsed(ro, state.rightResourceIndex));
                         }
                     }
-                    else if ((pref & CommercePreferences.BuyFromRightNeighbor) == CommercePreferences.BuyFromRightNeighbor)
+                    else if ((state.pref & CommercePreferences.BuyFromRightNeighbor) == CommercePreferences.BuyFromRightNeighbor)
                     {
                         // search using the right neighbor's resources before the left one.
-                        if (rightResIndex < rightResources.Count)
+                        if (state.rightResourceIndex < state.rightResources.Count)
                         {
                             ro = ResourceOwner.Right;
-                            res = rightResources[rightResIndex];
+                            res = state.rightResources[state.rightResourceIndex];
                             rightInc = 1;
-                            usedResources.Push(new ResourceUsed(ro, rightResIndex));
+                            state.usedResources.Push(new ResourceUsed(ro, state.rightResourceIndex));
                         }
-                        else if (leftResIndex < leftResources.Count)
+                        else if (state.leftResourceIndex < state.leftResources.Count)
                         {
                             ro = ResourceOwner.Left;
-                            res = leftResources[leftResIndex];
+                            res = state.leftResources[state.leftResourceIndex];
                             leftInc = 1;
-                            usedResources.Push(new ResourceUsed(ro, leftResIndex));
+                            state.usedResources.Push(new ResourceUsed(ro, state.leftResourceIndex));
                         }
                     }
 
@@ -442,7 +460,7 @@ namespace SevenWonders
                     }
                 }
 
-                for (int resIndex = 0; resIndex < res.resourceTypes.Length && (outputResourceList.Count == 0); resIndex++)
+                for (int resIndex = 0; resIndex < res.resourceTypes.Length && (state.outputResourceList.Count == 0); resIndex++)
                 {
                     char resType = res.resourceTypes[resIndex];
                     int ind = remainingCost.IndexOf(resType);
@@ -457,18 +475,22 @@ namespace SevenWonders
 
                             // note that both resources provided by this
                             // double-resource card were used (for cost-calculating purposes).
-                            ResourceUsed ru = usedResources.Pop();
+                            ResourceUsed ru = state.usedResources.Pop();
                             ru.usedDoubleResource = true;
-                            usedResources.Push(ru);
+                            state.usedResources.Push(ru);
                         }
 
                         // This resource matches one (or more) of the required resources.  Remove the matched
                         // resource from the remainingCost and move down a level of recusion.
-                        retVal |= ReduceRecursively(remainingCost.Remove(ind, nResourceCostsToRemove), pref,
-                            myResources, myResIndex + myInc,
-                            leftResources, leftResIndex + leftInc,
-                            rightResources, rightResIndex + rightInc,
-                            usedResources, outputResourceList);
+                        state.myResourceIndex += myInc;
+                        state.leftResourceIndex += leftInc;
+                        state.rightResourceIndex += rightInc;
+
+                        retVal |= ReduceRecursively(state, remainingCost.Remove(ind, nResourceCostsToRemove));
+
+                        state.myResourceIndex -= myInc;
+                        state.leftResourceIndex -= leftInc;
+                        state.rightResourceIndex -= rightInc;
                     }
 
                     // if this resource isn't in the cost string, move on to the next option in the resource
@@ -476,12 +498,12 @@ namespace SevenWonders
                 }
 
                 // pop the last ResourceEffect off, then move on to the next resource choice for this structure
-                usedResources.Pop();
+                state.usedResources.Pop();
 
                 // increment the resource counter (only one of these is ever set to 1, the other two will be 0.
-                myResIndex += myInc;
-                leftResIndex += leftInc;
-                rightResIndex += rightInc;
+                state.myResourceIndex += myInc;
+                state.leftResourceIndex += leftInc;
+                state.rightResourceIndex += rightInc;
             }
 
             return retVal;
@@ -508,8 +530,14 @@ namespace SevenWonders
         public CommerceOptions GetCommerceOptions(Cost cost, List<ResourceEffect> leftResources, List<ResourceEffect> rightResources, CommercePreferences pref = CommercePreferences.BuyFromCheaperNeighbor)
         {
             CommerceOptions commOptions = new CommerceOptions();
-            List<ResourceUsed> requiredResourcesLists = new List<ResourceUsed>();
-            Stack<ResourceUsed> resStack = new Stack<ResourceUsed>();
+            ReduceState rs = new ReduceState();
+
+            rs.myResources = resources;
+            rs.leftResources = leftResources;
+            rs.rightResources = rightResources;
+            rs.usedResources = new Stack<ResourceUsed>();
+            rs.pref = pref;
+            rs.outputResourceList = new List<ResourceUsed>();
 
             ResourceEffect wildResource = null;
 
@@ -522,8 +550,7 @@ namespace SevenWonders
 
             // kick off a recursive reduction of the resource cost.  Paths that completely eliminate the cost
             // are returned in the requiredResourcesLists.
-            commOptions.bAreResourceRequirementsMet = 
-                ReduceRecursively(cost.CostAsString(), pref, resources, 0, leftResources, 0, rightResources, 0, resStack, requiredResourcesLists);
+            commOptions.bAreResourceRequirementsMet = ReduceRecursively(rs, cost.CostAsString());
 
             if (wildResource != null)
             {
@@ -541,7 +568,7 @@ namespace SevenWonders
             int leftNeighborRawMaterialsCost = ((marketEffects & CommerceEffects.WestTradingPost) == CommerceEffects.WestTradingPost) ? 1 : 2;
             int rightNeighborRawMaterialsCost = ((marketEffects & CommerceEffects.EastTradingPost) == CommerceEffects.EastTradingPost) ? 1 : 2;
 
-            foreach (ResourceUsed res in requiredResourcesLists)
+            foreach (ResourceUsed res in rs.outputResourceList)
             {
                 if (res.owner == ResourceOwner.Left)
                 {
