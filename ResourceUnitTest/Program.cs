@@ -408,6 +408,12 @@ namespace ResourceUnitTest
                 ResourceManager.CommercePreferences.BuyFromLeftNeighbor | ResourceManager.CommercePreferences.OneResourceDiscount,
                 ResourceManager.CommerceEffects.None, expectedResult);
 
+            // Bilkis
+            expectedResult.bankCoins = 1;
+            expectedResult.leftCoins = expectedResult.rightCoins = 0;
+            Verify2(new Cost("G"), new List<ResourceEffect>(), new List<ResourceEffect>(), new List<ResourceEffect>(),
+                ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.CommerceEffects.Bilkis, expectedResult);
+
             // After we have a list of options for building a card, we can apply commercial effects,
             // then resolve the options into:
             // * minimal cost
