@@ -344,10 +344,15 @@ namespace SevenWonders
         struct ReduceState
         {
             // These are static fields, they are set when the recursion begins.
+
+            // preferences can change from one run to the next.
             public CommercePreferences pref;
             public List<ResourceEffect> myResources;
             public List<ResourceEffect> leftResources;
             public List<ResourceEffect> rightResources;
+
+            // Effects can only be added to this field.
+            public CommerceEffects marketEffects;
 
             // One of these fields is updated with each level of recursion
             public Stack<ResourceUsed> usedResources;       // current resource stack
@@ -357,7 +362,14 @@ namespace SevenWonders
 
             // Contains the successful result.
             public List<ResourceUsed> outputResourceList;   // output of a successful trace
+
+            public bool hasWildResource;             // Imhotep, Archimedes
+            public bool usedWildResource;
+            public bool hasBilkis;
+            public bool usedBilkis;
         };
+
+        const int BilkisResourceIndex = -1;
 
         static bool ReduceRecursively(ReduceState state, string remainingCost)
         {
@@ -392,13 +404,16 @@ namespace SevenWonders
                 return true;
             }
 
-            // we need to check every possible path, starting at the current recursion level
+            // we need to check every possible path, starting at the current recursion level, going from cheapest
+            // possible resource to the most expensive.  This should return the cheapest possible coin cost for
+            // the structure under consideration.
             while ((state.myResourceIndex < state.myResources.Count ||
                 state.leftResourceIndex < state.leftResources.Count ||
-                state.rightResourceIndex < state.rightResources.Count) &&
+                state.rightResourceIndex < state.rightResources.Count ||
+                state.hasWildResource && !state.usedWildResource ||
+                state.hasBilkis && !state.usedBilkis) &&
                 (state.outputResourceList.Count == 0))
             {
-                ResourceOwner ro;
                 ResourceEffect res = null;
 
                 int myInc= 0;
@@ -407,10 +422,32 @@ namespace SevenWonders
 
                 if (state.myResourceIndex < state.myResources.Count)
                 {
-                    ro = ResourceOwner.Self;
+                    // my city's resources are free, use them up first.
                     res = state.myResources[state.myResourceIndex];
                     myInc = 1;
-                    state.usedResources.Push(new ResourceUsed(ro, state.myResourceIndex));
+                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, state.myResourceIndex));
+                }
+                else if (state.hasWildResource && !state.usedWildResource)
+                {
+                    // Archimedes, Imhotep, Leonidas and Hammurabi.  Take the first resource off the list.
+                    state.usedWildResource = true;
+                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, 0 /* for my city resources, the index doesn't matter (except Bilkis) */));
+                    retVal |= ReduceRecursively(state, remainingCost.Remove(0, 1));
+                    state.usedWildResource = false;
+                    state.usedResources.Pop();
+
+                    return retVal;
+                }
+                else if (state.hasBilkis && !state.usedBilkis)
+                {
+                    // Bilkis costs one coin but that's better than paying a neighbor
+                    state.usedBilkis = true;
+                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, BilkisResourceIndex));
+                    retVal |= ReduceRecursively(state, remainingCost.Remove(0, 1));
+                    state.usedBilkis = false;
+                    state.usedResources.Pop();
+
+                    return retVal;
                 }
                 else
                 {
@@ -421,17 +458,15 @@ namespace SevenWonders
                         // search using the left neighbor's resources before the right one.
                         if (state.leftResourceIndex < state.leftResources.Count)
                         {
-                            ro = ResourceOwner.Left;
                             res = state.leftResources[state.leftResourceIndex];
                             leftInc = 1;
-                            state.usedResources.Push(new ResourceUsed(ro, state.leftResourceIndex));
+                            state.usedResources.Push(new ResourceUsed(ResourceOwner.Left, state.leftResourceIndex));
                         }
                         else if (state.rightResourceIndex < state.rightResources.Count)
                         {
-                            ro = ResourceOwner.Right;
                             res = state.rightResources[state.rightResourceIndex];
                             rightInc = 1;
-                            state.usedResources.Push(new ResourceUsed(ro, state.rightResourceIndex));
+                            state.usedResources.Push(new ResourceUsed(ResourceOwner.Right, state.rightResourceIndex));
                         }
                     }
                     else if ((state.pref & CommercePreferences.BuyFromRightNeighbor) == CommercePreferences.BuyFromRightNeighbor)
@@ -439,17 +474,15 @@ namespace SevenWonders
                         // search using the right neighbor's resources before the left one.
                         if (state.rightResourceIndex < state.rightResources.Count)
                         {
-                            ro = ResourceOwner.Right;
                             res = state.rightResources[state.rightResourceIndex];
                             rightInc = 1;
-                            state.usedResources.Push(new ResourceUsed(ro, state.rightResourceIndex));
+                            state.usedResources.Push(new ResourceUsed(ResourceOwner.Right, state.rightResourceIndex));
                         }
                         else if (state.leftResourceIndex < state.leftResources.Count)
                         {
-                            ro = ResourceOwner.Left;
                             res = state.leftResources[state.leftResourceIndex];
                             leftInc = 1;
-                            state.usedResources.Push(new ResourceUsed(ro, state.leftResourceIndex));
+                            state.usedResources.Push(new ResourceUsed(ResourceOwner.Left, state.leftResourceIndex));
                         }
                     }
 
@@ -536,27 +569,16 @@ namespace SevenWonders
             rs.leftResources = leftResources;
             rs.rightResources = rightResources;
             rs.usedResources = new Stack<ResourceUsed>();
+            rs.marketEffects = this.marketEffects;
             rs.pref = pref;
             rs.outputResourceList = new List<ResourceUsed>();
 
-            ResourceEffect wildResource = null;
-
-            if ((pref & CommercePreferences.OneResourceDiscount) == CommercePreferences.OneResourceDiscount)
-            {
-                // Add a single resource that matches any single resource in the cost list.
-                wildResource = new ResourceEffect(false, "WSBOPCG");
-                resources.Add(wildResource);
-            }
+            rs.hasWildResource = (pref & CommercePreferences.OneResourceDiscount) == CommercePreferences.OneResourceDiscount;
+            rs.hasBilkis = (marketEffects & CommerceEffects.Bilkis) == CommerceEffects.Bilkis;
 
             // kick off a recursive reduction of the resource cost.  Paths that completely eliminate the cost
             // are returned in the requiredResourcesLists.
             commOptions.bAreResourceRequirementsMet = ReduceRecursively(rs, cost.CostAsString());
-
-            if (wildResource != null)
-            {
-                // now we can remove the wild resource
-                resources.Remove(wildResource);
-            }
 
             if (commOptions.bAreResourceRequirementsMet)
             {
@@ -598,6 +620,10 @@ namespace SevenWonders
                         if (res.usedDoubleResource)
                             commOptions.rightCoins += rightNeighborRawMaterialsCost;
                     }
+                }
+                else if (res.owner == ResourceOwner.Self && res.index == BilkisResourceIndex)
+                {
+                    commOptions.bankCoins += 1;     // Add one coin for Bilkis
                 }
             }
 
