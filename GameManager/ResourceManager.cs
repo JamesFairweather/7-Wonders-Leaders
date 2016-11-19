@@ -373,6 +373,7 @@ namespace SevenWonders
             public int nBlackMarketIndex;
             public int nBlackMarketAvailable;
 
+            public ResourceEffect wildResourceEffect;
             public ResourceEffect blackMarketResource;
         };
 
@@ -427,8 +428,8 @@ namespace SevenWonders
                 int myInc= 0;
                 int leftInc = 0;
                 int rightInc = 0;
-
-                bool usedSecretWarehouse = false;
+                bool usedWildResource = false;
+                bool usedBilkis = false;
 
                 if (state.myResourceIndex < state.myResources.Count)
                 {
@@ -445,24 +446,16 @@ namespace SevenWonders
                 else if (state.hasWildResource && !state.usedWildResource)
                 {
                     // Archimedes, Imhotep, Leonidas and Hammurabi.  Take the first resource off the list.
-                    state.usedWildResource = true;
+                    usedWildResource = true;
+                    res = state.wildResourceEffect;
                     state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, 0 /* for my city resources, the index doesn't matter (except Bilkis) */));
-                    retVal |= ReduceRecursively(state, remainingCost.Remove(0, 1));
-                    state.usedWildResource = false;
-                    state.usedResources.Pop();
-
-                    return retVal;
                 }
                 else if (state.hasBilkis && !state.usedBilkis)
                 {
                     // Bilkis costs one coin but that's better than paying a neighbor
-                    state.usedBilkis = true;
+                    usedBilkis = true;
+                    res = state.wildResourceEffect;
                     state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, BilkisResourceIndex));
-                    retVal |= ReduceRecursively(state, remainingCost.Remove(0, 1));
-                    state.usedBilkis = false;
-                    state.usedResources.Pop();
-
-                    return retVal;
                 }
                 else
                 {
@@ -538,7 +531,6 @@ namespace SevenWonders
                                 // turn a single into a double or a double into a triple
                                 ++nResourceCostsToRemove;
                                 state.usedSecretWarehouse = true;
-                                usedSecretWarehouse = true;
                             }
                         }
 
@@ -547,6 +539,13 @@ namespace SevenWonders
                         state.myResourceIndex += myInc;
                         state.leftResourceIndex += leftInc;
                         state.rightResourceIndex += rightInc;
+
+                        if (usedWildResource)
+                            state.usedWildResource = true;
+
+                        if (usedBilkis)
+                            state.usedBilkis = true;
+
                         if (res == state.blackMarketResource)
                             state.nBlackMarketIndex++;
 
@@ -556,11 +555,17 @@ namespace SevenWonders
                         state.leftResourceIndex -= leftInc;
                         state.rightResourceIndex -= rightInc;
 
+                        if (usedWildResource)
+                            state.usedWildResource = false;
+
+                        if (usedBilkis)
+                            state.usedBilkis = false;
+
+                        if (state.usedSecretWarehouse)
+                            state.usedSecretWarehouse = false;
+
                         if (res == state.blackMarketResource)
                             state.nBlackMarketIndex--;
-
-                        if (usedSecretWarehouse)
-                            state.usedSecretWarehouse = false;
                     }
 
                     // if this resource isn't in the cost string, move on to the next option in the resource
@@ -615,6 +620,10 @@ namespace SevenWonders
 
             rs.hasWildResource = (pref & CommercePreferences.OneResourceDiscount) == CommercePreferences.OneResourceDiscount;
             rs.hasBilkis = (marketEffects & CommerceEffects.Bilkis) == CommerceEffects.Bilkis;
+
+            if (rs.hasWildResource || rs.hasBilkis)
+                rs.wildResourceEffect = new ResourceEffect(false, "WSBOCGP");
+
             rs.hasSecretWarehouse = (marketEffects & CommerceEffects.SecretWarehouse) == CommerceEffects.SecretWarehouse;
             rs.nBlackMarketIndex = 0;
             rs.nBlackMarketAvailable = 0;
