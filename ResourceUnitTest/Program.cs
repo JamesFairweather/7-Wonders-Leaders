@@ -438,6 +438,23 @@ namespace ResourceUnitTest
             // the other way.  I may have to do the same thing for the Black Market anyway, actually.
             // using one of its resources may be more efficient than using another.
 
+            // I have to figure out how to best use wild resources (including Bilkis),
+            // Secret Warehouse, and Black Market.  It'll get complicated when I am
+            // trying for minimal cost and there are multiple paths for success.
+            // If we use these special resources first, a successful path may be found,
+            // but it may not be the cheapest possible successful path.  I think the
+            // correct algorithm will be to use my city's non-choice resources, then
+            // those of my neighbors, then my own city's choice resources.  If I have
+            // any used choice resources after a match is found, we go back up the
+            // stack, and starting with the least desirable resources purchased from
+            // neighbors, see if they can be replaced with resources that have not
+            // be used yet in my city.
+
+            // Nov. 15, 2016 I had a good one today.  Babylon B, Glassworks, Caravansery,
+            // trading posts in each direction, Marketplace, Clandestine Dock West.
+            // West neighbor: China A, Press, Glassworks, Forest Cave, Brickyard.
+            // East neighbor: Olympia B, Timber Yard, single stone, double ore.
+
             Console.WriteLine("Resource Manager tests completed.  All unit tests passed.");
         }
     }
