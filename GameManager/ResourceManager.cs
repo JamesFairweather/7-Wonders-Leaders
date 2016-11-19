@@ -79,7 +79,7 @@ namespace SevenWonders
             Bilkis = 8,
             // ClandestineDockWest = 16,
             // ClandestineDockEast = 32,
-            // SecretWarehouse = 64,
+            SecretWarehouse = 64,
             // BlackMarket1 = 128,     // Black Market card or China B's wonder stage
             // BlackMarket2 = 256,     // Black Market card and China B's wonder stage 
         }
@@ -367,6 +367,8 @@ namespace SevenWonders
             public bool usedWildResource;
             public bool hasBilkis;
             public bool usedBilkis;
+            public bool hasSecretWarehouse;
+            public bool usedSecretWarehouse;
         };
 
         const int BilkisResourceIndex = -1;
@@ -419,6 +421,8 @@ namespace SevenWonders
                 int myInc= 0;
                 int leftInc = 0;
                 int rightInc = 0;
+
+                bool usedSecretWarehouse = false;
 
                 if (state.myResourceIndex < state.myResources.Count)
                 {
@@ -508,9 +512,24 @@ namespace SevenWonders
 
                             // note that both resources provided by this
                             // double-resource card were used (for cost-calculating purposes).
+                            // don't need to worry about this for my city as there's no cost to use them.
                             ResourceUsed ru = state.usedResources.Pop();
                             ru.usedDoubleResource = true;
                             state.usedResources.Push(ru);
+                        }
+
+                        // Secret Warehouse.  Must be considered _after_ double-type resources.  Only applies to our city's resources
+                        // and only if they are a single, double, or either/or.  No Forum/Caravansery.  TODO: also check this doesn't
+                        // apply to a Black Market.
+                        if (state.hasSecretWarehouse && !state.usedSecretWarehouse && myInc == 1 && res.resourceTypes.Length <= 2)
+                        {
+                            if (((remainingCost.Length - ind) > nResourceCostsToRemove) && (remainingCost[ind] == remainingCost[ind + nResourceCostsToRemove]))
+                            {
+                                // turn a single into a double or a double into a triple
+                                ++nResourceCostsToRemove;
+                                state.usedSecretWarehouse = true;
+                                usedSecretWarehouse = true;
+                            }
                         }
 
                         // This resource matches one (or more) of the required resources.  Remove the matched
@@ -524,6 +543,9 @@ namespace SevenWonders
                         state.myResourceIndex -= myInc;
                         state.leftResourceIndex -= leftInc;
                         state.rightResourceIndex -= rightInc;
+
+                        if (usedSecretWarehouse)
+                            state.usedSecretWarehouse = false;
                     }
 
                     // if this resource isn't in the cost string, move on to the next option in the resource
@@ -575,6 +597,7 @@ namespace SevenWonders
 
             rs.hasWildResource = (pref & CommercePreferences.OneResourceDiscount) == CommercePreferences.OneResourceDiscount;
             rs.hasBilkis = (marketEffects & CommerceEffects.Bilkis) == CommerceEffects.Bilkis;
+            rs.hasSecretWarehouse = (marketEffects & CommerceEffects.SecretWarehouse) == CommerceEffects.SecretWarehouse;
 
             // kick off a recursive reduction of the resource cost.  Paths that completely eliminate the cost
             // are returned in the requiredResourcesLists.
