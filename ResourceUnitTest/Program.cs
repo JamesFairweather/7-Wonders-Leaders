@@ -414,6 +414,71 @@ namespace ResourceUnitTest
             Verify2(new Cost("G"), new List<ResourceEffect>(), new List<ResourceEffect>(), new List<ResourceEffect>(),
                 ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.CommerceEffects.Bilkis, expectedResult);
 
+            expectedResult.bankCoins = 1;
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("PWOO"), new List<ResourceEffect> { wood_ore, caravansery },
+                new List<ResourceEffect> { papyrus, stone_2, wood_2, clay_2, },
+                new List<ResourceEffect> { papyrus, glass, stone_2, clay_2 },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Bilkis,
+                expectedResult);
+
+            expectedResult.bankCoins = expectedResult.leftCoins = expectedResult.rightCoins = 0;
+            Verify2(new Cost("GG"), new List<ResourceEffect> { glass, }, new List<ResourceEffect>(), new List<ResourceEffect>(),
+                ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.CommerceEffects.SecretWarehouse, expectedResult);
+
+            expectedResult.bankCoins = expectedResult.leftCoins = expectedResult.rightCoins = 0;
+            Verify2(new Cost("OOO"), new List<ResourceEffect> { ore_2, }, new List<ResourceEffect>(), new List<ResourceEffect>(),
+                ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.CommerceEffects.SecretWarehouse, expectedResult);
+
+            // Secret Warehouse only applies to our city rources
+            expectedResult.bAreResourceRequirementsMet = false;
+            expectedResult.bankCoins = expectedResult.leftCoins = expectedResult.rightCoins = 0;
+            Verify2(new Cost("OOO"), new List<ResourceEffect> { }, new List<ResourceEffect> { ore_1, }, new List<ResourceEffect> { ore_1 },
+                ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.CommerceEffects.SecretWarehouse, expectedResult);
+
+            expectedResult.bAreResourceRequirementsMet = true;
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("PWOO"), new List<ResourceEffect> { wood_ore, caravansery },
+                new List<ResourceEffect> { papyrus, stone_2, wood_2, clay_2, },
+                new List<ResourceEffect> { papyrus, glass, stone_2, clay_2 },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.SecretWarehouse,
+                expectedResult);
+
+            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 2;
+            Verify2(new Cost("WWOO"), new List<ResourceEffect> { wood_ore },
+                new List<ResourceEffect> { papyrus, ore_1, stone_2, wood_2, clay_2, },
+                new List<ResourceEffect> { papyrus, ore_1, glass, stone_2, clay_2 },
+                ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.SecretWarehouse,
+                expectedResult);
+
+            // Check that the algorithm realizes that by doubling the 2nd of an either/or, the
+            // resource cost can be fulfilled
+            expectedResult.leftCoins = 4;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("WWOO"), new List<ResourceEffect> { wood_ore },
+                new List<ResourceEffect> { papyrus, stone_2, wood_2, clay_2, },
+                new List<ResourceEffect> { papyrus, glass, stone_2, clay_2 },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.SecretWarehouse,
+                expectedResult);
+
+            // Check that Forums and Caravansery resources are not doubled with the Secret Warehouse.
+            expectedResult.bAreResourceRequirementsMet = false;
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("CC"), new List<ResourceEffect> { forum, },
+                new List<ResourceEffect> { },
+                new List<ResourceEffect> { },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.SecretWarehouse,
+                expectedResult);
+
             // After we have a list of options for building a card, we can apply commercial effects,
             // then resolve the options into:
             // * minimal cost
