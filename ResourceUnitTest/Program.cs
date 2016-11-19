@@ -479,6 +479,46 @@ namespace ResourceUnitTest
                 ResourceManager.CommerceEffects.SecretWarehouse,
                 expectedResult);
 
+            expectedResult.bAreResourceRequirementsMet = true;
+            expectedResult.leftCoins = 1;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("C"), new List<ResourceEffect> { },
+                new List<ResourceEffect> { cloth, papyrus, },
+                new List<ResourceEffect> { cloth, },
+                ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.ClandestineDockWest,
+                expectedResult);
+
+            expectedResult.bAreResourceRequirementsMet = true;
+            expectedResult.leftCoins = 3;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("CP"), new List<ResourceEffect> { },
+                new List<ResourceEffect> { cloth, papyrus, },
+                new List<ResourceEffect> { cloth, },
+                ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.ClandestineDockWest,
+                expectedResult);
+
+            expectedResult.bAreResourceRequirementsMet = true;
+            expectedResult.leftCoins = 1;
+            expectedResult.rightCoins = 2;
+            Verify2(new Cost("CP"), new List<ResourceEffect> { },
+                new List<ResourceEffect> { cloth, papyrus, },
+                new List<ResourceEffect> { cloth, },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.ClandestineDockWest,
+                expectedResult);
+
+            expectedResult.bAreResourceRequirementsMet = true;
+            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("CP"), new List<ResourceEffect> { },
+                new List<ResourceEffect> { cloth, papyrus, },
+                new List<ResourceEffect> { cloth, },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.ClandestineDockEast,
+                expectedResult);
+
             // After we have a list of options for building a card, we can apply commercial effects,
             // then resolve the options into:
             // * minimal cost

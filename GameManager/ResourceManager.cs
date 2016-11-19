@@ -77,8 +77,8 @@ namespace SevenWonders
             WestTradingPost = 2,
             EastTradingPost = 4,
             Bilkis = 8,
-            // ClandestineDockWest = 16,
-            // ClandestineDockEast = 32,
+            ClandestineDockWest = 16,
+            ClandestineDockEast = 32,
             SecretWarehouse = 64,
             // BlackMarket1 = 128,     // Black Market card or China B's wonder stage
             // BlackMarket2 = 256,     // Black Market card and China B's wonder stage 
@@ -648,6 +648,18 @@ namespace SevenWonders
                 {
                     commOptions.bankCoins += 1;     // Add one coin for Bilkis
                 }
+            }
+
+            if (((marketEffects & CommerceEffects.ClandestineDockWest) == CommerceEffects.ClandestineDockWest) &&
+                commOptions.leftCoins != 0)
+            {
+                commOptions.leftCoins -= 1;
+            }
+
+            if (((marketEffects & CommerceEffects.ClandestineDockEast) == CommerceEffects.ClandestineDockEast) &&
+                commOptions.rightCoins != 0)
+            {
+                commOptions.rightCoins -= 1;
             }
 
             return commOptions;
