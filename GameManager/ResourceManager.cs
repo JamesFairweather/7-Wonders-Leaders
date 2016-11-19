@@ -72,16 +72,16 @@ namespace SevenWonders
         [Flags]
         public enum CommerceEffects
         {
-            None = 0,
-            Marketplace = 1,
-            WestTradingPost = 2,
-            EastTradingPost = 4,
-            Bilkis = 8,
-            ClandestineDockWest = 16,
-            ClandestineDockEast = 32,
-            SecretWarehouse = 64,
-            // BlackMarket1 = 128,     // Black Market card or China B's wonder stage
-            // BlackMarket2 = 256,     // Black Market card and China B's wonder stage 
+            None = 0,                   // No special commerce effects: All resources purchased from neighbors cost 2 coins.
+            Marketplace = 1,            // Grey resources (Papyrus, Cloth, Glass), cost 1 when purchased from either neighbor
+            WestTradingPost = 2,        // Raw Materials (Wood, Stone, Brick, Ore), cost 1 when purchased from the left neighbor
+            EastTradingPost = 4,        // Raw Materials (Wood, Stone, Brick, Ore), cost 1 when purchased from the right neighbor
+            Bilkis = 8,                 // Can buy any resource, once per turn, by paying 1 coin to the bank
+            ClandestineDockWest = 16,   // First resource purchased from the left neighbor is discounted by 1 coin (cumulative with Marketplace/Trading Post)
+            ClandestineDockEast = 32,   // First resource purchased from the right neighbor is discounted by 1 coin (cumulative with Marketplace/Trading Post)
+            SecretWarehouse = 64,       // Secret Warehouse is active
+            BlackMarket1 = 128,         // Black Market card OR China B's wonder stage
+            BlackMarket2 = 256,         // both Black Market card AND China B's wonder stage 
         }
 
         CommerceEffects marketEffects = CommerceEffects.None;
@@ -369,6 +369,11 @@ namespace SevenWonders
             public bool usedBilkis;
             public bool hasSecretWarehouse;
             public bool usedSecretWarehouse;
+
+            public int nBlackMarketIndex;
+            public int nBlackMarketAvailable;
+
+            public ResourceEffect blackMarketResource;
         };
 
         const int BilkisResourceIndex = -1;
@@ -412,6 +417,7 @@ namespace SevenWonders
             while ((state.myResourceIndex < state.myResources.Count ||
                 state.leftResourceIndex < state.leftResources.Count ||
                 state.rightResourceIndex < state.rightResources.Count ||
+                state.nBlackMarketIndex < state.nBlackMarketAvailable ||
                 state.hasWildResource && !state.usedWildResource ||
                 state.hasBilkis && !state.usedBilkis) &&
                 (state.outputResourceList.Count == 0))
@@ -430,6 +436,11 @@ namespace SevenWonders
                     res = state.myResources[state.myResourceIndex];
                     myInc = 1;
                     state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, state.myResourceIndex));
+                }
+                else if (state.nBlackMarketIndex < state.nBlackMarketAvailable)
+                {
+                    res = state.blackMarketResource;
+                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, 0));
                 }
                 else if (state.hasWildResource && !state.usedWildResource)
                 {
@@ -519,9 +530,8 @@ namespace SevenWonders
                         }
 
                         // Secret Warehouse.  Must be considered _after_ double-type resources.  Only applies to our city's resources
-                        // and only if they are a single, double, or either/or.  No Forum/Caravansery.  TODO: also check this doesn't
-                        // apply to a Black Market.
-                        if (state.hasSecretWarehouse && !state.usedSecretWarehouse && myInc == 1 && res.resourceTypes.Length <= 2)
+                        // and only if they are a single, double, or either/or.  No Forum/Caravansery.
+                        if (state.hasSecretWarehouse && !state.usedSecretWarehouse && myInc == 1 && res.resourceTypes.Length <= 2 && res != state.blackMarketResource)
                         {
                             if (((remainingCost.Length - ind) > nResourceCostsToRemove) && (remainingCost[ind] == remainingCost[ind + nResourceCostsToRemove]))
                             {
@@ -537,12 +547,17 @@ namespace SevenWonders
                         state.myResourceIndex += myInc;
                         state.leftResourceIndex += leftInc;
                         state.rightResourceIndex += rightInc;
+                        if (res == state.blackMarketResource)
+                            state.nBlackMarketIndex++;
 
                         retVal |= ReduceRecursively(state, remainingCost.Remove(ind, nResourceCostsToRemove));
 
                         state.myResourceIndex -= myInc;
                         state.leftResourceIndex -= leftInc;
                         state.rightResourceIndex -= rightInc;
+
+                        if (res == state.blackMarketResource)
+                            state.nBlackMarketIndex--;
 
                         if (usedSecretWarehouse)
                             state.usedSecretWarehouse = false;
@@ -559,6 +574,9 @@ namespace SevenWonders
                 state.myResourceIndex += myInc;
                 state.leftResourceIndex += leftInc;
                 state.rightResourceIndex += rightInc;
+
+                if (res == state.blackMarketResource)
+                    state.nBlackMarketIndex++;
             }
 
             return retVal;
@@ -598,6 +616,38 @@ namespace SevenWonders
             rs.hasWildResource = (pref & CommercePreferences.OneResourceDiscount) == CommercePreferences.OneResourceDiscount;
             rs.hasBilkis = (marketEffects & CommerceEffects.Bilkis) == CommerceEffects.Bilkis;
             rs.hasSecretWarehouse = (marketEffects & CommerceEffects.SecretWarehouse) == CommerceEffects.SecretWarehouse;
+            rs.nBlackMarketIndex = 0;
+            rs.nBlackMarketAvailable = 0;
+
+            if ((marketEffects & CommerceEffects.BlackMarket1) == CommerceEffects.BlackMarket1)
+                ++rs.nBlackMarketAvailable;
+
+            if ((marketEffects & CommerceEffects.BlackMarket2) == CommerceEffects.BlackMarket2)
+                ++rs.nBlackMarketAvailable;
+
+            if (rs.nBlackMarketAvailable > 0)
+            {
+                string strBlackMarket = "WSBOCGP";
+
+                foreach (ResourceEffect re in resources)
+                {
+                    // The Black Market only excludes resources produced by this
+                    // city's brown or grey structures, which only have 1 or 2 resource types
+                    // So this excludes the Caravansery, Forum, and any Wonder stages.
+                    if (re.resourceTypes.Length <= 2)
+                    {
+                        foreach (char c in re.resourceTypes)
+                        {
+                            int index = strBlackMarket.IndexOf(c);
+
+                            if (index >= 0)
+                                strBlackMarket = strBlackMarket.Remove(index, 1);
+                        }
+                    }
+                }
+
+                rs.blackMarketResource = new ResourceEffect(false, strBlackMarket);
+            }
 
             // kick off a recursive reduction of the resource cost.  Paths that completely eliminate the cost
             // are returned in the requiredResourcesLists.

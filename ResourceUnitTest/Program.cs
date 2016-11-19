@@ -519,6 +519,60 @@ namespace ResourceUnitTest
                 ResourceManager.CommerceEffects.ClandestineDockEast,
                 expectedResult);
 
+            // Black Market tests
+            expectedResult.bAreResourceRequirementsMet = true;
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("C"), new List<ResourceEffect> { },
+                new List<ResourceEffect> { }, new List<ResourceEffect> { },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1,
+                expectedResult);
+
+            Verify2(new Cost("WC"), new List<ResourceEffect> { wood_1 },
+                new List<ResourceEffect> { }, new List<ResourceEffect> { },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1,
+                expectedResult);
+
+            expectedResult.bAreResourceRequirementsMet = false;
+            Verify2(new Cost("WWC"), new List<ResourceEffect> { wood_1 },
+                new List<ResourceEffect> { }, new List<ResourceEffect> { },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1,
+                expectedResult);
+
+            // Verify the wood in our normal resource stack is removed from the Black Market(s).
+            expectedResult.bAreResourceRequirementsMet = false;
+            Verify2(new Cost("WWC"), new List<ResourceEffect> { wood_1 },
+                new List<ResourceEffect> { }, new List<ResourceEffect> { },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.BlackMarket2,
+                expectedResult);
+
+            // But when we build a different structure, with both Black Markets, it's successful.
+            expectedResult.bAreResourceRequirementsMet = true;
+            Verify2(new Cost("WPC"), new List<ResourceEffect> { wood_1 },
+                new List<ResourceEffect> { }, new List<ResourceEffect> { },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.BlackMarket2,
+                expectedResult);
+
+            // Secret Warehouse doubles the single wood...
+            Verify2(new Cost("WWC"), new List<ResourceEffect> { wood_1 },
+                new List<ResourceEffect> { }, new List<ResourceEffect> { },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.SecretWarehouse | ResourceManager.CommerceEffects.BlackMarket1,
+                expectedResult);
+
+            // ... but not the Black Market
+            expectedResult.bAreResourceRequirementsMet = false;
+            Verify2(new Cost("WCC"), new List<ResourceEffect> { wood_1 },
+                new List<ResourceEffect> { }, new List<ResourceEffect> { },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.SecretWarehouse | ResourceManager.CommerceEffects.BlackMarket1,
+                expectedResult);
+
             // After we have a list of options for building a card, we can apply commercial effects,
             // then resolve the options into:
             // * minimal cost
