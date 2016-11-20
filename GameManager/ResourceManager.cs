@@ -360,6 +360,9 @@ namespace SevenWonders
             public int leftResourceIndex;
             public int rightResourceIndex;
 
+            public int leftResourcesAvailable;
+            public int rightResourcesAvailable;
+
             // Contains the successful result.
             public List<ResourceUsed> outputResourceList;   // output of a successful trace
 
@@ -416,8 +419,8 @@ namespace SevenWonders
             // possible resource to the most expensive.  This should return the cheapest possible coin cost for
             // the structure under consideration.
             while ((state.myResourceIndex < state.myResources.Count ||
-                state.leftResourceIndex < state.leftResources.Count ||
-                state.rightResourceIndex < state.rightResources.Count ||
+                state.leftResourceIndex < state.leftResourcesAvailable ||
+                state.rightResourceIndex < state.rightResourcesAvailable ||
                 state.nBlackMarketIndex < state.nBlackMarketAvailable ||
                 state.hasWildResource && !state.usedWildResource ||
                 state.hasBilkis && !state.usedBilkis) &&
@@ -459,39 +462,47 @@ namespace SevenWonders
                 }
                 else
                 {
+                    bool buyingFromLeft = true;
+
                     // this block means the structure cannot be afforded using only our city's resources,
                     // so we will try using our neighbors' resources.
                     if ((state.pref & CommercePreferences.BuyFromLeftNeighbor) == CommercePreferences.BuyFromLeftNeighbor)
                     {
                         // search using the left neighbor's resources before the right one.
-                        if (state.leftResourceIndex < state.leftResources.Count)
+                        if (state.leftResourceIndex < state.leftResourcesAvailable)
                         {
-                            res = state.leftResources[state.leftResourceIndex];
-                            leftInc = 1;
-                            state.usedResources.Push(new ResourceUsed(ResourceOwner.Left, state.leftResourceIndex));
+                            buyingFromLeft = true;
                         }
-                        else if (state.rightResourceIndex < state.rightResources.Count)
+                        else if (state.rightResourceIndex < state.rightResourcesAvailable)
                         {
-                            res = state.rightResources[state.rightResourceIndex];
-                            rightInc = 1;
-                            state.usedResources.Push(new ResourceUsed(ResourceOwner.Right, state.rightResourceIndex));
+                            buyingFromLeft = false;
                         }
                     }
                     else if ((state.pref & CommercePreferences.BuyFromRightNeighbor) == CommercePreferences.BuyFromRightNeighbor)
                     {
                         // search using the right neighbor's resources before the left one.
-                        if (state.rightResourceIndex < state.rightResources.Count)
+                        if (state.rightResourceIndex < state.rightResourcesAvailable)
                         {
-                            res = state.rightResources[state.rightResourceIndex];
-                            rightInc = 1;
-                            state.usedResources.Push(new ResourceUsed(ResourceOwner.Right, state.rightResourceIndex));
+                            buyingFromLeft = false;
                         }
-                        else if (state.leftResourceIndex < state.leftResources.Count)
+                        else if (state.leftResourceIndex < state.leftResourcesAvailable)
                         {
-                            res = state.leftResources[state.leftResourceIndex];
-                            leftInc = 1;
-                            state.usedResources.Push(new ResourceUsed(ResourceOwner.Left, state.leftResourceIndex));
+                            buyingFromLeft = true;
                         }
+                    }
+
+                    // search using the left neighbor's resources before the right one.
+                    if (buyingFromLeft)
+                    {
+                        res = state.leftResources[state.leftResourceIndex];
+                        leftInc = 1;
+                        state.usedResources.Push(new ResourceUsed(ResourceOwner.Left, state.leftResourceIndex));
+                    }
+                    else
+                    {
+                        res = state.rightResources[state.rightResourceIndex];
+                        rightInc = 1;
+                        state.usedResources.Push(new ResourceUsed(ResourceOwner.Right, state.rightResourceIndex));
                     }
 
                     if (res == null)
@@ -613,6 +624,8 @@ namespace SevenWonders
             rs.myResources = resources;
             rs.leftResources = leftResources;
             rs.rightResources = rightResources;
+            rs.leftResourcesAvailable = leftResources.Where(x => x.canBeUsedByNeighbors).Count();
+            rs.rightResourcesAvailable = rightResources.Where(x => x.canBeUsedByNeighbors).Count();
             rs.usedResources = new Stack<ResourceUsed>();
             rs.marketEffects = this.marketEffects;
             rs.pref = pref;
