@@ -314,13 +314,15 @@ namespace SevenWonders
 
             Cost c = Copy();
 
+            // Do the simpler resources first.
+            while (c.cloth-- != 0) ret += 'C';
+            while (c.glass-- != 0) ret += 'G';
+            while (c.papyrus-- != 0) ret += 'P';
+
             while (c.wood-- != 0) ret += 'W';
             while (c.stone-- != 0) ret += 'S';
             while (c.clay-- != 0) ret += 'B';
             while (c.ore-- != 0) ret += 'O';
-            while (c.cloth-- != 0) ret += 'C';
-            while (c.glass-- != 0) ret += 'G';
-            while (c.papyrus-- != 0) ret += 'P';
 
             return ret;
         }
