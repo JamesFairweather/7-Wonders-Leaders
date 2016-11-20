@@ -327,19 +327,29 @@ namespace SevenWonders
 
         struct ResourceUsed
         {
-            public ResourceUsed(ResourceOwner o, int i)
+            public ResourceUsed(ResourceOwner o, int i, int cost)
             {
                 this.owner = o;
                 this.index = i;
+                this.cost = cost;
                 this.usedDoubleResource = false;
             }
 
-            public ResourceOwner owner { get; private set; }   // who owns this resource
+            public ResourceOwner owner { get; private set; }    // who owns this resource
 
-            public int index { get; private set; }             // index into the owner's resource list
+            public int index { get; private set; }              // index into the owner's resource list
+
+            public int cost { get; private set; }               // how much does this resource cost (0/1/2)
 
             public bool usedDoubleResource;
         }
+
+        enum SpecialTrait
+        {
+            Unavailable = 0,
+            Unused = 1,
+            Used = 2,
+        };
 
         struct ReduceState
         {
@@ -366,12 +376,12 @@ namespace SevenWonders
             // Contains the successful result.
             public List<ResourceUsed> outputResourceList;   // output of a successful trace
 
-            public bool hasWildResource;             // Imhotep, Archimedes
-            public bool usedWildResource;
-            public bool hasBilkis;
-            public bool usedBilkis;
-            public bool hasSecretWarehouse;
-            public bool usedSecretWarehouse;
+            public SpecialTrait wildResource;               // Imhotep, Archimedes
+            public SpecialTrait bilkis;
+            public SpecialTrait secretWarehouse;
+
+            // public SpecialTrait ClandestineDockWest;
+            // public SpecialTrait ClandestineDockEast;
 
             public int nBlackMarketIndex;
             public int nBlackMarketAvailable;
@@ -379,8 +389,6 @@ namespace SevenWonders
             public ResourceEffect wildResourceEffect;
             public ResourceEffect blackMarketResource;
         };
-
-        const int BilkisResourceIndex = -1;
 
         static bool ReduceRecursively(ReduceState state, string remainingCost)
         {
@@ -418,15 +426,17 @@ namespace SevenWonders
             // we need to check every possible path, starting at the current recursion level, going from cheapest
             // possible resource to the most expensive.  This should return the cheapest possible coin cost for
             // the structure under consideration.
-            while ((state.myResourceIndex < state.myResources.Count ||
+            while (state.myResourceIndex < state.myResources.Count ||
                 state.leftResourceIndex < state.leftResourcesAvailable ||
                 state.rightResourceIndex < state.rightResourcesAvailable ||
                 state.nBlackMarketIndex < state.nBlackMarketAvailable ||
-                state.hasWildResource && !state.usedWildResource ||
-                state.hasBilkis && !state.usedBilkis) &&
-                (state.outputResourceList.Count == 0))
+                state.wildResource == SpecialTrait.Unused ||
+                state.bilkis == SpecialTrait.Unused)
             {
                 ResourceEffect res = null;
+
+                if (retVal == true)
+                    break;
 
                 int myInc= 0;
                 int leftInc = 0;
@@ -439,36 +449,36 @@ namespace SevenWonders
                     // my city's resources are free, use them up first.
                     res = state.myResources[state.myResourceIndex];
                     myInc = 1;
-                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, state.myResourceIndex));
+                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, state.myResourceIndex, 0));
                 }
                 else if (state.nBlackMarketIndex < state.nBlackMarketAvailable)
                 {
                     res = state.blackMarketResource;
-                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, 0));
+                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, 0, 0));
                 }
-                else if (state.hasWildResource && !state.usedWildResource)
+                else if (state.wildResource == SpecialTrait.Unused)
                 {
-                    // Archimedes, Imhotep, Leonidas and Hammurabi.  Take the first resource off the list.
+                    // Archimedes, Imhotep, Leonidas and Hammurabi.  These resources have no cost
                     usedWildResource = true;
                     res = state.wildResourceEffect;
-                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, 0 /* for my city resources, the index doesn't matter (except Bilkis) */));
+                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, 0, 0));
                 }
-                else if (state.hasBilkis && !state.usedBilkis)
+                else if (state.bilkis == SpecialTrait.Unused)
                 {
-                    // Bilkis costs one coin but that's better than paying a neighbor
+                    // Bilkis costs one coin but that's better than paying a neighbor (unless they have a Clandestine Dock)
                     usedBilkis = true;
                     res = state.wildResourceEffect;
-                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, BilkisResourceIndex));
+                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, 0, 1));
                 }
                 else
                 {
+                    // try to find the remaining resources via commerce.  By default, we prefer to purchase
+                    // from our left neighbor, but this is controllable.
+
                     bool buyingFromLeft = true;
 
-                    // this block means the structure cannot be afforded using only our city's resources,
-                    // so we will try using our neighbors' resources.
                     if ((state.pref & CommercePreferences.BuyFromLeftNeighbor) == CommercePreferences.BuyFromLeftNeighbor)
                     {
-                        // search using the left neighbor's resources before the right one.
                         if (state.leftResourceIndex < state.leftResourcesAvailable)
                         {
                             buyingFromLeft = true;
@@ -480,7 +490,6 @@ namespace SevenWonders
                     }
                     else if ((state.pref & CommercePreferences.BuyFromRightNeighbor) == CommercePreferences.BuyFromRightNeighbor)
                     {
-                        // search using the right neighbor's resources before the left one.
                         if (state.rightResourceIndex < state.rightResourcesAvailable)
                         {
                             buyingFromLeft = false;
@@ -491,18 +500,23 @@ namespace SevenWonders
                         }
                     }
 
+                    ResourceOwner ro;
+                    int resourceIndex;
+
                     // search using the left neighbor's resources before the right one.
                     if (buyingFromLeft)
                     {
-                        res = state.leftResources[state.leftResourceIndex];
+                        resourceIndex = state.leftResourceIndex;
+                        res = state.leftResources[resourceIndex];
                         leftInc = 1;
-                        state.usedResources.Push(new ResourceUsed(ResourceOwner.Left, state.leftResourceIndex));
+                        ro = ResourceOwner.Left;
                     }
                     else
                     {
-                        res = state.rightResources[state.rightResourceIndex];
+                        resourceIndex = state.rightResourceIndex;
+                        res = state.rightResources[resourceIndex];
                         rightInc = 1;
-                        state.usedResources.Push(new ResourceUsed(ResourceOwner.Right, state.rightResourceIndex));
+                        ro = ResourceOwner.Right;
                     }
 
                     if (res == null)
@@ -510,9 +524,32 @@ namespace SevenWonders
                         // logic error
                         throw new NotImplementedException();
                     }
+
+                    int resCost = 2;
+
+                    if (res.IsManufacturedGood())
+                    {
+                        if ((state.marketEffects & CommerceEffects.Marketplace) == CommerceEffects.Marketplace)
+                        {
+                            resCost--;
+                        }
+                    }
+                    else
+                    {
+                        if (buyingFromLeft && ((state.marketEffects & CommerceEffects.WestTradingPost) == CommerceEffects.WestTradingPost))
+                        {
+                            resCost--;
+                        }
+                        else if (!buyingFromLeft && ((state.marketEffects & CommerceEffects.EastTradingPost) == CommerceEffects.EastTradingPost))
+                        {
+                            resCost--;
+                        }
+                    }
+
+                    state.usedResources.Push(new ResourceUsed(ro, resourceIndex, resCost));
                 }
 
-                for (int resIndex = 0; resIndex < res.resourceTypes.Length && (state.outputResourceList.Count == 0); resIndex++)
+                for (int resIndex = 0; resIndex < res.resourceTypes.Length & !retVal; resIndex++)
                 {
                     char resType = res.resourceTypes[resIndex];
                     int ind = remainingCost.IndexOf(resType);
@@ -535,13 +572,13 @@ namespace SevenWonders
 
                         // Secret Warehouse.  Must be considered _after_ double-type resources.  Only applies to our city's resources
                         // and only if they are a single, double, or either/or.  No Forum/Caravansery.
-                        if (state.hasSecretWarehouse && !state.usedSecretWarehouse && myInc == 1 && res.resourceTypes.Length <= 2 && res != state.blackMarketResource)
+                        if (state.secretWarehouse == SpecialTrait.Unused && myInc == 1 && res.resourceTypes.Length <= 2 && res != state.blackMarketResource)
                         {
                             if (((remainingCost.Length - ind) > nResourceCostsToRemove) && (remainingCost[ind] == remainingCost[ind + nResourceCostsToRemove]))
                             {
                                 // turn a single into a double or a double into a triple
                                 ++nResourceCostsToRemove;
-                                state.usedSecretWarehouse = true;
+                                state.secretWarehouse = SpecialTrait.Used;
                             }
                         }
 
@@ -552,10 +589,10 @@ namespace SevenWonders
                         state.rightResourceIndex += rightInc;
 
                         if (usedWildResource)
-                            state.usedWildResource = true;
+                            state.wildResource = SpecialTrait.Used;
 
                         if (usedBilkis)
-                            state.usedBilkis = true;
+                            state.bilkis = SpecialTrait.Used;
 
                         if (res == state.blackMarketResource)
                             state.nBlackMarketIndex++;
@@ -567,13 +604,13 @@ namespace SevenWonders
                         state.rightResourceIndex -= rightInc;
 
                         if (usedWildResource)
-                            state.usedWildResource = false;
+                            state.wildResource = SpecialTrait.Unused;
 
                         if (usedBilkis)
-                            state.usedBilkis = false;
+                            state.bilkis = SpecialTrait.Unused;
 
-                        if (state.usedSecretWarehouse)
-                            state.usedSecretWarehouse = false;
+                        if (state.secretWarehouse == SpecialTrait.Used)
+                            state.secretWarehouse = SpecialTrait.Unused;
 
                         if (res == state.blackMarketResource)
                             state.nBlackMarketIndex--;
@@ -606,7 +643,7 @@ namespace SevenWonders
         [Flags]
         public enum CommercePreferences
         {
-            BuyFromCheaperNeighbor = 0,     // buy from the neighbor which will keep the cost to minimum (i.e. consider the effects of trading posts and Clandestine Docks)
+            LowestCost = 0,     // buy from the neighbor which will keep the cost to minimum (i.e. consider the effects of trading posts and Clandestine Docks)
             BuyFromLeftNeighbor = 1,        // prefer to buy from the left neighbor (maybe they have a trading post pointed at you, or they're losing)
             BuyFromRightNeighbor = 2,       // prefer to buy from the right neighbor (maybe they have a trading post pointed at you, or they're losing)
             // BuyOneFromEachNeighbor = 4,     // after buying a resource from the preferred neighbor, buy one from the other neighbor (to get extra coins from Hatshepsut) (not implemented yet)
@@ -616,7 +653,7 @@ namespace SevenWonders
         // minimal cost (i.e. buy from neighbor you get discounts from
         // Hatshepsut - try to buy one from each neighbor.
 
-        public CommerceOptions GetCommerceOptions(Cost cost, List<ResourceEffect> leftResources, List<ResourceEffect> rightResources, CommercePreferences pref = CommercePreferences.BuyFromCheaperNeighbor)
+        public CommerceOptions GetCommerceOptions(Cost cost, List<ResourceEffect> leftResources, List<ResourceEffect> rightResources, CommercePreferences pref = CommercePreferences.LowestCost)
         {
             CommerceOptions commOptions = new CommerceOptions();
             ReduceState rs = new ReduceState();
@@ -631,13 +668,13 @@ namespace SevenWonders
             rs.pref = pref;
             rs.outputResourceList = new List<ResourceUsed>();
 
-            rs.hasWildResource = (pref & CommercePreferences.OneResourceDiscount) == CommercePreferences.OneResourceDiscount;
-            rs.hasBilkis = (marketEffects & CommerceEffects.Bilkis) == CommerceEffects.Bilkis;
+            rs.wildResource = (pref & CommercePreferences.OneResourceDiscount) == CommercePreferences.OneResourceDiscount ? SpecialTrait.Unused : SpecialTrait.Unavailable;
+            rs.bilkis = (marketEffects & CommerceEffects.Bilkis) == CommerceEffects.Bilkis ? SpecialTrait.Unused : SpecialTrait.Unavailable;
 
-            if (rs.hasWildResource || rs.hasBilkis)
+            if (rs.wildResource == SpecialTrait.Unused || rs.bilkis == SpecialTrait.Unused)
                 rs.wildResourceEffect = new ResourceEffect(false, "WSBOCGP");
 
-            rs.hasSecretWarehouse = (marketEffects & CommerceEffects.SecretWarehouse) == CommerceEffects.SecretWarehouse;
+            rs.secretWarehouse = (marketEffects & CommerceEffects.SecretWarehouse) == CommerceEffects.SecretWarehouse ? SpecialTrait.Unused : SpecialTrait.Unavailable;
             rs.nBlackMarketIndex = 0;
             rs.nBlackMarketAvailable = 0;
 
@@ -680,45 +717,24 @@ namespace SevenWonders
                 commOptions.bankCoins += cost.coin;
             }
 
-            // Now go through the list of resources used and tabulate the total for each neighbor.
-            int neighborManufacturedGoodCost = ((marketEffects & CommerceEffects.Marketplace) == CommerceEffects.Marketplace) ? 1 : 2;
-            int leftNeighborRawMaterialsCost = ((marketEffects & CommerceEffects.WestTradingPost) == CommerceEffects.WestTradingPost) ? 1 : 2;
-            int rightNeighborRawMaterialsCost = ((marketEffects & CommerceEffects.EastTradingPost) == CommerceEffects.EastTradingPost) ? 1 : 2;
-
             foreach (ResourceUsed res in rs.outputResourceList)
             {
                 if (res.owner == ResourceOwner.Left)
                 {
-                    ResourceEffect re = leftResources[res.index];
-
-                    if (re.IsManufacturedGood())
-                    {
-                        commOptions.leftCoins += neighborManufacturedGoodCost;
-                    }
-                    else
-                    {
-                        commOptions.leftCoins += leftNeighborRawMaterialsCost;
-                        if (res.usedDoubleResource)
-                            commOptions.leftCoins += leftNeighborRawMaterialsCost;
-                    }
+                    commOptions.leftCoins += res.cost;
+                    if (res.usedDoubleResource)
+                        commOptions.leftCoins += res.cost;
                 }
                 else if (res.owner == ResourceOwner.Right)
                 {
-                    ResourceEffect re = rightResources[res.index];
-                    if (re.IsManufacturedGood())
-                    {
-                        commOptions.rightCoins += neighborManufacturedGoodCost;
-                    }
-                    else
-                    {
-                        commOptions.rightCoins += rightNeighborRawMaterialsCost;
-                        if (res.usedDoubleResource)
-                            commOptions.rightCoins += rightNeighborRawMaterialsCost;
-                    }
+                    commOptions.rightCoins += res.cost;
+                    if (res.usedDoubleResource)
+                        commOptions.rightCoins += res.cost;
                 }
-                else if (res.owner == ResourceOwner.Self && res.index == BilkisResourceIndex)
+                else if (res.owner == ResourceOwner.Self)
                 {
-                    commOptions.bankCoins += 1;     // Add one coin for Bilkis
+                    // Using Bilkis' resource is the only way this block gets called
+                    commOptions.bankCoins += res.cost;
                 }
             }
 
