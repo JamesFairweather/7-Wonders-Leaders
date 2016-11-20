@@ -35,7 +35,65 @@ namespace ResourceUnitTest
             Verify(co.rightCoins == expectedResult.rightCoins);
         }
 
+        // Resource structures
+        static ResourceEffect wood_1 = new ResourceEffect(true, "W");
+        static ResourceEffect stone_1 = new ResourceEffect(true, "S");
+        static ResourceEffect clay_1 = new ResourceEffect(true, "B");
+        static ResourceEffect ore_1 = new ResourceEffect(true, "O");
+
+        // Resources (either/or)
+        static ResourceEffect wood_clay = new ResourceEffect(true, "WB");
+        static ResourceEffect stone_clay = new ResourceEffect(true, "SB");
+        static ResourceEffect clay_ore = new ResourceEffect(true, "BO");
+        static ResourceEffect stone_wood = new ResourceEffect(true, "SW");
+        static ResourceEffect wood_ore = new ResourceEffect(true, "WO");
+        static ResourceEffect stone_ore = new ResourceEffect(true, "OS");
+
+        // Resources (double)
+        static ResourceEffect wood_2 = new ResourceEffect(true, "WW");
+        static ResourceEffect stone_2 = new ResourceEffect(true, "SS");
+        static ResourceEffect clay_2 = new ResourceEffect(true, "BB");
+        static ResourceEffect ore_2 = new ResourceEffect(true, "OO");
+
+        // Goods
+        static ResourceEffect cloth = new ResourceEffect(true, "C");
+        static ResourceEffect glass = new ResourceEffect(true, "G");
+        static ResourceEffect papyrus = new ResourceEffect(true, "P");
+
+        // Choose any, but can only be used by player, not neighbors
+        static ResourceEffect forum = new ResourceEffect(false, "CGP");
+        static ResourceEffect caravansery = new ResourceEffect(false, "WSBO");
+
         static void Main(string[] args)
+        {
+            BasicTest();
+            ComplexTests();
+        }
+
+        static void ComplexTests()
+        {
+            // Most of these tests are checking for minimal cost
+            CommerceOptions expectedResult = new CommerceOptions();
+
+            expectedResult.bAreResourceRequirementsMet = true;
+
+            // Nov. 15, 2016 I had a good one today.  Babylon B, Glassworks, Caravansery,
+            // trading posts in each direction, Marketplace, Clandestine Dock West.
+            // West neighbor: China A, Press, Glassworks, Forest Cave, Brickyard.
+            // East neighbor: Olympia B, Timber Yard, single stone, double ore.
+
+            expectedResult.bankCoins = 0;
+            expectedResult.leftCoins = 6;   // papyrus, cloth + ore
+            expectedResult.rightCoins = 1;  // ore
+
+            Verify2(new Cost("OOOBCP"), new List<ResourceEffect> { clay_1, glass, caravansery, },
+                new List<ResourceEffect> { cloth, papyrus, clay_2, ore_2, wood_ore, }, new List<ResourceEffect> { wood_1, glass, clay_1, wood_2, stone_2, },
+                 ResourceManager.CommercePreferences.LowestCost,
+                 ResourceManager.CommerceEffects.EastTradingPost,
+                 expectedResult);
+        }
+
+        static void BasicTest()
         {
             /* I've made the API take a cost, not a card, for now.  I may change this in the future to take a card.
              * 
@@ -76,37 +134,6 @@ namespace ResourceUnitTest
             Verify(cardScriptorium.cost.CostAsString() == "P");
 
             */
-
-            // Possible resource structures (leaving out leaders, Secret Warehouse, and Black Market for now)
-            ResourceEffect wood_1 = new ResourceEffect(true, "W");
-            ResourceEffect stone_1 = new ResourceEffect(true, "S");
-            ResourceEffect clay_1 = new ResourceEffect(true, "B");
-            ResourceEffect ore_1 = new ResourceEffect(true, "O");
-
-            // Resources (either/or)
-            ResourceEffect wood_clay = new ResourceEffect(true, "WB");
-            ResourceEffect stone_clay = new ResourceEffect(true, "SB");
-            ResourceEffect clay_ore = new ResourceEffect(true, "BO");
-            ResourceEffect stone_wood = new ResourceEffect(true, "SW");
-            ResourceEffect wood_ore = new ResourceEffect(true, "WO");
-            ResourceEffect stone_ore = new ResourceEffect(true, "OS");
-
-            // Resources (double)
-            ResourceEffect wood_2 = new ResourceEffect(true, "WW");
-            ResourceEffect stone_2 = new ResourceEffect(true, "SS");
-            ResourceEffect clay_2 = new ResourceEffect(true, "BB");
-            ResourceEffect ore_2 = new ResourceEffect(true, "OO");
-
-            // Goods
-            ResourceEffect cloth = new ResourceEffect(true, "C");
-            ResourceEffect glass = new ResourceEffect(true, "G");
-            ResourceEffect papyrus = new ResourceEffect(true, "P");
-
-            // Choose any, but can only be used by player, not neighbors
-            ResourceEffect forum = new ResourceEffect(false, "CGP");
-            ResourceEffect caravansery = new ResourceEffect(false, "WSBO");
-
-            // TODO: add a test that verifies we can't use neighbors' forum/caravansery
 
             // create some test cost structures
             /*
@@ -499,6 +526,16 @@ namespace ResourceUnitTest
                 new List<ResourceEffect> { papyrus, glass, stone_2, clay_2 },
                 ResourceManager.CommercePreferences.BuyFromRightNeighbor,
                 ResourceManager.CommerceEffects.SecretWarehouse,
+                expectedResult);
+
+            // Make sure the Secret Warehouse is used only one time.
+            expectedResult.leftCoins = 3;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("OOOOPG"), new List<ResourceEffect> { ore_2 },
+                new List<ResourceEffect> { papyrus, stone_2, wood_2, clay_2, stone_ore, },
+                new List<ResourceEffect> { papyrus, glass, stone_2, clay_2, clay_ore },
+                ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.SecretWarehouse,
                 expectedResult);
 
             // Check that Forums and Caravansery resources are not doubled with the Secret Warehouse.
