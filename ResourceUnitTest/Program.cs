@@ -351,9 +351,20 @@ namespace ResourceUnitTest
             expectedResult.rightCoins = 1;
             Verify2(new Cost("SS"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_2 }, new List<ResourceEffect> { stone_1 }, ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost, expectedResult);
 
+            expectedResult.bAreResourceRequirementsMet = false;
+            expectedResult.leftCoins = expectedResult.rightCoins = 0;
+            Verify2(new Cost("P"), new List<ResourceEffect>(), new List<ResourceEffect> { forum }, new List<ResourceEffect> { },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost, expectedResult);
+
+            Verify2(new Cost("BP"), new List<ResourceEffect> { papyrus }, new List<ResourceEffect> { }, new List<ResourceEffect> { caravansery },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost, expectedResult);
+
+            expectedResult.bAreResourceRequirementsMet = true;
             expectedResult.leftCoins = 0;
             expectedResult.rightCoins = 1;
-            Verify2(new Cost("WOO"), new List<ResourceEffect> { wood_ore, caravansery }, new List<ResourceEffect> { stone_2, wood_2, clay_2, }, new List<ResourceEffect> { papyrus, clay_2, ore_2 }, ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.CommerceEffects.EastTradingPost, expectedResult);
+            Verify2(new Cost("WOO"), new List<ResourceEffect> { wood_ore, caravansery },
+                new List<ResourceEffect> { stone_2, wood_2, clay_2, }, new List<ResourceEffect> { papyrus, clay_2, ore_2 },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.CommerceEffects.EastTradingPost, expectedResult);
 
             // In this test, we are looking for 3 resources, but for two of them, the only source is in my own
             // resource stack.  The wood has to be purchased from a neighbor
@@ -376,7 +387,8 @@ namespace ResourceUnitTest
             // Test for special flags.
             expectedResult.bAreResourceRequirementsMet = false;
             expectedResult.leftCoins = expectedResult.rightCoins = 0;
-            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect>(), new List<ResourceEffect>(), ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.CommerceEffects.None, expectedResult);
+            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect>(), new List<ResourceEffect>(),
+                ResourceManager.CommercePreferences.BuyFromLeftNeighbor, ResourceManager.CommerceEffects.None, expectedResult);
 
             // 1-resource discount
 
