@@ -70,6 +70,11 @@ namespace ResourceUnitTest
             ComplexTests();
         }
 
+        /// <summary>
+        /// More complex tests.  These are for verifying the LowestCost algorithm implementation,
+        /// which tries every possible resource path for fulfilling the resource requirements
+        /// and it returns the cheapest possible commmerce option.
+        /// </summary>
         static void ComplexTests()
         {
             // Most of these tests are checking for minimal cost
@@ -93,6 +98,10 @@ namespace ResourceUnitTest
                  expectedResult);
         }
 
+        /// <summary>
+        /// This suite passes only if the search is stopped after the first successful path to paying for the
+        /// structure is found.
+        /// </summary>
         static void BasicTest()
         {
             /* I've made the API take a cost, not a card, for now.  I may change this in the future to take a card.
