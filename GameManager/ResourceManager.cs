@@ -325,7 +325,7 @@ namespace SevenWonders
             Right,
         };
 
-        struct ResourceUsed
+        class ResourceUsed
         {
             public ResourceUsed(ResourceOwner o, int i, int cost)
             {
@@ -333,6 +333,7 @@ namespace SevenWonders
                 this.index = i;
                 this.cost = cost;
                 this.usedDoubleResource = false;
+                this.resType = '?';
             }
 
             public ResourceOwner owner { get; private set; }    // who owns this resource
@@ -341,7 +342,17 @@ namespace SevenWonders
 
             public int cost { get; private set; }               // how much does this resource cost (0/1/2)
 
-            public bool usedDoubleResource;
+            /// <summary>
+            /// If both resources from a double are used, it is noted here.
+            /// </summary>
+            public bool usedDoubleResource { get; set; }
+
+            /// <summary>
+            /// The type of resource this is (W/S/B/O/P/C/G).  This is recorded so that
+            /// if a cheaper option is found by a subsequent search path, which know which
+            /// resource is being replaced.
+            /// </summary>
+            public char resType;
         }
 
         enum SpecialTrait
@@ -435,6 +446,7 @@ namespace SevenWonders
             {
                 ResourceEffect res = null;
 
+                // Uncomment for the Basic unit test to pass
                 if (retVal == true)
                     break;
 
@@ -443,32 +455,33 @@ namespace SevenWonders
                 int rightInc = 0;
                 bool usedWildResource = false;
                 bool usedBilkis = false;
+                ResourceUsed resUsed;
 
                 if (state.myResourceIndex < state.myResources.Count)
                 {
                     // my city's resources are free, use them up first.
                     res = state.myResources[state.myResourceIndex];
                     myInc = 1;
-                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, state.myResourceIndex, 0));
+                    resUsed = new ResourceUsed(ResourceOwner.Self, state.myResourceIndex, 0);
                 }
                 else if (state.nBlackMarketIndex < state.nBlackMarketAvailable)
                 {
                     res = state.blackMarketResource;
-                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, 0, 0));
+                    resUsed = new ResourceUsed(ResourceOwner.Self, 0, 0);
                 }
                 else if (state.wildResource == SpecialTrait.Unused)
                 {
                     // Archimedes, Imhotep, Leonidas and Hammurabi.  These resources have no cost
                     usedWildResource = true;
                     res = state.wildResourceEffect;
-                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, 0, 0));
+                    resUsed = new ResourceUsed(ResourceOwner.Self, 0, 0);
                 }
                 else if (state.bilkis == SpecialTrait.Unused)
                 {
                     // Bilkis costs one coin but that's better than paying a neighbor (unless they have a Clandestine Dock)
                     usedBilkis = true;
                     res = state.wildResourceEffect;
-                    state.usedResources.Push(new ResourceUsed(ResourceOwner.Self, 0, 1));
+                    resUsed = new ResourceUsed(ResourceOwner.Self, 0, 1);
                 }
                 else
                 {
@@ -546,10 +559,12 @@ namespace SevenWonders
                         }
                     }
 
-                    state.usedResources.Push(new ResourceUsed(ro, resourceIndex, resCost));
+                    resUsed = new ResourceUsed(ro, resourceIndex, resCost);
                 }
 
-                for (int resIndex = 0; resIndex < res.resourceTypes.Length & !retVal; resIndex++)
+                state.usedResources.Push(resUsed);
+
+                for (int resIndex = 0; resIndex < res.resourceTypes.Length && !retVal /* && !retVal uncomment to make the basic unit tests pass */; resIndex++)
                 {
                     char resType = res.resourceTypes[resIndex];
                     int ind = remainingCost.IndexOf(resType);
@@ -565,9 +580,7 @@ namespace SevenWonders
                             // note that both resources provided by this
                             // double-resource card were used (for cost-calculating purposes).
                             // don't need to worry about this for my city as there's no cost to use them.
-                            ResourceUsed ru = state.usedResources.Pop();
-                            ru.usedDoubleResource = true;
-                            state.usedResources.Push(ru);
+                            state.usedResources.Peek().usedDoubleResource = true;
                         }
 
                         // Secret Warehouse.  Must be considered _after_ double-type resources.  Only applies to our city's resources
@@ -596,6 +609,8 @@ namespace SevenWonders
 
                         if (res == state.blackMarketResource)
                             state.nBlackMarketIndex++;
+
+                        state.usedResources.Peek().resType = resType;
 
                         retVal |= ReduceRecursively(state, remainingCost.Remove(ind, nResourceCostsToRemove));
 
