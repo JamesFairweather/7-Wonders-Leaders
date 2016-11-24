@@ -81,6 +81,20 @@ namespace ResourceUnitTest
             CommerceOptions expectedResult = new CommerceOptions();
 
             expectedResult.bAreResourceRequirementsMet = true;
+            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 0;
+
+            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_1 }, new List<ResourceEffect> { stone_2 },
+                ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
+
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_1 }, new List<ResourceEffect> { stone_2 },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
 
             // Nov. 15, 2016 I had a good one today.  Babylon B, Glassworks, Caravansery,
             // trading posts in each direction, Marketplace, Clandestine Dock West.
@@ -93,7 +107,7 @@ namespace ResourceUnitTest
 
             Verify2(new Cost("OOOBCP"), new List<ResourceEffect> { clay_1, glass, caravansery, },
                 new List<ResourceEffect> { cloth, papyrus, clay_2, ore_2, wood_ore, }, new List<ResourceEffect> { wood_1, glass, clay_1, wood_2, stone_2, },
-                 ResourceManager.CommercePreferences.LowestCost,
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
                  ResourceManager.CommerceEffects.EastTradingPost,
                  expectedResult);
         }

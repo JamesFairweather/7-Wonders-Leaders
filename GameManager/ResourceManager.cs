@@ -424,10 +424,32 @@ namespace SevenWonders
             {
                 // success!  This combination of resources reduced the cost to zero.
 
-                // copy the resource stack to the output
-                foreach (ResourceUsed r in state.usedResources)
+                if (state.outputResourceList.Count == 0)
                 {
-                    state.outputResourceList.Add(r);
+                    // First successful match.
+                    // copy the resource stack to the output
+                    foreach (ResourceUsed r in state.usedResources)
+                    {
+                        state.outputResourceList.Add(r);
+                    }
+                }
+                else
+                {
+                    foreach (ResourceUsed r in state.usedResources)
+                    {
+                        if (!state.outputResourceList.Contains(r))
+                        {
+                            // another resource was found which could be used instead of one in the match
+                            // stack.  If the cost of this resource is lower, replace the existing one
+                            // with this new, cheaper one.
+                            int ru = state.outputResourceList.FindLastIndex(x => x.resType == r.resType);
+
+                            if (r.cost < state.outputResourceList[ru].cost)
+                            {
+                                state.outputResourceList[ru] = r;
+                            }
+                        }
+                    }
                 }
 
                 // end
@@ -446,8 +468,7 @@ namespace SevenWonders
             {
                 ResourceEffect res = null;
 
-                // Uncomment for the Basic unit test to pass
-                if (retVal == true)
+                if (retVal && !state.pref.HasFlag(CommercePreferences.LowestCost))
                     break;
 
                 int myInc= 0;
@@ -490,7 +511,7 @@ namespace SevenWonders
 
                     bool buyingFromLeft = true;
 
-                    if ((state.pref & CommercePreferences.BuyFromLeftNeighbor) == CommercePreferences.BuyFromLeftNeighbor)
+                    if (state.pref.HasFlag(CommercePreferences.BuyFromLeftNeighbor))
                     {
                         if (state.leftResourceIndex < state.leftResourcesAvailable)
                         {
@@ -501,7 +522,7 @@ namespace SevenWonders
                             buyingFromLeft = false;
                         }
                     }
-                    else if ((state.pref & CommercePreferences.BuyFromRightNeighbor) == CommercePreferences.BuyFromRightNeighbor)
+                    else if (state.pref.HasFlag(CommercePreferences.BuyFromRightNeighbor))
                     {
                         if (state.rightResourceIndex < state.rightResourcesAvailable)
                         {
@@ -511,6 +532,11 @@ namespace SevenWonders
                         {
                             buyingFromLeft = true;
                         }
+                    }
+                    else
+                    {
+                        // not handling this situation yet.
+                        throw new NotImplementedException();
                     }
 
                     ResourceOwner ro;
@@ -542,18 +568,18 @@ namespace SevenWonders
 
                     if (res.IsManufacturedGood())
                     {
-                        if ((state.marketEffects & CommerceEffects.Marketplace) == CommerceEffects.Marketplace)
+                        if (state.marketEffects.HasFlag(CommerceEffects.Marketplace))
                         {
                             resCost--;
                         }
                     }
                     else
                     {
-                        if (buyingFromLeft && ((state.marketEffects & CommerceEffects.WestTradingPost) == CommerceEffects.WestTradingPost))
+                        if (buyingFromLeft && state.marketEffects.HasFlag(CommerceEffects.WestTradingPost))
                         {
                             resCost--;
                         }
-                        else if (!buyingFromLeft && ((state.marketEffects & CommerceEffects.EastTradingPost) == CommerceEffects.EastTradingPost))
+                        else if (!buyingFromLeft && state.marketEffects.HasFlag(CommerceEffects.EastTradingPost))
                         {
                             resCost--;
                         }
@@ -564,8 +590,11 @@ namespace SevenWonders
 
                 state.usedResources.Push(resUsed);
 
-                for (int resIndex = 0; resIndex < res.resourceTypes.Length && !retVal /* && !retVal uncomment to make the basic unit tests pass */; resIndex++)
+                for (int resIndex = 0; resIndex < res.resourceTypes.Length; resIndex++)
                 {
+                    if (retVal && !state.pref.HasFlag(CommercePreferences.LowestCost))
+                        break;
+
                     char resType = res.resourceTypes[resIndex];
                     int ind = remainingCost.IndexOf(resType);
 
@@ -658,11 +687,28 @@ namespace SevenWonders
         [Flags]
         public enum CommercePreferences
         {
-            LowestCost = 0,     // buy from the neighbor which will keep the cost to minimum (i.e. consider the effects of trading posts and Clandestine Docks)
-            BuyFromLeftNeighbor = 1,        // prefer to buy from the left neighbor (maybe they have a trading post pointed at you, or they're losing)
-            BuyFromRightNeighbor = 2,       // prefer to buy from the right neighbor (maybe they have a trading post pointed at you, or they're losing)
-            // BuyOneFromEachNeighbor = 4,     // after buying a resource from the preferred neighbor, buy one from the other neighbor (to get extra coins from Hatshepsut) (not implemented yet)
-            OneResourceDiscount = 8,        // Imhotep, Archimedes, Leonidas, Hammurabi (not implemented yet)
+            /// <summary>
+            /// buy from the neighbor which will keep the cost to minimum (i.e. consider the effects of trading posts and Clandestine Docks)
+            /// </summary>
+            LowestCost = 1,
+            /// <summary>
+            /// prefer to buy from the left neighbor (because they are losing or maybe because they have a Trading Post or
+            /// Marketplace pointed at your city and are therefore more likely to buy from you when they have a chance).
+            /// </summary>
+            BuyFromLeftNeighbor = 2,
+            /// <summary>
+            /// prefer to buy from the right neighbor (because they are losing or maybe because they have a Trading Post or
+            /// Marketplace pointed at your city and are therefore more likely to buy from you when they have a chance).
+            /// </summary>
+            BuyFromRightNeighbor = 4,
+            /// <summary>
+            /// This structure costs 1 fewer grey or brown resources.  (Imhotep, Archimedes, Leonidas, Hammurabi)
+            /// </summary>
+            OneResourceDiscount = 8,
+            /// <summary>
+            /// Try to buy a resource from each neighbor (to get extra coins from Hatshepsut) (not implemented yet)
+            /// </summary>
+            BuyOneFromEachNeighbor = 16,
         };
 
         // minimal cost (i.e. buy from neighbor you get discounts from
@@ -683,20 +729,20 @@ namespace SevenWonders
             rs.pref = pref;
             rs.outputResourceList = new List<ResourceUsed>();
 
-            rs.wildResource = (pref & CommercePreferences.OneResourceDiscount) == CommercePreferences.OneResourceDiscount ? SpecialTrait.Unused : SpecialTrait.Unavailable;
-            rs.bilkis = (marketEffects & CommerceEffects.Bilkis) == CommerceEffects.Bilkis ? SpecialTrait.Unused : SpecialTrait.Unavailable;
+            rs.wildResource = pref.HasFlag(CommercePreferences.OneResourceDiscount) ? SpecialTrait.Unused : SpecialTrait.Unavailable;
+            rs.bilkis = marketEffects.HasFlag(CommerceEffects.Bilkis) ? SpecialTrait.Unused : SpecialTrait.Unavailable;
 
             if (rs.wildResource == SpecialTrait.Unused || rs.bilkis == SpecialTrait.Unused)
                 rs.wildResourceEffect = new ResourceEffect(false, "WSBOCGP");
 
-            rs.secretWarehouse = (marketEffects & CommerceEffects.SecretWarehouse) == CommerceEffects.SecretWarehouse ? SpecialTrait.Unused : SpecialTrait.Unavailable;
+            rs.secretWarehouse = marketEffects.HasFlag(CommerceEffects.SecretWarehouse) ? SpecialTrait.Unused : SpecialTrait.Unavailable;
             rs.nBlackMarketIndex = 0;
             rs.nBlackMarketAvailable = 0;
 
-            if ((marketEffects & CommerceEffects.BlackMarket1) == CommerceEffects.BlackMarket1)
+            if (marketEffects.HasFlag(CommerceEffects.BlackMarket1))
                 ++rs.nBlackMarketAvailable;
 
-            if ((marketEffects & CommerceEffects.BlackMarket2) == CommerceEffects.BlackMarket2)
+            if (marketEffects.HasFlag(CommerceEffects.BlackMarket2))
                 ++rs.nBlackMarketAvailable;
 
             if (rs.nBlackMarketAvailable > 0)
@@ -753,14 +799,12 @@ namespace SevenWonders
                 }
             }
 
-            if (((marketEffects & CommerceEffects.ClandestineDockWest) == CommerceEffects.ClandestineDockWest) &&
-                commOptions.leftCoins != 0)
+            if (marketEffects.HasFlag(CommerceEffects.ClandestineDockWest) && commOptions.leftCoins != 0)
             {
                 commOptions.leftCoins -= 1;
             }
 
-            if (((marketEffects & CommerceEffects.ClandestineDockEast) == CommerceEffects.ClandestineDockEast) &&
-                commOptions.rightCoins != 0)
+            if (marketEffects.HasFlag(CommerceEffects.ClandestineDockEast) && commOptions.rightCoins != 0)
             {
                 commOptions.rightCoins -= 1;
             }
