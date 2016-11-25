@@ -103,10 +103,17 @@ namespace ResourceUnitTest
 
             expectedResult.bankCoins = 0;
             expectedResult.leftCoins = 6;   // papyrus, cloth + ore
-            expectedResult.rightCoins = 1;  // ore
+            expectedResult.rightCoins = 1;  // clay
 
-            Verify2(new Cost("OOOBCP"), new List<ResourceEffect> { clay_1, glass, caravansery, },
-                new List<ResourceEffect> { cloth, papyrus, clay_2, ore_2, wood_ore, }, new List<ResourceEffect> { wood_1, glass, clay_1, wood_2, stone_2, },
+            // The key to this one is that the Caravansery must be used for a Clay resource, not an Ore.
+            // That way the right neighbor can be used to fill the clay resource and the left neighbor only
+            // needs to provide 1 clay (in addition to the Paper and Cloth).  The current implementation
+            // won't work because after a successful path is found, the algorithm continues looking for
+            // cheaper alternatives from the remaining resources.  It does not go back up the chain and reconsider
+            // resource sources that were already used.  I am thinking the algorithm should be changed when we're
+            // going for LowestCost to start with 
+            Verify2(new Cost("OOOBCP"), new List<ResourceEffect> { ore_1, glass, caravansery, },
+                new List<ResourceEffect> { cloth, papyrus, clay_2, ore_2, wood_ore, }, new List<ResourceEffect> { glass, wood_1, clay_1, wood_2, stone_2, },
                  ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
                  ResourceManager.CommerceEffects.EastTradingPost,
                  expectedResult);
