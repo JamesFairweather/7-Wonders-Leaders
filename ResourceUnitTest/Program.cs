@@ -96,6 +96,20 @@ namespace ResourceUnitTest
                 ResourceManager.CommerceEffects.EastTradingPost,
                 expectedResult);
 
+            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 3;
+            Verify2(new Cost("WSO"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_wood, stone_1, ore_2 }, new List<ResourceEffect> { wood_clay, wood_ore, stone_2 },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
+
+            expectedResult.leftCoins = 4;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("WSB"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_wood, stone_1 }, new List<ResourceEffect> { wood_clay },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
+
             // Nov. 15, 2016 I had a good one today.  Babylon B, Glassworks, Caravansery,
             // trading posts in each direction, Marketplace, Clandestine Dock West.
             // West neighbor: China A, Press, Glassworks, Forest Cave, Brickyard.
