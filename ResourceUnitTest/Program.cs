@@ -96,7 +96,12 @@ namespace ResourceUnitTest
                 ResourceManager.CommerceEffects.EastTradingPost,
                 expectedResult);
 
-            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 4;
+            Verify2(new Cost("SSSS"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_1, stone_1, stone_1, stone_1 }, new List<ResourceEffect> { stone_1, stone_1, stone_1, stone_1 },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
+
             expectedResult.rightCoins = 3;
             Verify2(new Cost("WSO"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_wood, stone_1, ore_2 }, new List<ResourceEffect> { wood_clay, wood_ore, stone_2 },
                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,

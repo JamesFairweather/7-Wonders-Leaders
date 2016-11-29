@@ -207,13 +207,18 @@ namespace SevenWonders
             List<ResourceEffect> leftResourcesRequired = new List<ResourceEffect>();
             List<ResourceEffect> rightResourcesRequired = new List<ResourceEffect>();
 
-            CommerceOptions co = GetCommerceOptions(cost, leftResourcesRequired, rightResourcesRequired, CommercePreferences.BuyFromLeftNeighbor);
-
-            if (nWildResources != 0)
+            CommercePreferences p = CommercePreferences.BuyFromLeftNeighbor;
+            if (nWildResources == 1)
             {
                 // TODO: make the Resource Manager aware of this special resource.
+                p |= CommercePreferences.OneResourceDiscount;
+            }
+            else if (nWildResources > 1)
+            {
                 throw new NotImplementedException();
             }
+
+            CommerceOptions co = GetCommerceOptions(cost, leftResourcesRequired, rightResourcesRequired, p);
 
             if (co.bAreResourceRequirementsMet)
             {
@@ -401,10 +406,8 @@ namespace SevenWonders
             public ResourceEffect blackMarketResource;
         };
 
-        static bool ReduceRecursively(ReduceState state, string remainingCost)
+        static void ReduceRecursively(ReduceState state, string remainingCost)
         {
-            bool retVal = false;
-
             /*
              * This is an alternate way to implement the wild-card resource.  Unforunately it has a bug with
              * double-resources, which would need to be handled by changing the nResourceCostsToRemove, below.
@@ -442,9 +445,9 @@ namespace SevenWonders
                             // another resource was found which could be used instead of one in the match
                             // stack.  If the cost of this resource is lower, replace the existing one
                             // with this new, cheaper one.
-                            int ru = state.outputResourceList.FindLastIndex(x => x.resType == r.resType);
+                            int ru = state.outputResourceList.FindLastIndex(x => x.resType == r.resType && r.cost < x.cost);
 
-                            if (r.cost < state.outputResourceList[ru].cost)
+                            if (ru != -1)
                             {
                                 state.outputResourceList[ru] = r;
                             }
@@ -452,8 +455,8 @@ namespace SevenWonders
                     }
                 }
 
-                // end
-                return true;
+                if (!state.pref.HasFlag(CommercePreferences.LowestCost))                // end
+                    return;
             }
 
             // we need to check every possible path, starting at the current recursion level, going from cheapest
@@ -468,7 +471,7 @@ namespace SevenWonders
             {
                 ResourceEffect res = null;
 
-                if (retVal && !state.pref.HasFlag(CommercePreferences.LowestCost))
+                if (state.outputResourceList.Count != 0 && !state.pref.HasFlag(CommercePreferences.LowestCost))
                     break;
 
                 int myInc= 0;
@@ -592,38 +595,56 @@ namespace SevenWonders
 
                 for (int resIndex = 0; resIndex < res.resourceTypes.Length; resIndex++)
                 {
-                    if (retVal && !state.pref.HasFlag(CommercePreferences.LowestCost))
+                    if (state.outputResourceList.Count != 0 && !state.pref.HasFlag(CommercePreferences.LowestCost))
                         break;
 
                     char resType = res.resourceTypes[resIndex];
-                    int ind = remainingCost.IndexOf(resType);
+
+                    int ind = -1;
+                    int nResourceCostsToRemove = 0;
+                    string newRemainingCost = remainingCost;
+
+                    if (remainingCost != string.Empty)
+                    {
+                        // incomplete set of resources to buy this structure so far.
+                        ind = remainingCost.IndexOf(resType);
+
+                        if (ind != -1)
+                        {
+                            nResourceCostsToRemove = res.IsDoubleResource() && ((remainingCost.Length - ind) > 1) && (remainingCost[ind] == remainingCost[ind + 1]) ? 2 : 1;
+
+                            if (nResourceCostsToRemove == 2)
+                            {
+                                resIndex++;
+
+                                // note that both resources provided by this
+                                // double-resource card were used (for cost-calculating purposes).
+                                // don't need to worry about this for my city as there's no cost to use them.
+                                state.usedResources.Peek().usedDoubleResource = true;
+                            }
+
+                            // Secret Warehouse.  Must be considered _after_ double-type resources.  Only applies to our city's resources
+                            // and only if they are a single, double, or either/or.  No Forum/Caravansery.
+                            if (state.secretWarehouse == SpecialTrait.Unused && myInc == 1 && res.resourceTypes.Length <= 2 && res != state.blackMarketResource)
+                            {
+                                if (((remainingCost.Length - ind) > nResourceCostsToRemove) && (remainingCost[ind] == remainingCost[ind + nResourceCostsToRemove]))
+                                {
+                                    // turn a single into a double or a double into a triple
+                                    ++nResourceCostsToRemove;
+                                    state.secretWarehouse = SpecialTrait.Used;
+                                }
+                            }
+
+                            newRemainingCost = remainingCost.Remove(ind, nResourceCostsToRemove);
+                        }
+                    }
+                    else
+                    {
+                        ind = state.outputResourceList.FindIndex(x => x.resType == resType && resUsed.cost < x.cost);
+                    }
 
                     if (ind != -1)
                     {
-                        int nResourceCostsToRemove = res.IsDoubleResource() && ((remainingCost.Length - ind) > 1) && (remainingCost[ind] == remainingCost[ind + 1]) ? 2 : 1;
-
-                        if (nResourceCostsToRemove == 2)
-                        {
-                            resIndex++;
-
-                            // note that both resources provided by this
-                            // double-resource card were used (for cost-calculating purposes).
-                            // don't need to worry about this for my city as there's no cost to use them.
-                            state.usedResources.Peek().usedDoubleResource = true;
-                        }
-
-                        // Secret Warehouse.  Must be considered _after_ double-type resources.  Only applies to our city's resources
-                        // and only if they are a single, double, or either/or.  No Forum/Caravansery.
-                        if (state.secretWarehouse == SpecialTrait.Unused && myInc == 1 && res.resourceTypes.Length <= 2 && res != state.blackMarketResource)
-                        {
-                            if (((remainingCost.Length - ind) > nResourceCostsToRemove) && (remainingCost[ind] == remainingCost[ind + nResourceCostsToRemove]))
-                            {
-                                // turn a single into a double or a double into a triple
-                                ++nResourceCostsToRemove;
-                                state.secretWarehouse = SpecialTrait.Used;
-                            }
-                        }
-
                         // This resource matches one (or more) of the required resources.  Remove the matched
                         // resource from the remainingCost and move down a level of recusion.
                         state.myResourceIndex += myInc;
@@ -641,7 +662,7 @@ namespace SevenWonders
 
                         state.usedResources.Peek().resType = resType;
 
-                        retVal |= ReduceRecursively(state, remainingCost.Remove(ind, nResourceCostsToRemove));
+                        ReduceRecursively(state, newRemainingCost);
 
                         state.myResourceIndex -= myInc;
                         state.leftResourceIndex -= leftInc;
@@ -675,8 +696,6 @@ namespace SevenWonders
                 if (res == state.blackMarketResource)
                     state.nBlackMarketIndex++;
             }
-
-            return retVal;
         }
 
         // I don't want to find every possible resource path.  There could be hundreds of valid combinations.
@@ -769,9 +788,20 @@ namespace SevenWonders
                 rs.blackMarketResource = new ResourceEffect(false, strBlackMarket);
             }
 
-            // kick off a recursive reduction of the resource cost.  Paths that completely eliminate the cost
-            // are returned in the requiredResourcesLists.
-            commOptions.bAreResourceRequirementsMet = ReduceRecursively(rs, cost.CostAsString());
+            string strCost = cost.CostAsString();
+
+            if (strCost != string.Empty)
+            {
+                // kick off a recursive reduction of the resource cost.  Paths that completely eliminate the cost
+                // are returned in the requiredResourcesLists.
+                ReduceRecursively(rs, strCost);
+
+                commOptions.bAreResourceRequirementsMet = rs.outputResourceList.Count != 0;
+            }
+            else
+            {
+                commOptions.bAreResourceRequirementsMet = true;
+            }
 
             if (commOptions.bAreResourceRequirementsMet)
             {
