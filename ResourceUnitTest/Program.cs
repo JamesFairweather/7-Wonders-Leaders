@@ -108,9 +108,32 @@ namespace ResourceUnitTest
                 ResourceManager.CommerceEffects.EastTradingPost,
                 expectedResult);
 
-            expectedResult.leftCoins = 4;
+            expectedResult.leftCoins = 6;
             expectedResult.rightCoins = 1;
-            Verify2(new Cost("WSB"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_wood, stone_1 }, new List<ResourceEffect> { wood_clay },
+            Verify2(new Cost("WSBPG"), new List<ResourceEffect>(), new List<ResourceEffect> { papyrus, cloth, glass, stone_wood, stone_1 }, new List<ResourceEffect> { papyrus, glass, cloth, wood_clay },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Marketplace,
+                expectedResult);
+
+            expectedResult.leftCoins = 4;
+            expectedResult.rightCoins = 3;
+            Verify2(new Cost("WSBPG"), new List<ResourceEffect>(), new List<ResourceEffect> { papyrus, cloth, glass, stone_wood, stone_1 }, new List<ResourceEffect> { papyrus, glass, cloth, wood_clay },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Marketplace,
+                expectedResult);
+
+            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("WSBPG"), new List<ResourceEffect> { stone_1 /* putting a wood here works, stone does not */, caravansery, forum },
+                new List<ResourceEffect> { papyrus, glass, }, new List<ResourceEffect> { wood_clay },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
+
+            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("WSBPG"), new List<ResourceEffect> { stone_wood, caravansery, forum, },
+                new List<ResourceEffect> { papyrus, cloth, glass, stone_wood, stone_1 }, new List<ResourceEffect> { papyrus, glass, cloth, wood_clay },
                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
                 ResourceManager.CommerceEffects.EastTradingPost,
                 expectedResult);
