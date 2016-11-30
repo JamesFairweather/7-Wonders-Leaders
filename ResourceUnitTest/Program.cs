@@ -1019,7 +1019,58 @@ namespace ResourceUnitTest
                 ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.BlackMarket2 | ResourceManager.CommerceEffects.WestTradingPost,
                 expectedResult);
 
-            // Still TBD: Clandestine Docks
+            // Clandestine Dock tests
+
+            expectedResult.leftCoins = 7;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("WWWBPG"), new List<ResourceEffect> { glass, caravansery, },
+                new List<ResourceEffect> { glass, papyrus, wood_2, wood_ore }, new List<ResourceEffect> { glass, cloth, clay_2, clay_ore, stone_wood, },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.ClandestineDockWest,
+                expectedResult);
+
+            expectedResult.leftCoins = 3;
+            expectedResult.rightCoins = 4;
+            Verify2(new Cost("WWWBPG"), new List<ResourceEffect> { glass, caravansery, },
+                new List<ResourceEffect> { glass, papyrus, wood_2, wood_ore }, new List<ResourceEffect> { glass, cloth, clay_2, clay_ore, stone_wood, },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.ClandestineDockWest,
+                expectedResult);
+
+            expectedResult.leftCoins = 3;
+            expectedResult.rightCoins = 3;
+            Verify2(new Cost("WWWBPG"), new List<ResourceEffect> { glass, caravansery, },
+                new List<ResourceEffect> { glass, papyrus, wood_2, wood_ore }, new List<ResourceEffect> { glass, cloth, clay_2, clay_ore, stone_wood, },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.ClandestineDockWest | ResourceManager.CommerceEffects.ClandestineDockEast,
+                expectedResult);
+
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 6;
+            Verify2(new Cost("WBG"), new List<ResourceEffect> { },
+                new List<ResourceEffect> { glass, papyrus, wood_2, wood_ore }, new List<ResourceEffect> { glass, cloth, clay_ore, stone_wood, },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.None,
+                expectedResult);
+
+            // This test fails without the Clandestine Dock logic in the reducer as it would produce 0/6 instead of the cheaper 1/4
+            expectedResult.leftCoins = 1;
+            expectedResult.rightCoins = 4;
+            Verify2(new Cost("WBG"), new List<ResourceEffect> { },
+                new List<ResourceEffect> { glass, papyrus, wood_2, wood_ore }, new List<ResourceEffect> { glass, cloth, clay_ore, stone_wood, },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.ClandestineDockWest,
+                expectedResult);
+
+            // this would cost 6 coins without the commerce effects.  With them, it only costs 2 coins.
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 2;
+            Verify2(new Cost("WBG"), new List<ResourceEffect> { },
+                new List<ResourceEffect> { glass, papyrus, wood_2, wood_ore }, new List<ResourceEffect> { glass, cloth, clay_ore, stone_wood, },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.ClandestineDockWest | ResourceManager.CommerceEffects.ClandestineDockEast |
+                ResourceManager.CommerceEffects.WestTradingPost| ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
         }
 
         /// <summary>

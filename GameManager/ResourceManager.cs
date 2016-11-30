@@ -494,6 +494,18 @@ namespace SevenWonders
                         }
                     }
 
+                    if (state.marketEffects.HasFlag(CommerceEffects.ClandestineDockWest))
+                    {
+                        if (nThisStackLeftCost != 0) --nThisStackLeftCost;
+                        if (nExistingStackLeftCost != 0) --nExistingStackLeftCost;
+                    }
+
+                    if (state.marketEffects.HasFlag(CommerceEffects.ClandestineDockEast))
+                    {
+                        if (nThisStackRightCost != 0) --nThisStackRightCost;
+                        if (nExistingStackRightCost != 0) --nExistingStackRightCost;
+                    }
+
                     bool replaceResourceStack = false;
 
                     if ((nThisStackLeftCost + nThisStackRightCost + nThisStackBankCost) < 
