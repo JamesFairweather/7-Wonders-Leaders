@@ -463,7 +463,7 @@ namespace SevenWonders
                     }
                 }
 
-                if (!state.pref.HasFlag(CommercePreferences.LowestCost))                // end
+               // if (!state.pref.HasFlag(CommercePreferences.LowestCost))                // end
                     return;
             }
 
