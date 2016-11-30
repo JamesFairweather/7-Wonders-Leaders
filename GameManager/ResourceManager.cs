@@ -438,19 +438,27 @@ namespace SevenWonders
                 }
                 else
                 {
-                    foreach (ResourceUsed r in state.usedResources)
-                    {
-                        if (!state.outputResourceList.Contains(r))
-                        {
-                            // another resource was found which could be used instead of one in the match
-                            // stack.  If the cost of this resource is lower, replace the existing one
-                            // with this new, cheaper one.
-                            int ru = state.outputResourceList.FindLastIndex(x => x.resType == r.resType && r.cost < x.cost);
+                    int nTotalCostExistingStack = 0;
+                    int nTotalCostThisStack = 0;
 
-                            if (ru != -1)
-                            {
-                                state.outputResourceList[ru] = r;
-                            }
+                    foreach (ResourceUsed ru in state.outputResourceList)
+                    {
+                        nTotalCostExistingStack += ru.cost * (ru.usedDoubleResource ? 2 : 1);
+                    }
+
+                    foreach (ResourceUsed ru in state.usedResources)
+                    {
+                        nTotalCostThisStack += ru.cost * (ru.usedDoubleResource ? 2 : 1);
+                    }
+
+                    if (nTotalCostThisStack < nTotalCostExistingStack)
+                    {
+                        // replace the existing used resource list with this cheaper one.
+                        state.outputResourceList.Clear();
+
+                        foreach (ResourceUsed r in state.usedResources)
+                        {
+                            state.outputResourceList.Add(r);
                         }
                     }
                 }
@@ -621,6 +629,9 @@ namespace SevenWonders
                                 // double-resource card were used (for cost-calculating purposes).
                                 // don't need to worry about this for my city as there's no cost to use them.
                                 state.usedResources.Peek().usedDoubleResource = true;
+
+                                // TODO: should I do this instead?
+                                // state.usedResources.Peek().cost *= 2;
                             }
 
                             // Secret Warehouse.  Must be considered _after_ double-type resources.  Only applies to our city's resources
