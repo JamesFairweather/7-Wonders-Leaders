@@ -438,20 +438,87 @@ namespace SevenWonders
                 }
                 else
                 {
-                    int nTotalCostExistingStack = 0;
-                    int nTotalCostThisStack = 0;
+                    // When I started doing LowestCost, my initial implementation of this was to compare each
+                    // resource used in this stack to those in the existing good stack, and replace any resources
+                    // in the existing stack with those in the new stack, if the new stack had a lower cost.  However,
+                    // this broke when there were choices (e.g. a forum), and this resource was being used twice.
+                    // e.g. this test case was failing:
+                    // expectedResult.leftCoins = 2;
+                    // expectedResult.rightCoins = 1;
+                    // Verify2(new Cost("WSBPG"), new List<ResourceEffect> { stone_1 /* putting a wood here works, stone does not */, caravansery, forum },
+                    //     new List<ResourceEffect> { papyrus, glass, }, new List<ResourceEffect> { wood_clay },
+                    //     ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                    //     ResourceManager.CommerceEffects.EastTradingPost,
+                    //    expectedResult);
+                    //
+                    // An analysis indicated what was happening was the Forum was being used twice to fulfill the Papyrus
+                    // resource, once from the first match (when glass was purchased), then again from a later match,
+                    // (when Papyrus was purchased)
+                    int nExistingStackBankCost = 0;
+                    int nExistingStackRightCost = 0;
+                    int nExistingStackLeftCost = 0;
+
+                    int nThisStackBankCost = 0;
+                    int nThisStackRightCost = 0;
+                    int nThisStackLeftCost = 0;
 
                     foreach (ResourceUsed ru in state.outputResourceList)
                     {
-                        nTotalCostExistingStack += ru.cost * (ru.usedDoubleResource ? 2 : 1);
+                        if (ru.owner == ResourceOwner.Left)
+                        {
+                            nExistingStackLeftCost += ru.cost * (ru.usedDoubleResource ? 2 : 1);
+                        }
+                        else if (ru.owner == ResourceOwner.Right)
+                        {
+                            nExistingStackRightCost += ru.cost * (ru.usedDoubleResource ? 2 : 1);
+                        }
+                        else
+                        {
+                            nExistingStackBankCost += ru.cost;
+                        }
                     }
 
                     foreach (ResourceUsed ru in state.usedResources)
                     {
-                        nTotalCostThisStack += ru.cost * (ru.usedDoubleResource ? 2 : 1);
+                        if (ru.owner == ResourceOwner.Left)
+                        {
+                            nThisStackLeftCost += ru.cost * (ru.usedDoubleResource ? 2 : 1);
+                        }
+                        else if (ru.owner == ResourceOwner.Right)
+                        {
+                            nThisStackRightCost += ru.cost * (ru.usedDoubleResource ? 2 : 1);
+                        }
+                        else
+                        {
+                            nThisStackBankCost += ru.cost;
+                        }
                     }
 
-                    if (nTotalCostThisStack < nTotalCostExistingStack)
+                    bool replaceResourceStack = false;
+
+                    if ((nThisStackLeftCost + nThisStackRightCost + nThisStackBankCost) < 
+                        (nExistingStackLeftCost + nExistingStackRightCost + nExistingStackBankCost))
+                    {
+                        // This is a cheaper overall stack than the existing one, so use it
+                        replaceResourceStack = true;
+                    }
+                    else if ((nThisStackLeftCost + nThisStackRightCost) == (nExistingStackLeftCost + nExistingStackRightCost))
+                    {
+                        // This branch indicates the amount paid to each neighbor is the same in this stack compared with the
+                        // existing good stack, so we do a secondary comparison for the costs to each neighbor and pay the
+                        // preferred one if the cost to the non-preferred one is lower.  Note, that we intentionally do not
+                        // the bank cost in this secondary comparison as we would prefer to pay for Bilkis' resource than pay
+                        // a neighbor for theirs.
+
+                        replaceResourceStack = state.pref.HasFlag(CommercePreferences.BuyFromLeftNeighbor) &&
+                            nExistingStackLeftCost < nThisStackLeftCost;
+
+                        if (!replaceResourceStack)
+                            replaceResourceStack = state.pref.HasFlag(CommercePreferences.BuyFromRightNeighbor) &&
+                                nExistingStackRightCost < nThisStackRightCost;
+                    }
+
+                    if (replaceResourceStack)
                     {
                         // replace the existing used resource list with this cheaper one.
                         state.outputResourceList.Clear();
@@ -464,7 +531,9 @@ namespace SevenWonders
                 }
 
                // if (!state.pref.HasFlag(CommercePreferences.LowestCost))                // end
-                    return;
+               // do not continue down this search path once we have a completed path.  The algorithm
+               // searches every possible combination and if there's a cheaper good path, it will be found
+               return;
             }
 
             // we need to check every possible path, starting at the current recursion level, going from cheapest
@@ -651,7 +720,11 @@ namespace SevenWonders
                     }
                     else
                     {
-                        ind = state.outputResourceList.FindIndex(x => x.resType == resType && resUsed.cost < x.cost);
+                        // with the change to test for the total overall cost when replacing
+                        // an existing good resource stack with a different good resource stack,
+                        // we do not get in here any more.
+                        throw new NotImplementedException();
+                        // ind = state.outputResourceList.FindIndex(x => x.resType == resType && resUsed.cost < x.cost);
                     }
 
                     if (ind != -1)
@@ -703,6 +776,12 @@ namespace SevenWonders
                 state.myResourceIndex += myInc;
                 state.leftResourceIndex += leftInc;
                 state.rightResourceIndex += rightInc;
+
+                if (usedWildResource)
+                    state.wildResource = SpecialTrait.Used;
+
+                if (usedBilkis)
+                    state.bilkis = SpecialTrait.Used;
 
                 if (res == state.blackMarketResource)
                     state.nBlackMarketIndex++;

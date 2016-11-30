@@ -67,200 +67,14 @@ namespace ResourceUnitTest
         static void Main(string[] args)
         {
             BasicTest();
+            LowestCostTests();
             ComplexTests();
+
+            Console.WriteLine("Resource Manager tests completed.  All unit tests passed.");
         }
 
         /// <summary>
-        /// More complex tests.  These are for verifying the LowestCost algorithm implementation,
-        /// which tries every possible resource path for fulfilling the resource requirements
-        /// and it returns the cheapest possible commmerce option.
-        /// </summary>
-        static void ComplexTests()
-        {
-            // Most of these tests are checking for minimal cost
-            CommerceOptions expectedResult = new CommerceOptions();
-
-            expectedResult.bAreResourceRequirementsMet = true;
-            expectedResult.leftCoins = 2;
-            expectedResult.rightCoins = 0;
-
-            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_1 }, new List<ResourceEffect> { stone_2 },
-                ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
-                ResourceManager.CommerceEffects.EastTradingPost,
-                expectedResult);
-
-            expectedResult.leftCoins = 0;
-            expectedResult.rightCoins = 1;
-            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_1 }, new List<ResourceEffect> { stone_2 },
-                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
-                ResourceManager.CommerceEffects.EastTradingPost,
-                expectedResult);
-
-            expectedResult.rightCoins = 4;
-            Verify2(new Cost("SSSS"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_1, stone_1, stone_1, stone_1 }, new List<ResourceEffect> { stone_1, stone_1, stone_1, stone_1 },
-                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
-                ResourceManager.CommerceEffects.EastTradingPost,
-                expectedResult);
-
-            expectedResult.rightCoins = 3;
-            Verify2(new Cost("WSO"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_wood, stone_1, ore_2 }, new List<ResourceEffect> { wood_clay, wood_ore, stone_2 },
-                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
-                ResourceManager.CommerceEffects.EastTradingPost,
-                expectedResult);
-
-            expectedResult.leftCoins = 6;
-            expectedResult.rightCoins = 1;
-            Verify2(new Cost("WSBPG"), new List<ResourceEffect>(), new List<ResourceEffect> { papyrus, cloth, glass, stone_wood, stone_1 }, new List<ResourceEffect> { papyrus, glass, cloth, wood_clay },
-                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
-                ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Marketplace,
-                expectedResult);
-
-            expectedResult.leftCoins = 4;
-            expectedResult.rightCoins = 3;
-            Verify2(new Cost("WSBPG"), new List<ResourceEffect>(), new List<ResourceEffect> { papyrus, cloth, glass, stone_wood, stone_1 }, new List<ResourceEffect> { papyrus, glass, cloth, wood_clay },
-                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
-                ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Marketplace,
-                expectedResult);
-
-            expectedResult.leftCoins = 2;
-            expectedResult.rightCoins = 1;
-            Verify2(new Cost("WSBPG"), new List<ResourceEffect> { stone_1 /* putting a wood here works, stone does not */, caravansery, forum },
-                new List<ResourceEffect> { papyrus, glass, }, new List<ResourceEffect> { wood_clay },
-                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
-                ResourceManager.CommerceEffects.EastTradingPost,
-                expectedResult);
-
-            expectedResult.leftCoins = 2;
-            expectedResult.rightCoins = 1;
-            Verify2(new Cost("WSBPG"), new List<ResourceEffect> { stone_wood, caravansery, forum, },
-                new List<ResourceEffect> { papyrus, cloth, glass, stone_wood, stone_1 }, new List<ResourceEffect> { papyrus, glass, cloth, wood_clay },
-                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
-                ResourceManager.CommerceEffects.EastTradingPost,
-                expectedResult);
-
-            // Nov. 15, 2016 I had a good one today.  Babylon B, Glassworks, Caravansery,
-            // trading posts in each direction, Marketplace, Clandestine Dock West.
-            // West neighbor: China A, Press, Glassworks, Forest Cave, Brickyard.
-            // East neighbor: Olympia B, Timber Yard, single stone, double ore.
-
-            expectedResult.leftCoins = 6;   // papyrus, cloth + ore
-            expectedResult.rightCoins = 1;  // clay
-
-            // The key to this one is that the Caravansery must be used for a Clay resource, not an Ore.
-            // That way the right neighbor can be used to fill the clay resource and the left neighbor only
-            // needs to provide 1 clay (in addition to the Paper and Cloth).  The current implementation
-            // won't work because after a successful path is found, the algorithm continues looking for
-            // cheaper alternatives from the remaining resources.  It does not go back up the chain and reconsider
-            // resource sources that were already used.  I am thinking the algorithm should be changed when we're
-            // going for LowestCost to start with 
-
-            Verify2(new Cost("OOOBCP"), new List<ResourceEffect> { ore_1, glass, caravansery, },
-                new List<ResourceEffect> { cloth, papyrus, clay_2, ore_1, wood_ore, }, new List<ResourceEffect> { glass, wood_1, clay_1, wood_2, stone_2, },
-                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
-                 ResourceManager.CommerceEffects.EastTradingPost,
-                 expectedResult);
-
-            // Make sure that a double resource works properly.
-            expectedResult.leftCoins = 2;   // ore
-            expectedResult.rightCoins = 1;  // clay
-            Verify2(new Cost("OOB"), new List<ResourceEffect> { caravansery },
-                new List<ResourceEffect> { ore_2, }, new List<ResourceEffect> { clay_1, },
-                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
-                 ResourceManager.CommerceEffects.EastTradingPost,
-                 expectedResult);
-
-            expectedResult.leftCoins = 2;   // 1 ore
-            expectedResult.rightCoins = 2;  // 2 clay
-            Verify2(new Cost("OOBB"), new List<ResourceEffect> { clay_ore, },
-                new List<ResourceEffect> { ore_2, }, new List<ResourceEffect> { clay_2, },
-                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
-                 ResourceManager.CommerceEffects.EastTradingPost,
-                 expectedResult);
-
-            expectedResult.leftCoins = 0;
-            expectedResult.rightCoins = 2;  // 2 clay
-            Verify2(new Cost("OOBB"), new List<ResourceEffect> { clay_ore, caravansery },
-                new List<ResourceEffect> { ore_2, }, new List<ResourceEffect> { clay_2, },
-                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
-                 ResourceManager.CommerceEffects.EastTradingPost,
-                 expectedResult);
-
-            expectedResult.leftCoins = 2;   // 2 ore
-            expectedResult.rightCoins = 0;
-            Verify2(new Cost("OOBB"), new List<ResourceEffect> { clay_ore, caravansery },
-                new List<ResourceEffect> { ore_2, }, new List<ResourceEffect> { clay_2, },
-                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
-                 ResourceManager.CommerceEffects.WestTradingPost,
-                 expectedResult);
-
-            expectedResult.leftCoins = 2;   // 2 ore
-            expectedResult.rightCoins = 0;
-            Verify2(new Cost("OOBB"), new List<ResourceEffect> { clay_ore, caravansery },
-                new List<ResourceEffect> { ore_2, }, new List<ResourceEffect> { clay_2, ore_2, },
-                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
-                 ResourceManager.CommerceEffects.WestTradingPost,
-                 expectedResult);
-
-            expectedResult.leftCoins = 3;
-            expectedResult.rightCoins = 0;
-            Verify2(new Cost("OOBB"), new List<ResourceEffect> { clay_ore },
-                new List<ResourceEffect> { stone_ore, wood_clay, ore_2, }, new List<ResourceEffect> { clay_2, ore_2, },
-                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
-                 ResourceManager.CommerceEffects.WestTradingPost,
-                 expectedResult);
-
-            expectedResult.leftCoins = 5;
-            expectedResult.rightCoins = 2;
-            Verify2(new Cost("OOBBPGC"), new List<ResourceEffect> { forum, caravansery, },
-                new List<ResourceEffect> { glass, papyrus, stone_ore, wood_clay, ore_2, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
-                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
-                 ResourceManager.CommerceEffects.WestTradingPost,
-                 expectedResult);
-
-            expectedResult.leftCoins = 7;
-            expectedResult.rightCoins = 0;
-            Verify2(new Cost("OOBBPGC"), new List<ResourceEffect> { forum, caravansery, },
-                new List<ResourceEffect> { glass, papyrus, stone_ore, wood_clay, ore_2, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
-                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
-                 ResourceManager.CommerceEffects.WestTradingPost,
-                 expectedResult);
-
-            expectedResult.leftCoins = 5;
-            expectedResult.rightCoins = 0;
-            Verify2(new Cost("OOBBPGC"), new List<ResourceEffect> { forum, caravansery, },
-                new List<ResourceEffect> { glass, papyrus, stone_ore, wood_clay, ore_2, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
-                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
-                 ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.Marketplace,
-                 expectedResult);
-
-            expectedResult.leftCoins = 5;
-            expectedResult.rightCoins = 1;
-            Verify2(new Cost("OOBBPGCC"), new List<ResourceEffect> { forum, caravansery, },
-                new List<ResourceEffect> { glass, papyrus, stone_ore, wood_clay, ore_2, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
-                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
-                 ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.Marketplace,
-                 expectedResult);
-
-            expectedResult.leftCoins = 2;
-            expectedResult.rightCoins = 1;
-            Verify2(new Cost("OOBBPGCC"), new List<ResourceEffect> { clay_ore, clay_2, forum, caravansery, },
-                new List<ResourceEffect> { glass, papyrus, stone_ore, wood_clay, ore_2, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
-                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
-                 ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.Marketplace,
-                 expectedResult);
-
-            expectedResult.leftCoins = 0;
-            expectedResult.rightCoins = 0;
-            Verify2(new Cost("O"), new List<ResourceEffect> { },
-                new List<ResourceEffect> { }, new List<ResourceEffect> { },
-                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor | ResourceManager.CommercePreferences.OneResourceDiscount,
-                 ResourceManager.CommerceEffects.None,
-                 expectedResult);
-        }
-
-        /// <summary>
-        /// This suite passes only if the search is stopped after the first successful path to paying for the
-        /// structure is found.
+        /// Basic tests.  These validate whether a structure can be built at all.
         /// </summary>
         static void BasicTest()
         {
@@ -718,6 +532,8 @@ namespace ResourceUnitTest
                 ResourceManager.CommerceEffects.SecretWarehouse,
                 expectedResult);
 
+            // Clandestine Dock tests
+
             expectedResult.bAreResourceRequirementsMet = true;
             expectedResult.leftCoins = 1;
             expectedResult.rightCoins = 0;
@@ -759,6 +575,7 @@ namespace ResourceUnitTest
                 expectedResult);
 
             // Black Market tests
+
             expectedResult.bAreResourceRequirementsMet = true;
             expectedResult.leftCoins = 0;
             expectedResult.rightCoins = 0;
@@ -852,8 +669,365 @@ namespace ResourceUnitTest
             // trading posts in each direction, Marketplace, Clandestine Dock West.
             // West neighbor: China A, Press, Glassworks, Forest Cave, Brickyard.
             // East neighbor: Olympia B, Timber Yard, single stone, double ore.
+        }
 
-            Console.WriteLine("Resource Manager tests completed.  All unit tests passed.");
+        /// <summary>
+        /// These test cases verify the LowestCost algorithm implementation, which tries
+        /// every possible resource path for fulfilling the resource requirements and
+        /// returns the cheapest possible commmerce option.
+        /// </summary>
+        static void LowestCostTests()
+        {
+            CommerceOptions expectedResult = new CommerceOptions();
+
+            expectedResult.bAreResourceRequirementsMet = true;
+            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 0;
+
+            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_1 }, new List<ResourceEffect> { stone_2 },
+                ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
+
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("S"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_1 }, new List<ResourceEffect> { stone_2 },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
+
+            expectedResult.rightCoins = 4;
+            Verify2(new Cost("SSSS"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_1, stone_1, stone_1, stone_1 }, new List<ResourceEffect> { stone_1, stone_1, stone_1, stone_1 },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
+
+            expectedResult.rightCoins = 3;
+            Verify2(new Cost("WSO"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_wood, stone_1, ore_2 }, new List<ResourceEffect> { wood_clay, wood_ore, stone_2 },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
+
+            expectedResult.leftCoins = 6;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("WSBPG"), new List<ResourceEffect>(), new List<ResourceEffect> { papyrus, cloth, glass, stone_wood, stone_1 }, new List<ResourceEffect> { papyrus, glass, cloth, wood_clay },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Marketplace,
+                expectedResult);
+
+            expectedResult.leftCoins = 4;
+            expectedResult.rightCoins = 3;
+            Verify2(new Cost("WSBPG"), new List<ResourceEffect>(), new List<ResourceEffect> { papyrus, cloth, glass, stone_wood, stone_1 }, new List<ResourceEffect> { papyrus, glass, cloth, wood_clay },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Marketplace,
+                expectedResult);
+
+            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("WSBPG"), new List<ResourceEffect> { stone_1 /* putting a wood here works, stone does not */, caravansery, forum },
+                new List<ResourceEffect> { papyrus, glass, }, new List<ResourceEffect> { wood_clay },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
+
+            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("WSBPG"), new List<ResourceEffect> { stone_wood, caravansery, forum, },
+                new List<ResourceEffect> { papyrus, cloth, glass, stone_wood, stone_1 }, new List<ResourceEffect> { papyrus, glass, cloth, wood_clay },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
+
+            // Nov. 15, 2016 I had a good one today.  Babylon B, Glassworks, Caravansery,
+            // trading posts in each direction, Marketplace, Clandestine Dock West.
+            // West neighbor: China A, Press, Glassworks, Forest Cave, Brickyard.
+            // East neighbor: Olympia B, Timber Yard, single stone, double ore.
+
+            expectedResult.leftCoins = 6;   // papyrus, cloth + ore
+            expectedResult.rightCoins = 1;  // clay
+
+            // The key to this one is that the Caravansery must be used for a Clay resource, not an Ore.
+            // That way the right neighbor can be used to fill the clay resource and the left neighbor only
+            // needs to provide 1 clay (in addition to the Paper and Cloth).  The current implementation
+            // won't work because after a successful path is found, the algorithm continues looking for
+            // cheaper alternatives from the remaining resources.  It does not go back up the chain and reconsider
+            // resource sources that were already used.  I am thinking the algorithm should be changed when we're
+            // going for LowestCost to start with 
+
+            Verify2(new Cost("OOOBCP"), new List<ResourceEffect> { ore_1, glass, caravansery, },
+                new List<ResourceEffect> { cloth, papyrus, clay_2, ore_1, wood_ore, }, new List<ResourceEffect> { glass, wood_1, clay_1, wood_2, stone_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                 ResourceManager.CommerceEffects.EastTradingPost,
+                 expectedResult);
+
+            // Make sure that a double resource works properly.
+            expectedResult.leftCoins = 2;   // ore
+            expectedResult.rightCoins = 1;  // clay
+            Verify2(new Cost("OOB"), new List<ResourceEffect> { caravansery },
+                new List<ResourceEffect> { ore_2, }, new List<ResourceEffect> { clay_1, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                 ResourceManager.CommerceEffects.EastTradingPost,
+                 expectedResult);
+
+            expectedResult.leftCoins = 2;   // 1 ore
+            expectedResult.rightCoins = 2;  // 2 clay
+            Verify2(new Cost("OOBB"), new List<ResourceEffect> { clay_ore, },
+                new List<ResourceEffect> { ore_2, }, new List<ResourceEffect> { clay_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                 ResourceManager.CommerceEffects.EastTradingPost,
+                 expectedResult);
+
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 2;  // 2 clay
+            Verify2(new Cost("OOBB"), new List<ResourceEffect> { clay_ore, caravansery },
+                new List<ResourceEffect> { ore_2, }, new List<ResourceEffect> { clay_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                 ResourceManager.CommerceEffects.EastTradingPost,
+                 expectedResult);
+
+            expectedResult.leftCoins = 2;   // 2 ore
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("OOBB"), new List<ResourceEffect> { clay_ore, caravansery },
+                new List<ResourceEffect> { ore_2, }, new List<ResourceEffect> { clay_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                 ResourceManager.CommerceEffects.WestTradingPost,
+                 expectedResult);
+
+            expectedResult.leftCoins = 2;   // 2 ore
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("OOBB"), new List<ResourceEffect> { clay_ore, caravansery },
+                new List<ResourceEffect> { ore_2, }, new List<ResourceEffect> { clay_2, ore_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                 ResourceManager.CommerceEffects.WestTradingPost,
+                 expectedResult);
+
+            expectedResult.leftCoins = 3;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("OOBB"), new List<ResourceEffect> { clay_ore },
+                new List<ResourceEffect> { stone_ore, wood_clay, ore_2, }, new List<ResourceEffect> { clay_2, ore_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                 ResourceManager.CommerceEffects.WestTradingPost,
+                 expectedResult);
+
+            expectedResult.leftCoins = 3;
+            expectedResult.rightCoins = 4;
+            Verify2(new Cost("OOBBPGC"), new List<ResourceEffect> { forum, caravansery, },
+                new List<ResourceEffect> { glass, papyrus, stone_ore, wood_clay, ore_2, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                 ResourceManager.CommerceEffects.WestTradingPost,
+                 expectedResult);
+
+            expectedResult.leftCoins = 7;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("OOBBPGC"), new List<ResourceEffect> { forum, caravansery, },
+                new List<ResourceEffect> { glass, papyrus, stone_ore, wood_clay, ore_2, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                 ResourceManager.CommerceEffects.WestTradingPost,
+                 expectedResult);
+
+            expectedResult.leftCoins = 5;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("OOBBPGC"), new List<ResourceEffect> { forum, caravansery, },
+                new List<ResourceEffect> { glass, papyrus, stone_ore, wood_clay, ore_2, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                 ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.Marketplace,
+                 expectedResult);
+
+            expectedResult.leftCoins = 5;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("OOBBPGCC"), new List<ResourceEffect> { forum, caravansery, },
+                new List<ResourceEffect> { glass, papyrus, stone_ore, wood_clay, ore_2, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                 ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.Marketplace,
+                 expectedResult);
+
+            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("OOBBPGCC"), new List<ResourceEffect> { clay_ore, clay_2, forum, caravansery, },
+                new List<ResourceEffect> { glass, papyrus, stone_ore, wood_clay, ore_2, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                 ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.Marketplace,
+                 expectedResult);
+
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("O"), new List<ResourceEffect> { },
+                new List<ResourceEffect> { }, new List<ResourceEffect> { },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor | ResourceManager.CommercePreferences.OneResourceDiscount,
+                 ResourceManager.CommerceEffects.None,
+                 expectedResult);
+
+            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("OOBBPGCC"), new List<ResourceEffect> { clay_ore, clay_2, forum, caravansery, },
+                new List<ResourceEffect> { glass, papyrus, stone_ore, wood_clay, ore_2, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor | ResourceManager.CommercePreferences.OneResourceDiscount,
+                 ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.Marketplace,
+                 expectedResult);
+
+            expectedResult.bankCoins = 1;
+            expectedResult.leftCoins = 1;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("OOBBPGCC"), new List<ResourceEffect> { clay_ore, clay_2, forum, caravansery, },
+                new List<ResourceEffect> { glass, papyrus, stone_ore, wood_clay, ore_2, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor | ResourceManager.CommercePreferences.OneResourceDiscount,
+                 ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.Bilkis,
+                 expectedResult);
+
+            expectedResult.bankCoins = 1;   // Bilkis purchases one resource
+            expectedResult.leftCoins = 2;   // buy glass or papyrus from the left neighbor
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("OOBBPGCC"), new List<ResourceEffect> { clay_ore, clay_2, forum, caravansery, },
+                new List<ResourceEffect> { glass, papyrus, stone_ore, wood_clay, ore_2, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor | ResourceManager.CommercePreferences.OneResourceDiscount,
+                 ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.Bilkis,
+                 expectedResult);
+
+            expectedResult.bankCoins = 1;   // Bilkis purchases one resource
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 4;  // buy glass or papyrus from the right neighbor
+            Verify2(new Cost("PGCC"), new List<ResourceEffect> { forum, },
+                new List<ResourceEffect> { glass, papyrus, }, new List<ResourceEffect> { cloth, glass, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                 ResourceManager.CommerceEffects.Bilkis,
+                 expectedResult);
+
+            expectedResult.bankCoins = 0;
+            expectedResult.leftCoins = 5;   // buy glass or papyrus from the left neighbor
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("OOBBPGC"), new List<ResourceEffect> { clay_1, stone_1, ore_1, forum, },
+                new List<ResourceEffect> { glass, papyrus, stone_ore, wood_clay, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                 ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.SecretWarehouse,
+                 expectedResult);
+
+            expectedResult.bankCoins = 0;
+            expectedResult.leftCoins = 2;   // buy glass or papyrus from the left neighbor
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("OOBBP"), new List<ResourceEffect> { clay_ore, forum, },
+                new List<ResourceEffect> { glass, papyrus, clay_1, stone_ore, wood_clay, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                 ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.SecretWarehouse,
+                 expectedResult);
+
+            expectedResult.bankCoins = 0;
+            expectedResult.leftCoins = 0;   // buy glass or papyrus from the left neighbor
+            expectedResult.rightCoins = 2;
+            Verify2(new Cost("OOBBP"), new List<ResourceEffect> { clay_ore, forum, },
+                new List<ResourceEffect> { glass, papyrus, clay_1, stone_ore, wood_clay, }, new List<ResourceEffect> { cloth, glass, clay_2, ore_2, },
+                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                 ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.SecretWarehouse,
+                 expectedResult);
+
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 1;
+            Verify2(new Cost("PWOO"), new List<ResourceEffect> { wood_ore, caravansery },
+                new List<ResourceEffect> { papyrus, stone_2, wood_2, clay_2, },
+                new List<ResourceEffect> { papyrus, glass, stone_2, clay_2 },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.SecretWarehouse,
+                expectedResult);
+
+            expectedResult.leftCoins = 4;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("WWOO"), new List<ResourceEffect> { wood_ore },
+                new List<ResourceEffect> { papyrus, ore_1, stone_2, wood_2, clay_2, },
+                new List<ResourceEffect> { papyrus, ore_1, glass, stone_2, clay_2 },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.SecretWarehouse,
+                expectedResult);
+
+            // Check that the algorithm realizes that by doubling the 2nd of an either/or, the
+            // resource cost can be fulfilled
+            expectedResult.leftCoins = 4;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("WWOO"), new List<ResourceEffect> { wood_ore },
+                new List<ResourceEffect> { papyrus, stone_2, wood_2, clay_2, },
+                new List<ResourceEffect> { papyrus, glass, stone_2, clay_2 },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.SecretWarehouse,
+                expectedResult);
+
+            expectedResult.leftCoins = 1;
+            expectedResult.rightCoins = 2;
+            Verify2(new Cost("OOOOPG"), new List<ResourceEffect> { ore_2 },
+                new List<ResourceEffect> { papyrus, stone_2, wood_2, clay_2, stone_ore, },
+                new List<ResourceEffect> { papyrus, glass, stone_2, clay_2, clay_ore },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.SecretWarehouse | ResourceManager.CommerceEffects.WestTradingPost,
+                expectedResult);
+
+            // Black Market tests
+
+            expectedResult.leftCoins = 4;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("WWWB"), new List<ResourceEffect> { wood_1 },
+                new List<ResourceEffect> { wood_2, }, new List<ResourceEffect> { clay_2, },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1,
+                expectedResult);
+
+            expectedResult.leftCoins = 4;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("WWWB"), new List<ResourceEffect> { wood_1 },
+                new List<ResourceEffect> { wood_2, }, new List<ResourceEffect> { clay_2, },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.BlackMarket2,
+                expectedResult);
+
+            expectedResult.leftCoins = 2;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("WWWB"), new List<ResourceEffect> { clay_1 },
+                new List<ResourceEffect> { wood_2, }, new List<ResourceEffect> { clay_2, },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.BlackMarket2,
+                expectedResult);
+
+            expectedResult.bAreResourceRequirementsMet = false;
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("WWWBPG"), new List<ResourceEffect> { clay_1 },
+                new List<ResourceEffect> { wood_2, }, new List<ResourceEffect> { clay_2, },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.BlackMarket2,
+                expectedResult);
+
+            expectedResult.bAreResourceRequirementsMet = true;
+            expectedResult.leftCoins = 4;
+            expectedResult.rightCoins = 2;
+            Verify2(new Cost("WWWBPG"), new List<ResourceEffect> { caravansery, },
+                new List<ResourceEffect> { wood_2, }, new List<ResourceEffect> { clay_2, },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.BlackMarket2,
+                expectedResult);
+
+            expectedResult.leftCoins = 2;   // 1 wood
+            expectedResult.rightCoins = 1;  // 1 clay
+            Verify2(new Cost("WWWBPG"), new List<ResourceEffect> { glass, wood_clay, caravansery, },
+                new List<ResourceEffect> { wood_2, }, new List<ResourceEffect> { clay_2, },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.BlackMarket2 | ResourceManager.CommerceEffects.EastTradingPost,
+                expectedResult);
+
+            // This time we have a West Trading Post, which allows the structure to be purchased for one
+            // fewer coin.
+            expectedResult.leftCoins = 2;   // 2 wood
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("WWWBPG"), new List<ResourceEffect> { glass, wood_clay, caravansery, },
+                new List<ResourceEffect> { wood_2, }, new List<ResourceEffect> { clay_2, },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.BlackMarket2 | ResourceManager.CommerceEffects.WestTradingPost,
+                expectedResult);
+
+            // Still TBD: Clandestine Docks
+        }
+
+        /// <summary>
+        /// Most complex test cases.
+        /// </summary>
+        static void ComplexTests()
+        {
+
         }
     }
 }
