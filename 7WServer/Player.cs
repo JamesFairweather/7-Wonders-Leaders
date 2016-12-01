@@ -1090,8 +1090,7 @@ namespace SevenWonders
                 return Buildable.StructureAlreadyBuilt;
 
             //if the cost is !, that means its free. Return T immediately
-            if (cost.coin == 0 && cost.wood == 0 && cost.stone == 0 && cost.clay == 0 &&
-                cost.ore == 0 &&  cost.cloth == 0 && cost.glass == 0 && cost.papyrus == 0)
+            if (cost.coin == 0 && cost.resources == string.Empty)
             {
                 return Buildable.True;
             }
@@ -1139,17 +1138,25 @@ namespace SevenWonders
                 return Buildable.InsufficientCoins;
             }
 
-            //can player afford cost with DAG resources?
-            if (isCostAffordableWithDAG(cost, nWildResources) == Buildable.True)
-                return Buildable.True;
+            CommerceOptions co = dag.CanAfford(cost, leftNeighbour.dag.getResourceList(false), rightNeighbour.dag.getResourceList(false));
 
-            //can player afford cost by conducting commerce?
-            if (isCostAffordableWithCommerce(cost, nWildResources) == Buildable.CommerceRequired)
-                return Buildable.CommerceRequired;
+            if (co.bAreResourceRequirementsMet)
+            {
+                if (co.leftCoins == 0 && co.rightCoins == 0)
+                {
+                    if (coin < co.bankCoins)
+                        return Buildable.InsufficientCoins;
+                    else
+                        return Buildable.True;
+                }
+                else
+                    return Buildable.CommerceRequired;
+            }
 
             return Buildable.InsufficientResources;
         }
 
+#if FALSE
         /// <summary>
         /// Assuming no pre-reqs, free cards, etc.
         /// Determine if a given cost is affordable
@@ -1157,25 +1164,27 @@ namespace SevenWonders
         /// <param name="card"></param>
         /// <param name="cost"></param>
         /// <returns></returns>
-        private Buildable isCostAffordableWithDAG(Cost cost, int nWildResources)
+        private Buildable isCostAffordableWithDAG(string cost, int nWildResources)
         {
             // the passed-in cost structure must not be modified.  C# doesn't support const correctness?!?
             // WTF!
-            cost = cost.Copy();
+            // cost = cost.Copy();
 
             //get rid of the coins from the cost, and see if DAG can afford the cost (already checked for coins at previous step)
             //this is relevant for the Black cards in the Cities expansion
-            cost.coin = 0;
+            // cost.coin = 0;
 
+            /*
             if (cost.IsZero())
             {
                 // The card only costs money (no resources), so it's affordable.
                 // If it was not affordable, the 
                 return Buildable.True;
             }
+            */
 
             //can I afford the cost with resources in my DAG?
-            if (dag.canAfford(cost, nWildResources)) return Buildable.True;
+            // if (dag.canAfford(""/*cost*/, nWildResources)) return Buildable.True;
 
             return Buildable.InsufficientResources;
         }
@@ -1218,6 +1227,8 @@ namespace SevenWonders
             return Buildable.InsufficientResources;
         }
 
+#endif
+
         /// <summary>
         /// Determines if the Player's current stage is buildable
         /// Returns "T" if it is, returns "F" if it is not
@@ -1257,15 +1268,19 @@ namespace SevenWonders
                 }
             }
 
-            //can player afford cost with DAG resources
-            if (isCostAffordableWithDAG(cost, nWildResources) == Buildable.True) return Buildable.True;
+            CommerceOptions co = dag.CanAfford(cost,
+                leftNeighbour.dag.getResourceList(false), rightNeighbour.dag.getResourceList(false));
 
-            //can player afford cost by conducting commerce?
-            if (isCostAffordableWithCommerce(cost, nWildResources) == Buildable.CommerceRequired)
-                return Buildable.CommerceRequired;
+            if (co.bAreResourceRequirementsMet)
+            {
+                if (co.bankCoins == 0 && co.leftCoins == 0 && co.rightCoins == 0)
+                    return Buildable.True;
+                else
+                    return Buildable.CommerceRequired;
+            }
 
-            //absolutely all options exhausted. return F
             return Buildable.InsufficientResources;
+
         }
 
 #if FALSE

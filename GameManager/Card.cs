@@ -237,6 +237,26 @@ namespace SevenWonders
         Mourners_Guild,
     };
 
+    public class Cost
+    {
+        public int coin;
+        public string resources;
+
+        public Cost(string strCost)
+        {
+            if (strCost != string.Empty && Char.IsDigit(strCost[0]))
+            {
+                coin = (int)Char.GetNumericValue(strCost[0]);
+                resources = strCost.Substring(1);
+            }
+            else
+            {
+                coin = 0;
+                resources = strCost;
+            }
+        }
+    }
+    /*
     // will be used for Wonder stages as well as card structures
     public class Cost
     {
@@ -329,6 +349,7 @@ namespace SevenWonders
 
     };
 
+    */
     public enum Buildable
     {
         True,
@@ -575,7 +596,7 @@ namespace SevenWonders
         public string description { get; private set; }
         public string iconName { get; private set; }
         int[] numAvailableByNumPlayers = new int[5];
-        public Cost cost = new Cost();      // TODO: is it possible to make this immutable?
+        public Cost cost;      // TODO: is it possible to make this immutable?
         public string[] chain = new string[2];
         public Effect effect;
 
@@ -595,19 +616,17 @@ namespace SevenWonders
 
             structureType = (StructureType)Enum.Parse(typeof(StructureType), createParams[2]);
 
-            switch (structureType)
+            if (structureType != StructureType.WonderStage)
             {
-                case StructureType.WonderStage:
-                    age = 0;
-                    wonderStage = int.Parse(createParams[30]);
-                    break;
-
-                default:
-                    age = int.Parse(createParams[3]);
-                    wonderStage = 0;
-                    for (int i = 0, j = 6; i < numAvailableByNumPlayers.Length; ++i, ++j)
-                        numAvailableByNumPlayers[i] = int.Parse(createParams[j]);
-                    break;
+                age = int.Parse(createParams[3]);
+                for (int i = 0, j = 6; i < numAvailableByNumPlayers.Length; ++i, ++j)
+                    numAvailableByNumPlayers[i] = int.Parse(createParams[j]);
+                wonderStage = 0;
+            }
+            else
+            {
+                age = 0;
+                wonderStage = int.Parse(createParams[22]);
             }
 
             Id = CardNameFromStringName(strName, wonderStage);
@@ -615,7 +634,10 @@ namespace SevenWonders
             description = createParams[4];
             iconName = createParams[5];
 
+            cost = new Cost(createParams[11]);
+
             // Structure cost
+            /*
             int.TryParse(createParams[11], out cost.coin);
             int.TryParse(createParams[12], out cost.wood);
             int.TryParse(createParams[13], out cost.stone);
@@ -624,46 +646,47 @@ namespace SevenWonders
             int.TryParse(createParams[16], out cost.cloth);
             int.TryParse(createParams[17], out cost.glass);
             int.TryParse(createParams[18], out cost.papyrus);
+            */
 
             // build chains (Cards that can be built for free in the following age)
-            chain[0] = createParams[19];
-            chain[1] = createParams[20];
+            chain[0] = createParams[12];
+            chain[1] = createParams[13];
 
-            if (createParams[21] != string.Empty)
+            if (createParams[14] != string.Empty)
             {
-                var effectType = (Effect.Type)Enum.Parse(typeof(Effect.Type), createParams[21]);
+                var effectType = (Effect.Type)Enum.Parse(typeof(Effect.Type), createParams[14]);
 
                 switch (effectType)
                 {
                     case Effect.Type.Military:
-                        effect = new MilitaryEffect(int.Parse(createParams[22]));
+                        effect = new MilitaryEffect(int.Parse(createParams[15]));
                         break;
 
                     case Effect.Type.Resource:
                         effect = new ResourceEffect(structureType == StructureType.RawMaterial || structureType == StructureType.Goods,
-                            createParams[23]);
+                            createParams[16]);
                         break;
 
                     case Effect.Type.Science:
-                        effect = new ScienceEffect(createParams[24]);
+                        effect = new ScienceEffect(createParams[17]);
                         break;
 
                     case Effect.Type.Commerce:
-                        effect = new CommercialDiscountEffect( /*createParams[25] */);
+                        effect = new CommercialDiscountEffect();
                         break;
 
                     case Effect.Type.CoinsPoints:
                         CoinsAndPointsEffect.CardsConsidered cardsConsidered = (CoinsAndPointsEffect.CardsConsidered)
-                            Enum.Parse(typeof(CoinsAndPointsEffect.CardsConsidered), createParams[26]);
+                            Enum.Parse(typeof(CoinsAndPointsEffect.CardsConsidered), createParams[18]);
 
                         StructureType classConsidered =
-                            (StructureType)Enum.Parse(typeof(StructureType), createParams[27]);
+                            (StructureType)Enum.Parse(typeof(StructureType), createParams[19]);
 
                         int coinsGranted = 0;
-                        int.TryParse(createParams[28], out coinsGranted);
+                        int.TryParse(createParams[20], out coinsGranted);
 
                         int pointsAwarded = 0;
-                        int.TryParse(createParams[29], out pointsAwarded);
+                        int.TryParse(createParams[21], out pointsAwarded);
 
                         effect = new CoinsAndPointsEffect(cardsConsidered, classConsidered, coinsGranted, pointsAwarded);
                         break;
@@ -682,7 +705,7 @@ namespace SevenWonders
                         break;
 
                     case Effect.Type.StructureDiscount:
-                        effect = new StructureDiscountEffect((StructureType)Enum.Parse(typeof(StructureType), createParams[31]));
+                        effect = new StructureDiscountEffect((StructureType)Enum.Parse(typeof(StructureType), createParams[23]));
                         break;
 
                     // From the Cities expansion pack
@@ -691,12 +714,12 @@ namespace SevenWonders
                         break;
 
                     case Effect.Type.LossOfCoins:
-                        LossOfCoinsEffect.LossCounter lc = (LossOfCoinsEffect.LossCounter)Enum.Parse(typeof(LossOfCoinsEffect.LossCounter), createParams[27]);
-                        effect = new LossOfCoinsEffect(lc, int.Parse(createParams[28]), int.Parse(createParams[29]));
+                        LossOfCoinsEffect.LossCounter lc = (LossOfCoinsEffect.LossCounter)Enum.Parse(typeof(LossOfCoinsEffect.LossCounter), createParams[19]);
+                        effect = new LossOfCoinsEffect(lc, int.Parse(createParams[20]), int.Parse(createParams[21]));
                         break;
 
                     case Effect.Type.Diplomacy:
-                        effect = new DiplomacyEffect(int.Parse(createParams[29]));
+                        effect = new DiplomacyEffect(int.Parse(createParams[21]));
                         break;
 
                     default:
