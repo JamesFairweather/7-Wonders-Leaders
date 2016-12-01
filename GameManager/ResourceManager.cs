@@ -218,7 +218,7 @@ namespace SevenWonders
                 throw new NotImplementedException();
             }
 
-            CommerceOptions co = GetCommerceOptions(cost, leftResourcesRequired, rightResourcesRequired, p);
+            CommerceOptions co = CanAfford(cost, leftResourcesRequired, rightResourcesRequired, p);
 
             if (co.bAreResourceRequirementsMet)
             {
@@ -338,7 +338,6 @@ namespace SevenWonders
                 this.index = i;
                 this.cost = cost;
                 this.usedDoubleResource = false;
-                this.resType = '?';
             }
 
             public ResourceOwner owner { get; private set; }    // who owns this resource
@@ -351,13 +350,6 @@ namespace SevenWonders
             /// If both resources from a double are used, it is noted here.
             /// </summary>
             public bool usedDoubleResource { get; set; }
-
-            /// <summary>
-            /// The type of resource this is (W/S/B/O/P/C/G).  This is recorded so that
-            /// if a cheaper option is found by a subsequent search path, which know which
-            /// resource is being replaced.
-            /// </summary>
-            public char resType;
         }
 
         enum SpecialTrait
@@ -367,21 +359,35 @@ namespace SevenWonders
             Used = 2,
         };
 
+        class ResourceCost
+        {
+            public ResourceCost()
+            {
+                bank = 0;
+                left = 0;
+                right = 0;
+            }
+
+            public int bank;
+            public int left;
+            public int right;
+        };
+
         struct ReduceState
         {
             // These are static fields, they are set when the recursion begins.
 
+            // Effects can only be added to this field.
+            public CommerceEffects marketEffects;
+
             // preferences can change from one run to the next.
             public CommercePreferences pref;
+
             public List<ResourceEffect> myResources;
             public List<ResourceEffect> leftResources;
             public List<ResourceEffect> rightResources;
 
-            // Effects can only be added to this field.
-            public CommerceEffects marketEffects;
-
             // One of these fields is updated with each level of recursion
-            public Stack<ResourceUsed> usedResources;       // current resource stack
             public int myResourceIndex;
             public int leftResourceIndex;
             public int rightResourceIndex;
@@ -389,15 +395,12 @@ namespace SevenWonders
             public int leftResourcesAvailable;
             public int rightResourcesAvailable;
 
-            // Contains the successful result.
-            public List<ResourceUsed> outputResourceList;   // output of a successful trace
+            public Stack<ResourceUsed> currentResourceStack;        // current resource stack
+            public List<ResourceUsed> lowestCostResourceStack;      // output of a successful trace
 
-            public SpecialTrait wildResource;               // Imhotep, Archimedes
+            public SpecialTrait wildResource;                       // Imhotep, Archimedes
             public SpecialTrait bilkis;
             public SpecialTrait secretWarehouse;
-
-            // public SpecialTrait ClandestineDockWest;
-            // public SpecialTrait ClandestineDockEast;
 
             public int nBlackMarketIndex;
             public int nBlackMarketAvailable;
@@ -406,35 +409,38 @@ namespace SevenWonders
             public ResourceEffect blackMarketResource;
         };
 
-        static void ReduceRecursively(ReduceState state, string remainingCost)
+        static void ReduceRecursively(ReduceState state, ref ResourceCost lowCost, string remainingCost)
         {
-            /*
-             * This is an alternate way to implement the wild-card resource.  Unforunately it has a bug with
-             * double-resources, which would need to be handled by changing the nResourceCostsToRemove, below.
-             * Instead, the one resource discount is handled by adding a wild card resource for this structure
-             * and then removing it afterwards.  I've left this code in here for now in case I change my mind
-             * again and decide it's better to do it this way than the temporary resource.
-            if (((pref & CommercePreferences.OneResourceDiscount) == CommercePreferences.OneResourceDiscount) &&
-                (remainingCost.Length == 1))
-            {
-                // if the 1-resource discount is in effect (Imhotep, Archimedes, etc.), and there's only a single
-                // resource left to match, we're done.
-                remainingCost = string.Empty;
-            }
-            */
-
             if (remainingCost == string.Empty)
             {
                 // success!  This combination of resources reduced the cost to zero.
 
-                if (state.outputResourceList.Count == 0)
+                ResourceCost rc = new ResourceCost();
+
+                foreach (ResourceUsed ru in state.currentResourceStack)
                 {
-                    // First successful match.
-                    // copy the resource stack to the output
-                    foreach (ResourceUsed r in state.usedResources)
+                    if (ru.owner == ResourceOwner.Left)
                     {
-                        state.outputResourceList.Add(r);
+                        rc.left += ru.cost * (ru.usedDoubleResource ? 2 : 1);
                     }
+                    else if (ru.owner == ResourceOwner.Right)
+                    {
+                        rc.right += ru.cost * (ru.usedDoubleResource ? 2 : 1);
+                    }
+                    else
+                    {
+                        rc.bank += ru.cost;
+                    }
+                }
+
+                if (state.marketEffects.HasFlag(CommerceEffects.ClandestineDockWest) && rc.left != 0) --rc.left;
+                if (state.marketEffects.HasFlag(CommerceEffects.ClandestineDockEast) && rc.right != 0) --rc.right;
+
+                bool replaceResourceStack = false;
+
+                if (state.lowestCostResourceStack.Count == 0)
+                {
+                    replaceResourceStack = true;
                 }
                 else
                 {
@@ -454,95 +460,38 @@ namespace SevenWonders
                     // An analysis indicated what was happening was the Forum was being used twice to fulfill the Papyrus
                     // resource, once from the first match (when glass was purchased), then again from a later match,
                     // (when Papyrus was purchased)
-                    int nExistingStackBankCost = 0;
-                    int nExistingStackRightCost = 0;
-                    int nExistingStackLeftCost = 0;
 
-                    int nThisStackBankCost = 0;
-                    int nThisStackRightCost = 0;
-                    int nThisStackLeftCost = 0;
-
-                    foreach (ResourceUsed ru in state.outputResourceList)
-                    {
-                        if (ru.owner == ResourceOwner.Left)
-                        {
-                            nExistingStackLeftCost += ru.cost * (ru.usedDoubleResource ? 2 : 1);
-                        }
-                        else if (ru.owner == ResourceOwner.Right)
-                        {
-                            nExistingStackRightCost += ru.cost * (ru.usedDoubleResource ? 2 : 1);
-                        }
-                        else
-                        {
-                            nExistingStackBankCost += ru.cost;
-                        }
-                    }
-
-                    foreach (ResourceUsed ru in state.usedResources)
-                    {
-                        if (ru.owner == ResourceOwner.Left)
-                        {
-                            nThisStackLeftCost += ru.cost * (ru.usedDoubleResource ? 2 : 1);
-                        }
-                        else if (ru.owner == ResourceOwner.Right)
-                        {
-                            nThisStackRightCost += ru.cost * (ru.usedDoubleResource ? 2 : 1);
-                        }
-                        else
-                        {
-                            nThisStackBankCost += ru.cost;
-                        }
-                    }
-
-                    if (state.marketEffects.HasFlag(CommerceEffects.ClandestineDockWest))
-                    {
-                        if (nThisStackLeftCost != 0) --nThisStackLeftCost;
-                        if (nExistingStackLeftCost != 0) --nExistingStackLeftCost;
-                    }
-
-                    if (state.marketEffects.HasFlag(CommerceEffects.ClandestineDockEast))
-                    {
-                        if (nThisStackRightCost != 0) --nThisStackRightCost;
-                        if (nExistingStackRightCost != 0) --nExistingStackRightCost;
-                    }
-
-                    bool replaceResourceStack = false;
-
-                    if ((nThisStackLeftCost + nThisStackRightCost + nThisStackBankCost) < 
-                        (nExistingStackLeftCost + nExistingStackRightCost + nExistingStackBankCost))
+                    if ((rc.left + rc.right + rc.bank) < (lowCost.left + lowCost.right + lowCost.bank))
                     {
                         // This is a cheaper overall stack than the existing one, so use it
                         replaceResourceStack = true;
                     }
-                    else if ((nThisStackLeftCost + nThisStackRightCost) == (nExistingStackLeftCost + nExistingStackRightCost))
+                    else if ((rc.left + rc.right) == (lowCost.left + lowCost.right))
                     {
                         // This branch indicates the amount paid to each neighbor is the same in this stack compared with the
                         // existing good stack, so we do a secondary comparison for the costs to each neighbor and pay the
                         // preferred one if the cost to the non-preferred one is lower.  Note, that we intentionally do not
                         // the bank cost in this secondary comparison as we would prefer to pay for Bilkis' resource than pay
                         // a neighbor for theirs.
-
-                        replaceResourceStack = state.pref.HasFlag(CommercePreferences.BuyFromLeftNeighbor) &&
-                            nExistingStackLeftCost < nThisStackLeftCost;
-
-                        if (!replaceResourceStack)
-                            replaceResourceStack = state.pref.HasFlag(CommercePreferences.BuyFromRightNeighbor) &&
-                                nExistingStackRightCost < nThisStackRightCost;
-                    }
-
-                    if (replaceResourceStack)
-                    {
-                        // replace the existing used resource list with this cheaper one.
-                        state.outputResourceList.Clear();
-
-                        foreach (ResourceUsed r in state.usedResources)
-                        {
-                            state.outputResourceList.Add(r);
-                        }
+                        replaceResourceStack =
+                            (state.pref.HasFlag(CommercePreferences.BuyFromLeftNeighbor) && lowCost.left < rc.left) ||
+                            (state.pref.HasFlag(CommercePreferences.BuyFromRightNeighbor) && lowCost.right < rc.right);
                     }
                 }
 
-               // if (!state.pref.HasFlag(CommercePreferences.LowestCost))                // end
+                if (replaceResourceStack)
+                {
+                    // replace the existing used resource list with this cheaper one.
+                    state.lowestCostResourceStack.Clear();
+
+                    foreach (ResourceUsed r in state.currentResourceStack)
+                    {
+                        state.lowestCostResourceStack.Add(r);
+                    }
+
+                    lowCost = rc;
+                }
+
                // do not continue down this search path once we have a completed path.  The algorithm
                // searches every possible combination and if there's a cheaper good path, it will be found
                return;
@@ -560,7 +509,7 @@ namespace SevenWonders
             {
                 ResourceEffect res = null;
 
-                if (state.outputResourceList.Count != 0 && !state.pref.HasFlag(CommercePreferences.LowestCost))
+                if (state.lowestCostResourceStack.Count != 0 && !state.pref.HasFlag(CommercePreferences.LowestCost))
                     break;
 
                 int myInc= 0;
@@ -680,69 +629,44 @@ namespace SevenWonders
                     resUsed = new ResourceUsed(ro, resourceIndex, resCost);
                 }
 
-                state.usedResources.Push(resUsed);
+                state.currentResourceStack.Push(resUsed);
 
                 for (int resIndex = 0; resIndex < res.resourceTypes.Length; resIndex++)
                 {
-                    if (state.outputResourceList.Count != 0 && !state.pref.HasFlag(CommercePreferences.LowestCost))
+                    if (state.lowestCostResourceStack.Count != 0 && !state.pref.HasFlag(CommercePreferences.LowestCost))
                         break;
 
                     char resType = res.resourceTypes[resIndex];
 
-                    int ind = -1;
-                    int nResourceCostsToRemove = 0;
-                    string newRemainingCost = remainingCost;
-
-                    if (remainingCost != string.Empty)
-                    {
-                        // incomplete set of resources to buy this structure so far.
-                        ind = remainingCost.IndexOf(resType);
-
-                        if (ind != -1)
-                        {
-                            nResourceCostsToRemove = res.IsDoubleResource() && ((remainingCost.Length - ind) > 1) && (remainingCost[ind] == remainingCost[ind + 1]) ? 2 : 1;
-
-                            if (nResourceCostsToRemove == 2)
-                            {
-                                resIndex++;
-
-                                // note that both resources provided by this
-                                // double-resource card were used (for cost-calculating purposes).
-                                // don't need to worry about this for my city as there's no cost to use them.
-                                state.usedResources.Peek().usedDoubleResource = true;
-
-                                // TODO: should I do this instead?
-                                // state.usedResources.Peek().cost *= 2;
-                            }
-
-                            // Secret Warehouse.  Must be considered _after_ double-type resources.  Only applies to our city's resources
-                            // and only if they are a single, double, or either/or.  No Forum/Caravansery.
-                            if (state.secretWarehouse == SpecialTrait.Unused && myInc == 1 && res.resourceTypes.Length <= 2 && res != state.blackMarketResource)
-                            {
-                                if (((remainingCost.Length - ind) > nResourceCostsToRemove) && (remainingCost[ind] == remainingCost[ind + nResourceCostsToRemove]))
-                                {
-                                    // turn a single into a double or a double into a triple
-                                    ++nResourceCostsToRemove;
-                                    state.secretWarehouse = SpecialTrait.Used;
-                                }
-                            }
-
-                            newRemainingCost = remainingCost.Remove(ind, nResourceCostsToRemove);
-                        }
-                    }
-                    else
-                    {
-                        // with the change to test for the total overall cost when replacing
-                        // an existing good resource stack with a different good resource stack,
-                        // we do not get in here any more.
-                        throw new NotImplementedException();
-                        // ind = state.outputResourceList.FindIndex(x => x.resType == resType && resUsed.cost < x.cost);
-                    }
+                    // incomplete set of resources to buy this structure so far.
+                    int ind = remainingCost.IndexOf(resType);
 
                     if (ind != -1)
                     {
-                        // This resource matches one (or more) of the required resources.  Remove the matched
-                        // resource from the remainingCost and move down a level of recusion.
+                        int nResourceCostsToRemove = res.IsDoubleResource() && ((remainingCost.Length - ind) > 1) && (remainingCost[ind] == remainingCost[ind + 1]) ? 2 : 1;
+
+                        if (nResourceCostsToRemove == 2)
+                        {
+                            resIndex++;
+
+                            // note that both resources provided by this
+                            // double-resource card were used (for cost-calculating purposes).
+                            // don't need to worry about this for my city as there's no cost to use them.
+                            state.currentResourceStack.Peek().usedDoubleResource = true;
+                        }
+
+                        // Secret Warehouse.  Must be considered _after_ double-type resources.  Only applies to our city's resources
+                        // and only if they are a single, double, or either/or.  No Forum/Caravansery.
+                        if (state.secretWarehouse == SpecialTrait.Unused && myInc == 1 && res.resourceTypes.Length <= 2 && res != state.blackMarketResource)
+                        {
+                            if (((remainingCost.Length - ind) > nResourceCostsToRemove) && (remainingCost[ind] == remainingCost[ind + nResourceCostsToRemove]))
+                            {
+                                // turn a single into a double or a double into a triple
+                                ++nResourceCostsToRemove;
+                                state.secretWarehouse = SpecialTrait.Used;
+                            }
+                        }
+
                         state.myResourceIndex += myInc;
                         state.leftResourceIndex += leftInc;
                         state.rightResourceIndex += rightInc;
@@ -756,9 +680,7 @@ namespace SevenWonders
                         if (res == state.blackMarketResource)
                             state.nBlackMarketIndex++;
 
-                        state.usedResources.Peek().resType = resType;
-
-                        ReduceRecursively(state, newRemainingCost);
+                        ReduceRecursively(state, ref lowCost, remainingCost.Remove(ind, nResourceCostsToRemove));
 
                         state.myResourceIndex -= myInc;
                         state.leftResourceIndex -= leftInc;
@@ -776,13 +698,10 @@ namespace SevenWonders
                         if (res == state.blackMarketResource)
                             state.nBlackMarketIndex--;
                     }
-
-                    // if this resource isn't in the cost string, move on to the next option in the resource
-                    // choices for this ResourceEffect.
                 }
 
                 // pop the last ResourceEffect off, then move on to the next resource choice for this structure
-                state.usedResources.Pop();
+                state.currentResourceStack.Pop();
 
                 // increment the resource counter (only one of these is ever set to 1, the other two will be 0.
                 state.myResourceIndex += myInc;
@@ -800,11 +719,7 @@ namespace SevenWonders
             }
         }
 
-        // I don't want to find every possible resource path.  There could be hundreds of valid combinations.
-        // Instead, I want to have biases: prefer to buy from left, prefer to buy from right, prefer even,
-        // prefer cheapest option, buy 1 from each before buying a 2nd one (i.e. to get coins from Hatshepsut).
-        // This will guide the search path.  Of course, if the preferred option cannot be satisfied, we
-        // will return the first valid path we encounter.
+        // These flags can change with each call to GetCommerceOptions.
         [Flags]
         public enum CommercePreferences
         {
@@ -832,10 +747,8 @@ namespace SevenWonders
             BuyOneFromEachNeighbor = 16,
         };
 
-        // minimal cost (i.e. buy from neighbor you get discounts from
-        // Hatshepsut - try to buy one from each neighbor.
-
-        public CommerceOptions GetCommerceOptions(Cost cost, List<ResourceEffect> leftResources, List<ResourceEffect> rightResources, CommercePreferences pref = CommercePreferences.LowestCost)
+        public CommerceOptions CanAfford(Cost cost, List<ResourceEffect> leftResources, List<ResourceEffect> rightResources,
+            CommercePreferences pref = CommercePreferences.LowestCost)
         {
             CommerceOptions commOptions = new CommerceOptions();
             ReduceState rs = new ReduceState();
@@ -845,10 +758,11 @@ namespace SevenWonders
             rs.rightResources = rightResources;
             rs.leftResourcesAvailable = leftResources.Where(x => x.canBeUsedByNeighbors).Count();
             rs.rightResourcesAvailable = rightResources.Where(x => x.canBeUsedByNeighbors).Count();
-            rs.usedResources = new Stack<ResourceUsed>();
+            rs.currentResourceStack = new Stack<ResourceUsed>();
             rs.marketEffects = this.marketEffects;
             rs.pref = pref;
-            rs.outputResourceList = new List<ResourceUsed>();
+            rs.lowestCostResourceStack = new List<ResourceUsed>();
+            ResourceCost lowCost = new ResourceCost();
 
             rs.wildResource = pref.HasFlag(CommercePreferences.OneResourceDiscount) ? SpecialTrait.Unused : SpecialTrait.Unavailable;
             rs.bilkis = marketEffects.HasFlag(CommerceEffects.Bilkis) ? SpecialTrait.Unused : SpecialTrait.Unavailable;
@@ -896,9 +810,9 @@ namespace SevenWonders
             {
                 // kick off a recursive reduction of the resource cost.  Paths that completely eliminate the cost
                 // are returned in the requiredResourcesLists.
-                ReduceRecursively(rs, strCost);
+                ReduceRecursively(rs, ref lowCost, strCost);
 
-                commOptions.bAreResourceRequirementsMet = rs.outputResourceList.Count != 0;
+                commOptions.bAreResourceRequirementsMet = rs.lowestCostResourceStack.Count != 0;
             }
             else
             {
@@ -907,38 +821,9 @@ namespace SevenWonders
 
             if (commOptions.bAreResourceRequirementsMet)
             {
-                commOptions.bankCoins += cost.coin;
-            }
-
-            foreach (ResourceUsed res in rs.outputResourceList)
-            {
-                if (res.owner == ResourceOwner.Left)
-                {
-                    commOptions.leftCoins += res.cost;
-                    if (res.usedDoubleResource)
-                        commOptions.leftCoins += res.cost;
-                }
-                else if (res.owner == ResourceOwner.Right)
-                {
-                    commOptions.rightCoins += res.cost;
-                    if (res.usedDoubleResource)
-                        commOptions.rightCoins += res.cost;
-                }
-                else if (res.owner == ResourceOwner.Self)
-                {
-                    // Using Bilkis' resource is the only way this block gets called
-                    commOptions.bankCoins += res.cost;
-                }
-            }
-
-            if (marketEffects.HasFlag(CommerceEffects.ClandestineDockWest) && commOptions.leftCoins != 0)
-            {
-                commOptions.leftCoins -= 1;
-            }
-
-            if (marketEffects.HasFlag(CommerceEffects.ClandestineDockEast) && commOptions.rightCoins != 0)
-            {
-                commOptions.rightCoins -= 1;
+                commOptions.bankCoins = lowCost.bank + cost.coin;
+                commOptions.leftCoins = lowCost.left;
+                commOptions.rightCoins = lowCost.right;
             }
 
             return commOptions;

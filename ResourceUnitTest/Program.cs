@@ -27,7 +27,7 @@ namespace ResourceUnitTest
 
             resMan.SetCommerceEffect(commerceEffects);
 
-            CommerceOptions co = resMan.GetCommerceOptions(cost, leftResources, rightResources, pref);
+            CommerceOptions co = resMan.CanAfford(cost, leftResources, rightResources, pref);
 
             Verify(co.bAreResourceRequirementsMet == expectedResult.bAreResourceRequirementsMet);
             Verify(co.bankCoins == expectedResult.bankCoins);
@@ -738,11 +738,6 @@ namespace ResourceUnitTest
                 ResourceManager.CommerceEffects.EastTradingPost,
                 expectedResult);
 
-            // Nov. 15, 2016 I had a good one today.  Babylon B, Glassworks, Caravansery,
-            // trading posts in each direction, Marketplace, Clandestine Dock West.
-            // West neighbor: China A, Press, Glassworks, Forest Cave, Brickyard.
-            // East neighbor: Olympia B, Timber Yard, single stone, double ore.
-
             expectedResult.leftCoins = 6;   // papyrus, cloth + ore
             expectedResult.rightCoins = 1;  // clay
 
@@ -1078,7 +1073,85 @@ namespace ResourceUnitTest
         /// </summary>
         static void ComplexTests()
         {
+            CommerceOptions expectedResult = new CommerceOptions();
 
+            expectedResult.bAreResourceRequirementsMet = true;
+            expectedResult.bankCoins = 1;
+            expectedResult.leftCoins = 3;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("SSSSP"), new List<ResourceEffect> { stone_wood, forum, },
+                new List<ResourceEffect> { stone_1, papyrus, glass, stone_ore }, new List<ResourceEffect> { papyrus, caravansery, forum },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.Bilkis | ResourceManager.CommerceEffects.ClandestineDockWest,
+                expectedResult);
+
+            // Nov. 15, 2016 I had a good one today.  Babylon B, Glassworks, Caravansery,
+            // trading posts in each direction, Marketplace, Clandestine Dock West.
+            // West neighbor: China A, Press, Glassworks, Forest Cave, Brickyard.
+            // East neighbor: Olympia B, Timber Yard, single stone, double ore.
+
+            expectedResult.bankCoins = 0;
+            expectedResult.leftCoins = 1;   // cloth, papyrus (+Clandestine Dock)
+            expectedResult.rightCoins = 2;  // 2 stone
+            Verify2(new Cost("SSSCP"), new List<ResourceEffect> { clay_1, glass, caravansery, },
+                new List<ResourceEffect> { cloth, papyrus, glass, clay_2, wood_ore, }, new List<ResourceEffect> { wood_1, stone_1, stone_wood, ore_2, forum },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.ClandestineDockWest,
+                expectedResult);
+
+            expectedResult.bankCoins = 0;
+            expectedResult.leftCoins = 0;   // cloth or papyrus (+Clandestine Dock)
+            expectedResult.rightCoins = 2;  // 2 stone
+            Verify2(new Cost("SSSCP"), new List<ResourceEffect> { clay_1, glass, caravansery, },
+                new List<ResourceEffect> { cloth, papyrus, glass, clay_2, wood_ore, }, new List<ResourceEffect> { wood_1, stone_1, stone_wood, ore_2, forum },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.ClandestineDockWest,
+                expectedResult);
+
+            expectedResult.bankCoins = 0;
+            expectedResult.leftCoins = 1;   // cloth or papyrus (+Clandestine Dock)
+            expectedResult.rightCoins = 1;  // 1 stone
+            Verify2(new Cost("SSSCP"), new List<ResourceEffect> { clay_1, glass, caravansery, },
+                new List<ResourceEffect> { cloth, papyrus, glass, clay_2, wood_ore, }, new List<ResourceEffect> { wood_1, stone_1, stone_wood, ore_2, forum },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.ClandestineDockWest,
+                expectedResult);
+
+            expectedResult.bankCoins = 1;
+            expectedResult.leftCoins = 0;   // cloth or papyrus (+Clandestine Dock)
+            expectedResult.rightCoins = 0;  // 1 stone
+            Verify2(new Cost("SSSCP"), new List<ResourceEffect> { clay_1, glass, caravansery, },
+                new List<ResourceEffect> { cloth, papyrus, glass, clay_2, wood_ore, }, new List<ResourceEffect> { wood_1, stone_1, stone_wood, ore_2, forum },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.ClandestineDockWest | ResourceManager.CommerceEffects.ClandestineDockEast | ResourceManager.CommerceEffects.Bilkis,
+                expectedResult);
+
+            expectedResult.bankCoins = 2;
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("2SSBBGP"), new List<ResourceEffect> { clay_1, glass, caravansery, },
+                new List<ResourceEffect> { cloth, papyrus, glass, clay_2, wood_ore, }, new List<ResourceEffect> { wood_1, stone_1, stone_wood, ore_2, forum },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.ClandestineDockWest | ResourceManager.CommerceEffects.ClandestineDockEast,
+                expectedResult);
+
+            expectedResult.bankCoins = 3;
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("2SSBBCP"), new List<ResourceEffect> { clay_1, glass, caravansery, },
+                new List<ResourceEffect> { cloth, papyrus, glass, clay_2, wood_ore, }, new List<ResourceEffect> { wood_1, stone_1, stone_wood, ore_2, forum },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.ClandestineDockWest | ResourceManager.CommerceEffects.ClandestineDockEast | ResourceManager.CommerceEffects.Bilkis,
+                expectedResult);
+
+            expectedResult.bankCoins = 2;
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("2SSBBCP"), new List<ResourceEffect> { clay_1, glass, caravansery, },
+                new List<ResourceEffect> { cloth, papyrus, glass, clay_2, wood_ore, }, new List<ResourceEffect> { wood_1, stone_1, stone_wood, ore_2, forum },
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
+                ResourceManager.CommerceEffects.SecretWarehouse | ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.ClandestineDockWest | ResourceManager.CommerceEffects.ClandestineDockEast | ResourceManager.CommerceEffects.Bilkis,
+                expectedResult);
         }
     }
 }
