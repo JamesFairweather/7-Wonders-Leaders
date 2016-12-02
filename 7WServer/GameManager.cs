@@ -883,7 +883,7 @@ namespace SevenWonders
         {
             string strRet = string.Format("&{0}Resources=", who);
 
-            foreach (ResourceEffect se in plyr.dag.getResourceList(isSelf))
+            foreach (ResourceEffect se in plyr.resourceMgr.getResourceList(isSelf))
             {
                 strRet += se.resourceTypes + ",";
             }

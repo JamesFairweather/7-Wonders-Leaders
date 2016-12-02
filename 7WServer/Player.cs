@@ -213,7 +213,7 @@ namespace SevenWonders
 
         private GameManager gm;
 
-        public ResourceManager dag { get; private set; }
+        public ResourceManager resourceMgr { get; private set; }
 
         public bool bUIRequiresUpdating { get; set; }
 
@@ -222,7 +222,7 @@ namespace SevenWonders
         /// </summary>
         public Player(String nickname, bool isAI, GameManager gm)
         {
-            dag = new ResourceManager();
+            resourceMgr = new ResourceManager();
 
             this.nickname = nickname;
 
@@ -485,7 +485,7 @@ namespace SevenWonders
             {
                 if (act is ResourceEffect)
                 {
-                    dag.add(act as ResourceEffect);
+                    resourceMgr.add(act as ResourceEffect);
                 }
                 else if (act is CoinsAndPointsEffect)
                 {
@@ -1154,7 +1154,7 @@ namespace SevenWonders
                 return ret;
             }
 
-            ret = dag.CanAfford(cost, leftNeighbour.dag.getResourceList(false), rightNeighbour.dag.getResourceList(false));
+            ret = resourceMgr.CanAfford(cost, leftNeighbour.resourceMgr.getResourceList(false), rightNeighbour.resourceMgr.getResourceList(false));
 
             if (ret.bAreResourceRequirementsMet)
             {
@@ -1226,8 +1226,8 @@ namespace SevenWonders
                 return ret;
             }
 
-            ret = dag.CanAfford(cost,
-                leftNeighbour.dag.getResourceList(false), rightNeighbour.dag.getResourceList(false));
+            ret = resourceMgr.CanAfford(cost,
+                leftNeighbour.resourceMgr.getResourceList(false), rightNeighbour.resourceMgr.getResourceList(false));
 
             if (ret.bAreResourceRequirementsMet)
             {

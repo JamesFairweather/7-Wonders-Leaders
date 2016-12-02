@@ -110,10 +110,9 @@ namespace SevenWonders
 
         class ResourceUsed
         {
-            public ResourceUsed(ResourceOwner o, int i, int cost)
+            public ResourceUsed(ResourceOwner o, int cost)
             {
                 this.owner = o;
-                this.index = i;
                 this.cost = cost;
                 this.usedDoubleResource = false;
             }
@@ -309,26 +308,26 @@ namespace SevenWonders
                     // my city's resources are free, use them up first.
                     res = state.myResources[state.myResourceIndex];
                     myInc = 1;
-                    resUsed = new ResourceUsed(ResourceOwner.Self, state.myResourceIndex, 0);
+                    resUsed = new ResourceUsed(ResourceOwner.Self, 0);
                 }
                 else if (state.nBlackMarketIndex < state.nBlackMarketAvailable)
                 {
                     res = state.blackMarketResource;
-                    resUsed = new ResourceUsed(ResourceOwner.Self, 0, 0);
+                    resUsed = new ResourceUsed(ResourceOwner.Self, 0);
                 }
                 else if (state.wildResource == SpecialTrait.Unused)
                 {
                     // Archimedes, Imhotep, Leonidas and Hammurabi.  These resources have no cost
                     usedWildResource = true;
                     res = state.wildResourceEffect;
-                    resUsed = new ResourceUsed(ResourceOwner.Self, 0, 0);
+                    resUsed = new ResourceUsed(ResourceOwner.Self, 0);
                 }
                 else if (state.bilkis == SpecialTrait.Unused)
                 {
                     // Bilkis costs one coin but that's better than paying a neighbor (unless they have a Clandestine Dock)
                     usedBilkis = true;
                     res = state.wildResourceEffect;
-                    resUsed = new ResourceUsed(ResourceOwner.Self, 0, 1);
+                    resUsed = new ResourceUsed(ResourceOwner.Self, 1);
                 }
                 else
                 {
@@ -411,7 +410,7 @@ namespace SevenWonders
                         }
                     }
 
-                    resUsed = new ResourceUsed(ro, resourceIndex, resCost);
+                    resUsed = new ResourceUsed(ro, resCost);
                 }
 
                 state.currentResourceStack.Push(resUsed);
