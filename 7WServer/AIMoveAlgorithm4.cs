@@ -64,7 +64,7 @@ namespace SevenWonders
                         bestLeader = player.draftedLeaders.Find(x => x.Id == leaderName);
                     }
 
-                    if (bestLeader != null && player.isCardBuildable(bestLeader) == Buildable.True)
+                    if (bestLeader != null && player.isCardBuildable(bestLeader).buildable == CommerceOptions.Buildable.True)
                     {
                         break;
                     }
@@ -109,18 +109,18 @@ namespace SevenWonders
             */
             // Build Guild cards in the 3rd age (except for the Courtesan's Guild, which requires entering a special Game Phase
             // that the AI has not been programmed to think about.
-            Card c = player.hand.Find(x => x.structureType == StructureType.Guild && x.Id != CardId.Courtesans_Guild && player.isCardBuildable(x) == Buildable.True);
+            Card c = player.hand.Find(x => x.structureType == StructureType.Guild && x.Id != CardId.Courtesans_Guild && player.isCardBuildable(x).buildable == CommerceOptions.Buildable.True);
 
             if (c == null)
             {
                 //look for buildable blue cards at the third age ..
-                c = player.hand.Find(x => x.structureType == StructureType.Civilian && player.isCardBuildable(x) == Buildable.True && x.age == 3);
+                c = player.hand.Find(x => x.structureType == StructureType.Civilian && player.isCardBuildable(x).buildable == CommerceOptions.Buildable.True && x.age == 3);
             }
 
             if (c == null)
             {
                 //look for buildable green cards
-                c = player.hand.Find(x => x.structureType == StructureType.Science && player.isCardBuildable(x) == Buildable.True);
+                c = player.hand.Find(x => x.structureType == StructureType.Science && player.isCardBuildable(x).buildable == CommerceOptions.Buildable.True);
             }
 
             if (c == null)
@@ -128,7 +128,7 @@ namespace SevenWonders
                 //look for buildable resource cards that give more than one manufactory resources ...
                 foreach (Card card in player.hand)
                 {
-                    if ((card.structureType == StructureType.Commerce && player.isCardBuildable(card) == Buildable.True) && card.effect is ResourceEffect)
+                    if ((card.structureType == StructureType.Commerce && player.isCardBuildable(card).buildable == CommerceOptions.Buildable.True) && card.effect is ResourceEffect)
                     {
                         // char resource = player.hand[i].effect[2];        // hunh?
                         string resource = ((ResourceEffect)card.effect).resourceTypes;
@@ -150,7 +150,7 @@ namespace SevenWonders
                 //look for buildable resource cards that give more than one resource ...
                 foreach (Card card in player.hand)
                 {
-                    if ((card.structureType == StructureType.RawMaterial && player.isCardBuildable(card) == Buildable.True) && card.effect is ResourceEffect)
+                    if ((card.structureType == StructureType.RawMaterial && player.isCardBuildable(card).buildable == CommerceOptions.Buildable.True) && card.effect is ResourceEffect)
                     {
                         string resource = ((ResourceEffect)card.effect).resourceTypes;
 
@@ -168,7 +168,7 @@ namespace SevenWonders
                 //look for buildable resource cards that only give one and the manufactory resources ..
                 foreach (Card card in player.hand)
                 {
-                    if ((card.structureType == StructureType.RawMaterial || card.structureType == StructureType.Goods) && player.isCardBuildable(card) == Buildable.True && card.effect is ResourceEffect)
+                    if ((card.structureType == StructureType.RawMaterial || card.structureType == StructureType.Goods) && player.isCardBuildable(card).buildable == CommerceOptions.Buildable.True && card.effect is ResourceEffect)
                     {
                         ResourceEffect e = card.effect as ResourceEffect;
 
@@ -189,13 +189,13 @@ namespace SevenWonders
             if (c == null)
             {
                 //look for buildable Red cards
-                c = player.hand.Find(x => x.structureType == StructureType.Military && player.isCardBuildable(x) == Buildable.True);
+                c = player.hand.Find(x => x.structureType == StructureType.Military && player.isCardBuildable(x).buildable == CommerceOptions.Buildable.True);
             }
 
             if (c == null)
             {
                 // play a city card, if there is one
-                List<Card> cityCardList = player.hand.FindAll(x => x.structureType == StructureType.City && player.isCardBuildable(x) == Buildable.True);
+                List<Card> cityCardList = player.hand.FindAll(x => x.structureType == StructureType.City && player.isCardBuildable(x).buildable == CommerceOptions.Buildable.True);
 
                 if (cityCardList.Count > 0)
                 {
@@ -236,7 +236,7 @@ namespace SevenWonders
                 //Discard the non-buildable Red cards
                 foreach (Card card in player.hand)
                 {
-                    if (card.structureType == StructureType.Military && player.isCardBuildable(card) != Buildable.True)
+                    if (card.structureType == StructureType.Military && player.isCardBuildable(card).buildable != CommerceOptions.Buildable.True)
                     {
                         logger.Info(player.nickname + " Action: Discard {0}", card.Id);
                         gm.playCard(player, card, BuildAction.Discard, true);

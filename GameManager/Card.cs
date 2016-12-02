@@ -239,8 +239,9 @@ namespace SevenWonders
 
     public class Cost
     {
-        public int coin;
-        public string resources;
+        public int coin { get; private set; }
+
+        public string resources { get; private set; }
 
         public Cost(string strCost)
         {
@@ -256,108 +257,6 @@ namespace SevenWonders
             }
         }
     }
-    /*
-    // will be used for Wonder stages as well as card structures
-    public class Cost
-    {
-        public int coin;
-        public int wood;
-        public int stone;
-        public int clay;
-        public int ore;
-        public int cloth;
-        public int glass;
-        public int papyrus;
-
-        public Cost()
-        {
-            coin = wood = stone = clay = ore = cloth = glass = papyrus = 0;
-        }
-
-        public Cost(string initStr)
-        {
-            coin = wood = stone = clay = ore = cloth = glass = papyrus = 0;
-
-            foreach (char c in initStr)
-            {
-                if (Char.IsDigit(c))
-                {
-                    coin = (int)Char.GetNumericValue(c);
-                }
-                else
-                {
-                    switch (c)
-                    {
-                        case 'W': ++wood; break;
-                        case 'S': ++stone; break;
-                        case 'B': ++clay; break;
-                        case 'O': ++ore; break;
-                        case 'C': ++cloth; break;
-                        case 'G': ++glass; break;
-                        case 'P': ++papyrus; break;
-                        default:
-                            throw new Exception();
-                    }
-                }
-            }
-        }
-
-        public bool IsZero()
-        {
-            return coin == 0 && wood == 0 && stone == 0 && clay == 0 && ore == 0 && cloth == 0 && glass == 0 && papyrus == 0;
-        }
-
-        public Cost Copy()
-        {
-            Cost c = new Cost();
-
-            c.coin = this.coin;
-            c.wood = this.wood;
-            c.stone = this.stone;
-            c.clay = this.clay;
-            c.ore = this.ore;
-            c.cloth = this.cloth;
-            c.glass = this.glass;
-            c.papyrus = this.papyrus;
-
-            return c;
-        }
-
-        public int Total()
-        {
-            return wood + stone + clay + ore + cloth + glass + papyrus;
-        }
-
-        public string CostAsString()
-        {
-            string ret = "";
-
-            Cost c = Copy();
-
-            // Do the simpler resources first.
-            while (c.cloth-- != 0) ret += 'C';
-            while (c.glass-- != 0) ret += 'G';
-            while (c.papyrus-- != 0) ret += 'P';
-
-            while (c.wood-- != 0) ret += 'W';
-            while (c.stone-- != 0) ret += 'S';
-            while (c.clay-- != 0) ret += 'B';
-            while (c.ore-- != 0) ret += 'O';
-
-            return ret;
-        }
-
-    };
-
-    */
-    public enum Buildable
-    {
-        True,
-        CommerceRequired,
-        InsufficientResources,
-        InsufficientCoins,
-        StructureAlreadyBuilt,      // for Wonder stages, this means all wonders stages have been built already.
-    };
 
     public enum ExpansionSet
     {
@@ -751,23 +650,18 @@ namespace SevenWonders
 
     public struct CommerceOptions
     {
-        public Buildable buildable
+        public enum Buildable
         {
-            get
-            {
-                if (bAreResourceRequirementsMet)
-                {
-                    if (bankCoins != 0 || leftCoins != 0 || rightCoins != 0)
-                        return Buildable.CommerceRequired;
-
-                    return Buildable.True;
-                }
-
-                return Buildable.InsufficientResources;
-            }
-        }
+            True,
+            CommerceRequired,
+            InsufficientResources,
+            InsufficientCoins,
+            StructureAlreadyBuilt,      // for Wonder stages, this means all wonders stages have been built already.
+        };
 
         public bool bAreResourceRequirementsMet;
+
+        public Buildable buildable;
 
         // Usually prefer to pay the bank (i.e. Bilkis) a coin over using commerce, but not always.
         public int bankCoins;

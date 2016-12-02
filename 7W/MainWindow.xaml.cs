@@ -56,9 +56,9 @@ namespace SevenWonders
 
         NameValueCollection handData;
 
-        List<KeyValuePair<Card, Buildable>> hand = new List<KeyValuePair<Card, Buildable>>();
+        List<KeyValuePair<Card, CommerceOptions.Buildable>> hand = new List<KeyValuePair<Card, CommerceOptions.Buildable>>();
 
-        Buildable stageBuildable;
+        CommerceOptions.Buildable stageBuildable;
 
         bool canDiscardStructure;
 
@@ -228,14 +228,14 @@ namespace SevenWonders
                 if (strCards[i] != string.Empty)
                 {
                     // can get an empty string after last card in the age was built.
-                    hand.Add(new KeyValuePair<Card, Buildable>(coordinator.FindCard(strCards[i]), (Buildable)Enum.Parse(typeof(Buildable), strBuildStates[i])));
+                    hand.Add(new KeyValuePair<Card, CommerceOptions.Buildable>(coordinator.FindCard(strCards[i]), (CommerceOptions.Buildable)Enum.Parse(typeof(CommerceOptions.Buildable), strBuildStates[i])));
                 }
             }
 
             string strWonderStage = handData["WonderStage"];
             if (strWonderStage != null)
             {
-                stageBuildable = (Buildable)Enum.Parse(typeof(Buildable), strWonderStage.Substring(2));
+                stageBuildable = (CommerceOptions.Buildable)Enum.Parse(typeof(CommerceOptions.Buildable), strWonderStage.Substring(2));
             }
 
             phase = (GamePhase)Enum.Parse(typeof(GamePhase), handData["GamePhase"]);
@@ -254,7 +254,7 @@ namespace SevenWonders
 
             handPanel.Items.Clear();
 
-            foreach (KeyValuePair<Card, Buildable> kvp in hand)
+            foreach (KeyValuePair<Card, CommerceOptions.Buildable> kvp in hand)
             {
                 Image img = new Image();
                 img.Source = FindResource(kvp.Key.Id.ToString()) as BitmapImage;
@@ -265,11 +265,11 @@ namespace SevenWonders
 
                 switch (kvp.Value)
                 {
-                    case Buildable.True:
+                    case CommerceOptions.Buildable.True:
                         entry.BorderBrush = new SolidColorBrush(Colors.Green);
                         break;
 
-                    case Buildable.CommerceRequired:
+                    case CommerceOptions.Buildable.CommerceRequired:
                         entry.BorderBrush = new SolidColorBrush(Colors.Yellow);
                         break;
 
@@ -319,7 +319,7 @@ namespace SevenWonders
 
             if (coordinator.isFreeBuildButtonEnabled && phase == GamePhase.Playing)
             {
-                if (hand[handPanel.SelectedIndex].Value != Buildable.StructureAlreadyBuilt)
+                if (hand[handPanel.SelectedIndex].Value != CommerceOptions.Buildable.StructureAlreadyBuilt)
                 {
                     btnBuildStructureForFree.Content = new TextBlock()
                     {
@@ -356,7 +356,7 @@ namespace SevenWonders
             // Update the status of the build buttons when a card is selected.
             switch (hand[handPanel.SelectedIndex].Value)
             {
-                case Buildable.True:
+                case CommerceOptions.Buildable.True:
                     btnBuildStructure.Content = new TextBlock()
                     {
                         Text = string.Format(card.isLeader ? "Recruit {0}" : "Build the {0}", card.strName),
@@ -366,7 +366,7 @@ namespace SevenWonders
                     btnBuildStructure.IsEnabled = true;
                     break;
 
-                case Buildable.CommerceRequired:
+                case CommerceOptions.Buildable.CommerceRequired:
                     btnBuildStructure.Content = new TextBlock()
                     {
                         Text = string.Format("Build the {0} (commerce required)", card.strName),
@@ -376,7 +376,7 @@ namespace SevenWonders
                     btnBuildStructure.IsEnabled = true;
                     break;
 
-                case Buildable.InsufficientResources:
+                case CommerceOptions.Buildable.InsufficientResources:
                     btnBuildStructure.Content = new TextBlock()
                     {
                         Text = string.Format("You do not have enough resources to build the {0}", card.strName),
@@ -386,7 +386,7 @@ namespace SevenWonders
                     btnBuildStructure.IsEnabled = false;
                     break;
 
-                case Buildable.InsufficientCoins:
+                case CommerceOptions.Buildable.InsufficientCoins:
                     btnBuildStructure.Content = new TextBlock()
                     {
                         Text = string.Format(card.isLeader ? "You do not have enough coins to recruit {0}" : "You don't have enough coins to buy the {0}", card.strName),
@@ -396,7 +396,7 @@ namespace SevenWonders
                     btnBuildStructure.IsEnabled = false;
                     break;
 
-                case Buildable.StructureAlreadyBuilt:
+                case CommerceOptions.Buildable.StructureAlreadyBuilt:
                     btnBuildStructure.Content = new TextBlock()
                     {
                         Text = string.Format("You have already built the {0}", card.strName),
@@ -412,7 +412,7 @@ namespace SevenWonders
 
             switch (stageBuildable)
             {
-                case Buildable.True:
+                case CommerceOptions.Buildable.True:
                     //                    btnBuildWonderStage.Content = new TextBlock() { new Run(string.Format("Build a wonder stage with the {0}", hand[handPanel.SelectedIndex].Key)));
                     btnBuildWonderStage.Content = new TextBlock()
                     {
@@ -423,7 +423,7 @@ namespace SevenWonders
                     btnBuildWonderStage.IsEnabled = true;
                     break;
 
-                case Buildable.CommerceRequired:
+                case CommerceOptions.Buildable.CommerceRequired:
                     btnBuildWonderStage.Content = new TextBlock() {
                         Text = string.Format(card.isLeader ? "Use {0} to build a wonder stage (commerce required)" : "Build a wonder stage with the {0} (commerce required)", card.strName),
                         TextAlignment = TextAlignment.Center,
@@ -432,8 +432,8 @@ namespace SevenWonders
                     btnBuildWonderStage.IsEnabled = true;
                     break;
 
-                case Buildable.InsufficientCoins:
-                case Buildable.InsufficientResources:
+                case CommerceOptions.Buildable.InsufficientCoins:
+                case CommerceOptions.Buildable.InsufficientResources:
                     btnBuildWonderStage.Content = new TextBlock()
                     {
                         Text = "Insufficient resources available to build the next wonder stage",
@@ -443,7 +443,7 @@ namespace SevenWonders
                     btnBuildWonderStage.IsEnabled = false;
                     break;
 
-                case Buildable.StructureAlreadyBuilt:
+                case CommerceOptions.Buildable.StructureAlreadyBuilt:
                     btnBuildWonderStage.Content = new TextBlock()
                     {
                         Text = "All wonder stages have been built",
@@ -486,7 +486,7 @@ namespace SevenWonders
             if (playerPlayedHisTurn)
                 return;
 
-            if (hand[handPanel.SelectedIndex].Value == Buildable.True)
+            if (hand[handPanel.SelectedIndex].Value == CommerceOptions.Buildable.True)
             {
                 ((Button)sender).IsEnabled = false;
                 playerPlayedHisTurn = true;
@@ -518,7 +518,7 @@ namespace SevenWonders
             if (playerPlayedHisTurn)
                 return;
 
-            if (stageBuildable == Buildable.True)
+            if (stageBuildable == CommerceOptions.Buildable.True)
             {
                 ((Button)sender).IsEnabled = false;
                 playerPlayedHisTurn = true;

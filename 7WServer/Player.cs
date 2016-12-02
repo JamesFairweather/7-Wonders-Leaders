@@ -1079,30 +1079,44 @@ namespace SevenWonders
         /// </summary>
         /// <param name="card"></param>
         /// <returns></returns>
-        public Buildable isCardBuildable(Card card)
+        public CommerceOptions isCardBuildable(Card card)
         {
+            CommerceOptions ret = new CommerceOptions();
+
             //retrieve the cost
             Cost cost = card.cost;
 
             //if the player already owns a copy of the card, Return F immediatley
             // Note cannot use playedStructure.Contains(card) because Age 1 Loom != Age 2 Loom, so it's possible to build more than one of them.
             if (playedStructure.Exists(x => x.Id == card.Id))
-                return Buildable.StructureAlreadyBuilt;
+            {
+                ret.bAreResourceRequirementsMet = false;
+                ret.buildable = CommerceOptions.Buildable.StructureAlreadyBuilt;
+                return ret;
+            }
 
             //if the cost is !, that means its free. Return T immediately
             if (cost.coin == 0 && cost.resources == string.Empty)
             {
-                return Buildable.True;
+                ret.bAreResourceRequirementsMet = true;
+                ret.buildable = CommerceOptions.Buildable.True;
+                return ret;
             }
 
             //if the player owns the prerequiste, Return T immediately
             if (playedStructure.Exists(x => (x.chain[0] == card.strName) || (x.chain[1] == card.strName)))
-                return Buildable.True;
+            {
+                ret.bAreResourceRequirementsMet = true;
+                ret.buildable = CommerceOptions.Buildable.True;
+                return ret;
+            }
 
             if (card.structureType == StructureType.Guild && playedStructure.Exists(x => x.Id == CardId.Ramses))
             {
                 // Ramses: The player can build any Guild card for free.
-                return Buildable.True;
+                ret.bAreResourceRequirementsMet = true;
+                ret.buildable = CommerceOptions.Buildable.True;
+                return ret;
             }
 
             int nWildResources = 0;
@@ -1135,25 +1149,29 @@ namespace SevenWonders
             if (coin < coinCost)
             {
                 // if the card has a coin cost and we don't have enough money, the card is not buildable.
-                return Buildable.InsufficientCoins;
+                ret.bAreResourceRequirementsMet = false;
+                ret.buildable = CommerceOptions.Buildable.InsufficientCoins;
+                return ret;
             }
 
-            CommerceOptions co = dag.CanAfford(cost, leftNeighbour.dag.getResourceList(false), rightNeighbour.dag.getResourceList(false));
+            ret = dag.CanAfford(cost, leftNeighbour.dag.getResourceList(false), rightNeighbour.dag.getResourceList(false));
 
-            if (co.bAreResourceRequirementsMet)
+            if (ret.bAreResourceRequirementsMet)
             {
-                if (co.leftCoins == 0 && co.rightCoins == 0)
+                if (ret.leftCoins == 0 && ret.rightCoins == 0)
                 {
-                    if (coin < co.bankCoins)
-                        return Buildable.InsufficientCoins;
+                    if (coin < ret.bankCoins)
+                        ret.buildable = CommerceOptions.Buildable.InsufficientCoins;
                     else
-                        return Buildable.True;
+                        ret.buildable = CommerceOptions.Buildable.True;
                 }
                 else
-                    return Buildable.CommerceRequired;
+                    ret.buildable = CommerceOptions.Buildable.CommerceRequired;
             }
 
-            return Buildable.InsufficientResources;
+            ret.buildable = CommerceOptions.Buildable.InsufficientResources;
+
+            return ret;
         }
 
 #if FALSE
@@ -1234,11 +1252,17 @@ namespace SevenWonders
         /// Returns "T" if it is, returns "F" if it is not
         /// </summary>
         /// <returns></returns>
-        public Buildable isStageBuildable()
+        public CommerceOptions isStageBuildable()
         {
+            CommerceOptions ret = new CommerceOptions();
+
             //check if the current Stage is already the maximum stage
             if (currentStageOfWonder >= playerBoard.numOfStages)
-                return Buildable.StructureAlreadyBuilt;
+            {
+                ret.bAreResourceRequirementsMet = false;
+                ret.buildable = CommerceOptions.Buildable.StructureAlreadyBuilt;
+                return ret;
+            }
 
             //retrieve the cost
             Cost cost = playerBoard.stageCard[currentStageOfWonder].cost;
@@ -1259,28 +1283,32 @@ namespace SevenWonders
                 if (coin < cost.coin)
                 {
                     // not enough coins in the treasury
-                    return Buildable.InsufficientCoins;
+                    ret.bAreResourceRequirementsMet = false;
+                    ret.buildable = CommerceOptions.Buildable.InsufficientCoins;
                 }
                 else
                 {
-                    // Otherwise it's free
-                    return Buildable.True;
+                    ret.bAreResourceRequirementsMet = true;
+                    ret.buildable = CommerceOptions.Buildable.True;
                 }
+
+                return ret;
             }
 
-            CommerceOptions co = dag.CanAfford(cost,
+            ret = dag.CanAfford(cost,
                 leftNeighbour.dag.getResourceList(false), rightNeighbour.dag.getResourceList(false));
 
-            if (co.bAreResourceRequirementsMet)
+            if (ret.bAreResourceRequirementsMet)
             {
-                if (co.bankCoins == 0 && co.leftCoins == 0 && co.rightCoins == 0)
-                    return Buildable.True;
+                if (ret.bankCoins == 0 && ret.leftCoins == 0 && ret.rightCoins == 0)
+                    ret.buildable = CommerceOptions.Buildable.True;
                 else
-                    return Buildable.CommerceRequired;
+                    ret.buildable = CommerceOptions.Buildable.CommerceRequired;
             }
 
-            return Buildable.InsufficientResources;
+            ret.buildable = CommerceOptions.Buildable.InsufficientResources;
 
+            return ret;
         }
 
 #if FALSE

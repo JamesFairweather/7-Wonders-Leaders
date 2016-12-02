@@ -903,7 +903,7 @@ namespace SevenWonders
                 if (buildingFromDiscardedCards)
                 {
                     // Filter out structures that have already been built in the players' city.
-                    if (p.isCardBuildable(card) == Buildable.StructureAlreadyBuilt)
+                    if (p.isCardBuildable(card).buildable == CommerceOptions.Buildable.StructureAlreadyBuilt)
                         continue;
                 }
 
@@ -911,18 +911,18 @@ namespace SevenWonders
 
                 if (buildingFromDiscardedCards)
                 {
-                    strBuildStates += Buildable.True + ",";
+                    strBuildStates += CommerceOptions.Buildable.True + ",";
                 }
                 else
                 {
-                    strBuildStates += p.isCardBuildable(card) + ",";
+                    strBuildStates += p.isCardBuildable(card).buildable + ",";
                 }
             }
 
             strHand += strCards.TrimEnd(',');
             strHand += strBuildStates.TrimEnd(',');
 
-            strHand += string.Format("&WonderStage={0},{1}", p.currentStageOfWonder, p.isStageBuildable());
+            strHand += string.Format("&WonderStage={0},{1}", p.currentStageOfWonder, p.isStageBuildable().buildable);
             strHand += string.Format("&GamePhase={0}", this.phase);
 
             return strHand;

@@ -336,14 +336,11 @@ namespace SevenWonders
                 MessageBox.Show("You have for all necessary resources already");
                 return;
             }
-            /*
-            // else if (ResourceManager.eliminate(cardCost.Copy(), false, strPossibleNewResourceList).Total() == previous)
-            else if (middleDag.eliminate(cardCost.Copy(), strPossibleNewResourceList).Total() == previous)
+            else if (eliminate(cardCost, strPossibleNewResourceList).resources.Length == previous)
             {
                 MessageBox.Show("This resource will not help you pay for your cost");
                 return;
             }
-            */
 
             bool isResourceRawMaterial = (resource == 'B' || resource == 'O' || resource == 'S' || resource == 'W');
             bool isResourceGoods = (resource == 'G' || resource == 'C' || resource == 'P');
@@ -367,12 +364,11 @@ namespace SevenWonders
 
                 if (hasSecretWarehouse && rce.canBeUsedByNeighbors && !usedSecretWarehouse)
                 {
-                    /*
                     // If the Secret Warehouse is activated, and this resource cannot be used by neighbors (i.e. it's a brown or grey card)
                     // and the ability hasn't be used already, lets see if it can be used here.  Test whether adding a second one of these
                     // resources to the resource string would cause the resources needed to drop by 2.  If so, the ability can be used, and
                     // is applied automatically.
-                    if (middleDag.eliminate(cardCost.Copy(), strPossibleNewResourceList + resource).Total() == resourcesNeeded - 2)
+                    if (eliminate(cardCost, strPossibleNewResourceList + resource).resources.Length == resourcesNeeded - 2)
                     {
                         // Visually indicate that this ability has been used.
                         SecretWarehouseImage.Opacity = 0.5;
@@ -383,7 +379,6 @@ namespace SevenWonders
                         // the ability has been used for this turn.
                         usedSecretWarehouse = true;
                     }
-                    */
                 }
             }
             else if (location == 'L')
@@ -433,7 +428,7 @@ namespace SevenWonders
 
             // The resource chosen is good: it is required and affordable.
             strCurrentResourcesUsed = strPossibleNewResourceList;
-            resourcesNeeded = 0 /*cardCost.Total() - strCurrentResourcesUsed.Length*/;
+            resourcesNeeded = cardCost.resources.Length - strCurrentResourcesUsed.Length;
 
             if (location == 'L')
             {
@@ -488,12 +483,27 @@ namespace SevenWonders
             generateCostPanel();
         }
 
+        private Cost eliminate(Cost c, string currResourceString)
+        {
+            string strResources = c.resources;
+
+            foreach (char ch in currResourceString)
+            {
+                int i = strResources.IndexOf(ch);
+
+                if (i != -1)
+                    strResources = strResources.Remove(i, 1);
+            }
+
+            return new Cost(strResources);
+        }
+
         /// <summary>
         /// Construct the labels at the cost panel, given the overall cost minus the current paid cost
         /// </summary>
         private void generateCostPanel()
         {
-            // generateCostPanelAndUpdateSubtotal(middleDag.eliminate(cardCost.Copy(), strCurrentResourcesUsed));
+            generateCostPanelAndUpdateSubtotal(eliminate(cardCost, strCurrentResourcesUsed));
         }
 
         /// <summary>
@@ -505,54 +515,12 @@ namespace SevenWonders
             costPanel.Children.Clear();
             Label[] costLabels = new Label[resourcesNeeded];
 
-            /*
-            Cost cpyCost = cost.Copy();
-
             //fill the labels with the appropriate image
-            for (int i = 0; i < resourcesNeeded; i++)
+            for (int i = 0; i < cost.resources.Length; ++i)
             {
                 BitmapImage iconImage = null;
 
-                if (cpyCost.wood != 0)
-                {
-                    iconImage = GetButtonIcon('W');
-                    --cpyCost.wood;
-                }
-                else if (cpyCost.stone != 0)
-                {
-                    iconImage = GetButtonIcon('S');
-                    --cpyCost.stone;
-                }
-                else if (cpyCost.clay != 0)
-                {
-                    iconImage = GetButtonIcon('B');
-                    --cpyCost.clay;
-                }
-                else if (cpyCost.ore != 0)
-                {
-                    iconImage = GetButtonIcon('O');
-                    --cpyCost.ore;
-                }
-                else if (cpyCost.cloth != 0)
-                {
-                    iconImage = GetButtonIcon('C');
-                    --cpyCost.cloth;
-                }
-                else if (cpyCost.glass != 0)
-                {
-                    iconImage = GetButtonIcon('G');
-                    --cpyCost.glass;
-                }
-                else if (cpyCost.papyrus != 0)
-                {
-                    iconImage = GetButtonIcon('P');
-                    --cpyCost.papyrus;
-                }
-                else
-                {
-                    // something went wrong
-                    throw new Exception();
-                }
+                iconImage = GetButtonIcon(cost.resources[i]);
 
                 costLabels[i] = new Label();
 
@@ -563,7 +531,6 @@ namespace SevenWonders
                 //add the labels to costPanel
                 costPanel.Children.Add(costLabels[i]);
             }
-            */
 
             int coinCost = cost.coin;
 
@@ -593,7 +560,7 @@ namespace SevenWonders
             usedSecretWarehouse = false;
             SecretWarehouseImage.Opacity = 1.0;
 
-            resourcesNeeded = 0;// cardCost.Total();
+            resourcesNeeded = cardCost.resources.Length;
 
             generateCostPanel();
             generateDAGs();
