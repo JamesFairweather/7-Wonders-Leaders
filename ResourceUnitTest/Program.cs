@@ -361,14 +361,6 @@ namespace ResourceUnitTest
             expectedResult.rightCoins = 1;
             Verify2(new Cost("SS"), new List<ResourceEffect>(), new List<ResourceEffect> { stone_2 }, new List<ResourceEffect> { stone_1 }, ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost, expectedResult);
 
-            expectedResult.bAreResourceRequirementsMet = false;
-            expectedResult.leftCoins = expectedResult.rightCoins = 0;
-            Verify2(new Cost("P"), new List<ResourceEffect>(), new List<ResourceEffect> { forum }, new List<ResourceEffect> { },
-                ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost, expectedResult);
-
-            Verify2(new Cost("BP"), new List<ResourceEffect> { papyrus }, new List<ResourceEffect> { }, new List<ResourceEffect> { caravansery },
-                ResourceManager.CommercePreferences.BuyFromRightNeighbor, ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost, expectedResult);
-
             expectedResult.bAreResourceRequirementsMet = true;
             expectedResult.leftCoins = 0;
             expectedResult.rightCoins = 1;
@@ -1080,7 +1072,7 @@ namespace ResourceUnitTest
             expectedResult.leftCoins = 3;
             expectedResult.rightCoins = 0;
             Verify2(new Cost("SSSSP"), new List<ResourceEffect> { stone_wood, forum, },
-                new List<ResourceEffect> { stone_1, papyrus, glass, stone_ore }, new List<ResourceEffect> { papyrus, caravansery, forum },
+                new List<ResourceEffect> { stone_1, papyrus, glass, stone_ore }, new List<ResourceEffect> { papyrus },
                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
                 ResourceManager.CommerceEffects.Bilkis | ResourceManager.CommerceEffects.ClandestineDockWest,
                 expectedResult);
@@ -1094,7 +1086,7 @@ namespace ResourceUnitTest
             expectedResult.leftCoins = 1;   // cloth, papyrus (+Clandestine Dock)
             expectedResult.rightCoins = 2;  // 2 stone
             Verify2(new Cost("SSSCP"), new List<ResourceEffect> { clay_1, glass, caravansery, },
-                new List<ResourceEffect> { cloth, papyrus, glass, clay_2, wood_ore, }, new List<ResourceEffect> { wood_1, stone_1, stone_wood, ore_2, forum },
+                new List<ResourceEffect> { cloth, papyrus, glass, clay_2, wood_ore, }, new List<ResourceEffect> { wood_1, stone_1, stone_wood, ore_2 },
                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromRightNeighbor,
                 ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.ClandestineDockWest,
                 expectedResult);

@@ -1166,86 +1166,17 @@ namespace SevenWonders
                         ret.buildable = CommerceOptions.Buildable.True;
                 }
                 else
+                {
                     ret.buildable = CommerceOptions.Buildable.CommerceRequired;
+                }
             }
-
-            ret.buildable = CommerceOptions.Buildable.InsufficientResources;
+            else
+            {
+                ret.buildable = CommerceOptions.Buildable.InsufficientResources;
+            }
 
             return ret;
         }
-
-#if FALSE
-        /// <summary>
-        /// Assuming no pre-reqs, free cards, etc.
-        /// Determine if a given cost is affordable
-        /// </summary>
-        /// <param name="card"></param>
-        /// <param name="cost"></param>
-        /// <returns></returns>
-        private Buildable isCostAffordableWithDAG(string cost, int nWildResources)
-        {
-            // the passed-in cost structure must not be modified.  C# doesn't support const correctness?!?
-            // WTF!
-            // cost = cost.Copy();
-
-            //get rid of the coins from the cost, and see if DAG can afford the cost (already checked for coins at previous step)
-            //this is relevant for the Black cards in the Cities expansion
-            // cost.coin = 0;
-
-            /*
-            if (cost.IsZero())
-            {
-                // The card only costs money (no resources), so it's affordable.
-                // If it was not affordable, the 
-                return Buildable.True;
-            }
-            */
-
-            //can I afford the cost with resources in my DAG?
-            // if (dag.canAfford(""/*cost*/, nWildResources)) return Buildable.True;
-
-            return Buildable.InsufficientResources;
-        }
-
-        /// <summary>
-        /// Determine, given a cost, if Player can afford a cost with his and his 2 neighbours' DAGs combined.
-        /// </summary>
-        /// <param name="card"></param>
-        /// <returns></returns>
-        private Buildable isCostAffordableWithCommerce(Cost cost, int nWildResources)
-        {
-            /*
-            cost = cost.Copy();
-
-            cost.coin = 0;
-
-            //combine the left, centre, and right DAG
-            ResourceManager combinedDAG = ResourceManager.addThreeDAGs(leftNeighbour.dag, dag, rightNeighbour.dag);
-
-            if (playedStructure.Exists(x => x.Id == CardId.Bilkis))
-            {
-                combinedDAG.add(new ResourceEffect(false, "WSBOCGP"));
-            }
-
-            //determine if the combined DAG can afford the cost
-            if (combinedDAG.canAfford(cost, nWildResources)) return Buildable.CommerceRequired;
-
-            return Buildable.InsufficientResources;
-                        */
-
-            List<ResourceEffect> leftResources = leftNeighbour.dag.getResourceList(false).ToList();
-            List<ResourceEffect> rightResources = rightNeighbour.dag.getResourceList(false).ToList();
-            CommerceOptions co = dag.CanAfford(cost, leftResources, rightResources, ResourceManager.CommercePreferences.BuyFromLeftNeighbor);
-
-            if (co.bAreResourceRequirementsMet)
-            {
-                return Buildable.CommerceRequired;
-            }
-
-            return Buildable.InsufficientResources;
-        }
-
-#endif
 
         /// <summary>
         /// Determines if the Player's current stage is buildable
@@ -1300,13 +1231,22 @@ namespace SevenWonders
 
             if (ret.bAreResourceRequirementsMet)
             {
-                if (ret.bankCoins == 0 && ret.leftCoins == 0 && ret.rightCoins == 0)
-                    ret.buildable = CommerceOptions.Buildable.True;
+                if (ret.leftCoins == 0 && ret.rightCoins == 0)
+                {
+                    if (coin < ret.bankCoins)
+                        ret.buildable = CommerceOptions.Buildable.InsufficientCoins;
+                    else
+                        ret.buildable = CommerceOptions.Buildable.True;
+                }
                 else
+                {
                     ret.buildable = CommerceOptions.Buildable.CommerceRequired;
+                }
             }
-
-            ret.buildable = CommerceOptions.Buildable.InsufficientResources;
+            else
+            {
+                ret.buildable = CommerceOptions.Buildable.InsufficientResources;
+            }
 
             return ret;
         }
