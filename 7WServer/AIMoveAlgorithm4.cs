@@ -8,9 +8,9 @@ namespace SevenWonders
 {
     class AIMoveAlgorithm4 : AIMoveBehaviour
     {
-        int maxOBW = 2;
-        int maxStone = 3;
-        int maxLPG = 1;
+        //int maxOBW = 2;
+        //int maxStone = 3;
+        //int maxLPG = 1;
         private static Logger logger = LogManager.GetLogger("SevenWondersServer");
 
         public void makeMove(Player player, GameManager gm)
@@ -101,6 +101,182 @@ namespace SevenWonders
             // Commerce Required (can be constructed by paying neighbors for their resources)
             // If Commerce is required, how many coins to each neighbor and/or the bank
 
+            CommerceOptions[] co = new CommerceOptions[player.hand.Count];
+            int [] cardValues = new int[player.hand.Count];
+
+            for (int i = 0; i < player.hand.Count; ++i)
+            {
+                co[i] = player.isCardBuildable(player.hand[i]);
+            }
+
+            CommerceOptions nextStageCost = player.isStageBuildable();
+
+            for (int i = 0; i < player.hand.Count; ++i)
+            {
+                Card card = player.hand[i];
+
+                if (co[i].buildable == CommerceOptions.Buildable.True || co[i].buildable == CommerceOptions.Buildable.CommerceRequired)
+                {
+                    switch (card.structureType)
+                    {
+                        case StructureType.RawMaterial:
+                            {
+                                ResourceEffect re = card.effect as ResourceEffect;
+                                if (re.resourceTypes.Length == 2)
+                                {
+                                    if (re.resourceTypes[0] == re.resourceTypes[1])
+                                    {
+                                        // doubles can be useful, but we need to examine whether we
+                                        // already have enough of them.
+                                        cardValues[i] = 50;
+                                    }
+                                    else
+                                    {
+                                        // Flex resources should almost always be taken
+                                        cardValues[i] = 80;
+                                    }
+                                }
+                                else
+                                {
+                                    // single-resource browns are fairly useless.
+                                    cardValues[i] = 25;
+                                }
+                            }
+                            break;
+
+                        case StructureType.Goods:
+                            {
+                                ResourceEffect res = card.effect as ResourceEffect;
+
+                                cardValues[i] = 45;
+
+                                if (player.leftNeighbour.resourceMgr.getResourceList(false).Contains(res) ||
+                                    player.rightNeighbour.resourceMgr.getResourceList(false).Contains(res))
+                                {
+                                    // Yes: drop its value significantly and even more if we have a Marketplace too.
+                                    cardValues[i] = player.hasMarketplace ? 6 : 24;
+                                }
+                                else
+                                {
+                                    if (gm.currentAge == 2)
+                                    {
+                                        if (gm.currentTurn > 5)
+                                            cardValues[i] = 90;
+                                        else if (gm.currentTurn > 2)
+                                            cardValues[i] = 65;
+                                    }
+                                    else
+                                    {
+                                        if (gm.currentTurn > 4)
+                                        {
+                                            cardValues[i] = 55;
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+
+                        case StructureType.Civilian:
+                            cardValues[i] = ((card.effect as CoinsAndPointsEffect).victoryPointsAtEndOfGameMultiplier - (2 - gm.currentAge)) * 10;
+                            break;
+
+                        case StructureType.Commerce:
+                            switch (card.Id)
+                            {
+                                case CardId.Tavern:
+                                    cardValues[i] = 30 - (player.coin * 10);
+                                    break;
+
+                                case CardId.West_Trading_Post:
+                                    {
+                                        List<ResourceEffect> leftResources = player.leftNeighbour.resourceMgr.getResourceList(false);
+                                        int nLeftResources = 0;
+                                        foreach (ResourceEffect re in leftResources)
+                                        {
+                                            if (!re.IsManufacturedGood())
+                                                nLeftResources += re.resourceTypes.Length;
+                                        }
+
+                                        cardValues[i] = (nLeftResources - gm.currentTurn + 6) * 10;
+                                    }
+                                    break;
+
+                                case CardId.East_Trading_Post:
+                                    {
+                                        List<ResourceEffect> rightResources = player.rightNeighbour.resourceMgr.getResourceList(false);
+                                        int nRightResources = 0;
+                                        foreach (ResourceEffect re in rightResources)
+                                        {
+                                            if (!(re.IsManufacturedGood()))
+                                                nRightResources += re.resourceTypes.Length;
+                                        }
+
+                                        cardValues[i] = (nRightResources - gm.currentTurn + 6) * 10;
+                                    }
+                                    break;
+
+                                case CardId.Marketplace:
+                                    {
+                                        string strGoodsNeighbors = "PCG";
+
+                                        List<ResourceEffect> leftResources = player.leftNeighbour.resourceMgr.getResourceList(false);
+                                        foreach (ResourceEffect re in leftResources)
+                                        {
+                                            int resIndex = strGoodsNeighbors.IndexOf(re.resourceTypes[0]);
+
+                                            if (resIndex != -1) strGoodsNeighbors = strGoodsNeighbors.Substring(resIndex, 1);
+                                        }
+
+                                        List<ResourceEffect> rightResources = player.rightNeighbour.resourceMgr.getResourceList(false);
+                                        foreach (ResourceEffect re in rightResources)
+                                        {
+                                            int resIndex = strGoodsNeighbors.IndexOf(re.resourceTypes[0]);
+
+                                            if (resIndex != -1) strGoodsNeighbors = strGoodsNeighbors.Substring(resIndex, 1);
+                                        }
+
+                                        int nMyCityGoods = player.resourceMgr.getResourceList(true).FindAll(x => x.IsManufacturedGood()).Count;
+
+                                        // for each available grey card in neighboring cities, add 20 points,
+                                        // and subtract 30 points for each grey card in our city.
+                                        cardValues[i] = 40 + ((3 - strGoodsNeighbors.Length) * 20) - nMyCityGoods * 30;
+                                    }
+
+                                    break;
+
+                                case CardId.Caravansery:
+                                    // This one is pretty much automatic: if it's there, take it.
+                                    cardValues[i] = 90;
+                                    break;
+
+                                case CardId.Forum:
+                                    cardValues[i] = 90;
+                                    break;
+                            }
+
+                            break;
+
+                        case StructureType.Military:
+                            // compare our shields to those of our neighbors
+                            break;
+
+                        case StructureType.Science:
+                            // calculate the value of this card, and consider whether we are going for sets (1, 2, 3) or symbols
+                            break;
+
+                        case StructureType.Guild:
+                            // calculate the value of this card.
+                            break;
+
+                        case StructureType.City:
+                            break;
+                    }
+                }
+            }
+
+            // go through the total value of this hand and select the best card
+
+#if FALSE
             /*
             foreach (Card crd in player.hand)
             {
@@ -230,6 +406,9 @@ namespace SevenWonders
                     c = cityCardList[0];
                 }
             }
+
+#endif
+            Card c = null;
 
             if (c == null)
             {

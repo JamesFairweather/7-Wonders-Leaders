@@ -334,6 +334,7 @@ namespace SevenWonders
     public class ResourceEffect : Effect
     {
         public bool canBeUsedByNeighbors;
+
         public string resourceTypes { get; }
 
         public ResourceEffect(bool canBeUsedByNeighbors, string resourceTypes)
@@ -355,6 +356,16 @@ namespace SevenWonders
         public bool IsManufacturedGood()
         {
             return resourceTypes[0] == 'P' || resourceTypes[0] == 'C' || resourceTypes[0] == 'G';
+        }
+
+        public override int GetHashCode()
+        {
+            int ret = resourceTypes[0] - '0';
+
+            if (resourceTypes.Length == 2)
+                ret = (ret << 8) | (resourceTypes[1] - '0');
+
+            return ret;
         }
     }
 
