@@ -80,12 +80,12 @@ namespace SevenWonders
                 if (bestLeader != null)
                 {
                     logger.Info(player.nickname + "Drafted leader: {0}", bestLeader.Id);
-                    gm.playCard(player, bestLeader, BuildAction.BuildStructure, true, false, 0, 0);
+                    gm.playCard(player, bestLeader, BuildAction.BuildStructure, true, false, 0, 0, false);
                 }
                 else
                 {
                     logger.Info(player.nickname + " Action: Discard {0}", player.draftedLeaders[0].Id);
-                    gm.playCard(player, player.draftedLeaders[0], BuildAction.Discard, true);
+                    gm.playCard(player, player.draftedLeaders[0], BuildAction.Discard, true, false, 0, 0, false);
                 }
 
                 return;
@@ -154,7 +154,7 @@ namespace SevenWonders
                                     player.rightNeighbour.resourceMgr.getResourceList(false).Contains(res))
                                 {
                                     // Yes: drop its value significantly and even more if we have a Marketplace too.
-                                    cardValues[i] = player.hasMarketplace ? 6 : 24;
+                                    cardValues[i] = player.resourceMgr.GetCommerceEffect().HasFlag(ResourceManager.CommerceEffects.Marketplace) ? 6 : 24;
                                 }
                                 else
                                 {
@@ -171,6 +171,11 @@ namespace SevenWonders
                                         {
                                             cardValues[i] = 55;
                                         }
+                                    }
+
+                                    if (player.resourceMgr.GetCommerceEffect().HasFlag(ResourceManager.CommerceEffects.Marketplace) && gm.currentTurn < 5)
+                                    {
+                                        cardValues[i] /= 2;
                                     }
                                 }
                             }
@@ -250,21 +255,61 @@ namespace SevenWonders
                                     break;
 
                                 case CardId.Forum:
-                                    cardValues[i] = 90;
+                                    cardValues[i] = 35;
                                     break;
                             }
 
                             break;
 
                         case StructureType.Military:
-                            // compare our shields to those of our neighbors
+                            {
+                                int nShieldsLeft = player.leftNeighbour.shield;
+                                int nShieldsRight = player.leftNeighbour.shield;
+                                int myShields = player.shield;
+                                int nShields = (card.effect as MilitaryEffect).nShields;
+
+                                if (myShields > (nShieldsRight + nShields) && myShields > (nShieldsLeft + nShields))
+                                {
+                                    // our city has more military strength than our neighbors and adding more won't gain us any more points
+                                    cardValues[i] = 10;
+                                }
+                                else if (myShields > nShieldsRight && myShields > nShieldsLeft)
+                                {
+                                    // Our city's military strength is stronger than both of our neighbors but if one of them plays military and
+                                    // we don't, we'll be tied or losing against them.
+                                    cardValues[i] = 20;
+                                }
+                                else if (((myShields + nShields) <= nShieldsRight) && ((myShields + nShields) <= nShieldsLeft))
+                                {
+                                    // Even if we played this card, we would still have fewer shields than our neighbors.  We are so far behind
+                                    // in military it's probably not worth playing any military.
+                                    cardValues[i] = 5;
+                                }
+                                else if (((myShields + nShields) > nShieldsRight) && ((myShields + nShields) > nShieldsLeft))
+                                {
+                                    // If we play this card, we'll go from losing against both neighbors to winning.
+                                    cardValues[i] = 75;
+                                }
+                                else if (((myShields + nShields) > nShieldsRight) || ((myShields + nShields) > nShieldsLeft))
+                                {
+                                    // If we play this card, we'll go from losing against one neighbor to winning
+                                    cardValues[i] = 60;
+                                }
+                                else
+                                {
+                                    // can we logically ever get here?
+                                    throw new NotImplementedException();
+                                }
+                            }
                             break;
 
                         case StructureType.Science:
+                            cardValues[i] = 65;
                             // calculate the value of this card, and consider whether we are going for sets (1, 2, 3) or symbols
                             break;
 
                         case StructureType.Guild:
+                            cardValues[i] = 60;
                             // calculate the value of this card.
                             break;
 
@@ -273,6 +318,27 @@ namespace SevenWonders
                     }
                 }
             }
+
+            int bestCardValue = 0;
+            int bestCardIndex = -1;
+
+            for (int i = 0; i < player.hand.Count; ++i)
+            {
+                if (cardValues[i] > bestCardValue)
+                {
+                    bestCardValue = cardValues[i];
+                    bestCardIndex = i;
+                }
+                else if (cardValues[i] == bestCardValue)
+                {
+                    // two cards are of equal value.  We need to consider secondary factors
+                }
+            }
+
+            Card c = null;
+
+            if (bestCardIndex != -1)
+                c = player.hand[bestCardIndex];
 
             // go through the total value of this hand and select the best card
 
@@ -408,7 +474,6 @@ namespace SevenWonders
             }
 
 #endif
-            Card c = null;
 
             if (c == null)
             {
@@ -418,7 +483,7 @@ namespace SevenWonders
                     if (card.structureType == StructureType.Military && player.isCardBuildable(card).buildable != CommerceOptions.Buildable.True)
                     {
                         logger.Info(player.nickname + " Action: Discard {0}", card.Id);
-                        gm.playCard(player, card, BuildAction.Discard, true);
+                        gm.playCard(player, card, BuildAction.Discard, true, false, 0, 0, false);
                         return;
                     }
                 }
@@ -427,14 +492,14 @@ namespace SevenWonders
             if (c != null)
             {
                 logger.Info(player.nickname + " Action: Construct {0}", c.Id);
-                gm.playCard(player, c, BuildAction.BuildStructure, true);
+                gm.playCard(player, c, BuildAction.BuildStructure, true, false, co[bestCardIndex].leftCoins, co[bestCardIndex].rightCoins, false);
             }
             else
             {
                 // If a card is not found that matches any of the above criteria, discard the first card listed.
                 c = player.hand[0];
                 logger.Info(player.nickname + " Action: Discard {0}", c.Id);
-                gm.playCard(player, c, BuildAction.Discard, true);
+                gm.playCard(player, c, BuildAction.Discard, true, false, 0, 0, false);
             }
         }
         

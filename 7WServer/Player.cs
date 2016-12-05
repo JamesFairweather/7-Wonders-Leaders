@@ -201,14 +201,6 @@ namespace SevenWonders
         public Boolean changeNickName {get; set; }
         public String newNickName {get; set; }
 
-        public bool hasWestTradingPost = false;
-        public bool hasEastTradingPost = false;
-        public bool hasMarketplace = false;
-        public bool hasClandestineDockWest = false;
-        public bool hasClandestineDockEast = false;
-        public bool hasSecretWarehouse = false;
-        public int nBlackMarket = 0;    // this is an integer instead of a boolean because it's possible to have more than one Black Market Effect
-
         public AIMoveBehaviour AIBehaviour;
 
         private GameManager gm;
@@ -366,7 +358,7 @@ namespace SevenWonders
                         break;
 
                     case CardId.Secret_Warehouse:
-                        hasSecretWarehouse = true;
+                        resourceMgr.AddCommerceEffect(ResourceManager.CommerceEffects.SecretWarehouse);
                         break;
 
                     case CardId.Gambling_House:
@@ -376,7 +368,11 @@ namespace SevenWonders
                         break;
 
                     case CardId.Black_Market:
-                        nBlackMarket += 1;
+                        if (!resourceMgr.GetCommerceEffect().HasFlag(ResourceManager.CommerceEffects.BlackMarket1))
+                            resourceMgr.AddCommerceEffect(ResourceManager.CommerceEffects.BlackMarket1);
+                        else
+                            resourceMgr.AddCommerceEffect(ResourceManager.CommerceEffects.BlackMarket2);
+
                         break;
 
                     case CardId.Architect_Cabinet:
@@ -389,27 +385,27 @@ namespace SevenWonders
                 switch (card.Id)
                 {
                     case CardId.Marketplace:
-                        hasMarketplace = true;
+                        resourceMgr.AddCommerceEffect(ResourceManager.CommerceEffects.Marketplace);
                         break;
 
                     case CardId.Clandestine_Dock_West:
-                        hasClandestineDockWest = true;
+                        resourceMgr.AddCommerceEffect(ResourceManager.CommerceEffects.ClandestineDockWest);
                         break;
 
                     case CardId.Clandestine_Dock_East:
-                        hasClandestineDockEast = true;
+                        resourceMgr.AddCommerceEffect(ResourceManager.CommerceEffects.ClandestineDockEast);
                         break;
 
                     case CardId.West_Trading_Post:
-                        hasWestTradingPost = true;
+                        resourceMgr.AddCommerceEffect(ResourceManager.CommerceEffects.WestTradingPost);
                         break;
 
                     case CardId.East_Trading_Post:
-                        hasEastTradingPost = true;
+                        resourceMgr.AddCommerceEffect(ResourceManager.CommerceEffects.EastTradingPost);
                         break;
 
                     case CardId.Olympia_B_s1:
-                        hasWestTradingPost = hasEastTradingPost = true;
+                        resourceMgr.AddCommerceEffect(ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost);
                         break;
                 }
             }
@@ -1068,7 +1064,10 @@ namespace SevenWonders
                 return ret;
             }
 
-            ret = resourceMgr.CanAfford(cost, leftNeighbour.resourceMgr.getResourceList(false), rightNeighbour.resourceMgr.getResourceList(false));
+            ret = resourceMgr.CanAfford(cost,
+                leftNeighbour.resourceMgr.getResourceList(false),
+                rightNeighbour.resourceMgr.getResourceList(false),
+                ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor);
 
             if (ret.bAreResourceRequirementsMet)
             {
@@ -1164,96 +1163,6 @@ namespace SevenWonders
 
             return ret;
         }
-
-#if FALSE
-        public int doHaveEnoughCoinsToCommerce(String c)
-        {
-            //retrieve the cost
-            String cost = c;
-
-            //parse the tcost of each possible resource
-            int brickf = 0, oref = 0, stonef = 0, woodf = 0, glassf = 0, loomf = 0, papyrusf = 0;
-
-            Boolean b = false, o = false, t = false, w = false, g = false, l = false, p = false;
-
-
-            for (int i = 0; i < cost.Length; i++)
-            {
-                if (cost[i] == 'B') { brickf++; b = true; }
-                else if (cost[i] == 'O') { oref++; o = true; }
-                else if (cost[i] == 'T') { stonef++; t = true; }
-                else if (cost[i] == 'W') { woodf++; w = true; }
-                else if (cost[i] == 'G') { glassf++; g = true; }
-                else if (cost[i] == 'L') { loomf++; l = true; }
-                else if (cost[i] == 'P') { papyrusf++; p = true; }
-            }
-
-            int costB = 0, costO = 0, costT = 0, costW = 0, costG = 0, costP = 0, costL = 0;
-            int leftMultiRaw = 2, leftMultiManu = 2, rightMultiRaw = 2, rightMultiManu = 2;
-
-            // left & right manu aren't necessary.  The only card that affects the cost of manufactured
-            // goods is the Marketplace, and its effect applies to both neighbors.
-            if (leftRaw) leftMultiRaw--;
-            if (leftManu) leftMultiManu--;
-            if (rightRaw) rightMultiRaw--;
-            if (rightManu) rightMultiManu--;
-
-
-            //calculate how much of each resource i need, for exampe i need to buy 1 ore, 1 wood things
-            if (brickf > 0 && brickf > brick) costB = brickf - brick;
-            if (oref > 0 && oref > ore) costO = oref - ore;
-            if (stonef > 0 && stonef > stone) costT = stonef - stone;
-            if (woodf > 0 && woodf > wood) costW = woodf - wood;
-            if (glassf > 0 && glassf > glass) costG = glassf - glass;
-            if (papyrusf > 0 && papyrusf > papyrus) costP = papyrusf - papyrus;
-            if (loomf > 0 && loomf > loom) costL = loomf - loom;
-
-
-            int amountOfRawFromLeft = 0, amountOfManuFromLeft = 0;
-            int amountOfRawFromRight = 0, amountOfManuFromRight = 0;
-
-            Boolean leftFirst = false;
-
-            if (leftRaw) leftFirst = true;
-            if (leftManu) leftFirst = true;
-
-
-            for (int j = 0; j < 2; j++)
-            {
-                if (leftFirst)
-                {
-                    //if i can buy from the left player calculate the cost 
-                    if (leftNeighbour.brick >= costB && b) { for (int i = 0; i < leftNeighbour.brick; i++) { if (costB > 0) { amountOfRawFromLeft++; costB--; } } }
-                    if (leftNeighbour.ore >= costO && o) { for (int i = 0; i < leftNeighbour.ore; i++) { if (costO > 0) { amountOfRawFromLeft++; costO--; } } }
-                    if (leftNeighbour.stone >= costT && t) { for (int i = 0; i < leftNeighbour.stone; i++) { if (costT > 0) { amountOfRawFromLeft++; costT--; } } }
-                    if (leftNeighbour.wood >= costW && w) { for (int i = 0; i < leftNeighbour.wood; i++) { if (costW > 0) { amountOfRawFromLeft++; costW--; } } }
-                    if (leftNeighbour.glass >= costG && g) { for (int i = 0; i < leftNeighbour.glass; i++) { if (costG > 0) { amountOfManuFromLeft++; costG--; } } }
-                    if (leftNeighbour.papyrus >= costP && p) { for (int i = 0; i < leftNeighbour.papyrus; i++) { if (costP > 0) { amountOfManuFromLeft++; costP--; } } }
-                    if (leftNeighbour.loom >= costL && l) { for (int i = 0; i < leftNeighbour.loom; i++) { if (costL > 0) { amountOfManuFromLeft++; costL--; } } }
-                    leftFirst = false;
-                }
-
-                else
-                {
-                    //if i can buy from the right player calculate the cost 
-                    if (rightNeighbour.brick >= costB && b) { for (int i = 0; i < rightNeighbour.brick; i++) { if (costB > 0) { amountOfRawFromRight++; costB--; } } }
-                    if (rightNeighbour.ore >= costO && o) { for (int i = 0; i < rightNeighbour.ore; i++) { if (costO > 0) { amountOfRawFromRight++; costO--; } } }
-                    if (rightNeighbour.stone >= costT && t) { for (int i = 0; i < rightNeighbour.stone; i++) { if (costT > 0) { amountOfRawFromRight++; costT--; } } }
-                    if (rightNeighbour.wood >= costW && w) { for (int i = 0; i < rightNeighbour.wood; i++) { if (costW > 0) { amountOfRawFromRight++; costW--; } } }
-                    if (rightNeighbour.glass >= costG && g) { for (int i = 0; i < rightNeighbour.glass; i++) { if (costG > 0) { amountOfManuFromRight++; costG--; } } }
-                    if (rightNeighbour.papyrus >= costP && p) { for (int i = 0; i < rightNeighbour.papyrus; i++) { if (costP > 0) { amountOfManuFromRight++; costP--; } } }
-                    if (rightNeighbour.loom >= costL && l) { for (int i = 0; i < rightNeighbour.loom; i++) { if (costL > 0) { amountOfManuFromRight++; costL--; } } }
-                    if (!leftFirst && j == 0) leftFirst = true;
-                }
-            }
-
-            int totalCost = 0;
-            totalCost = (amountOfRawFromLeft * leftMultiRaw) + (amountOfManuFromLeft * leftMultiManu);
-            totalCost += (amountOfRawFromRight * rightMultiRaw) + (amountOfManuFromRight * rightMultiManu);
-
-            return totalCost;
-        }
-#endif
 
         /// <summary>
         /// AI Player makes a move

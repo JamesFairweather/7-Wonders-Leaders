@@ -17,8 +17,6 @@ Commerce issues:
 	  resources were used on either side rather than a few coins.  It would still be fairly easy to calculate what's going on.
 
 AI players
-	- Could be improved a lot without much effort
-	- Take advantage of commerce ability
 	- Don't overplay military
 	- Go for sets in science
 	- Take advantage of Wonder effects.

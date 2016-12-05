@@ -89,6 +89,10 @@ namespace SevenWonders
         {
             this.marketEffects = me;
         }
+        public CommerceEffects GetCommerceEffect()
+        {
+            return this.marketEffects;
+        }
 
         public void AddCommerceEffect(CommerceEffects me)
         {

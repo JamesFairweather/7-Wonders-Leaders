@@ -1144,6 +1144,16 @@ namespace ResourceUnitTest
                 ResourceManager.CommercePreferences.LowestCost | ResourceManager.CommercePreferences.BuyFromLeftNeighbor,
                 ResourceManager.CommerceEffects.SecretWarehouse | ResourceManager.CommerceEffects.BlackMarket1 | ResourceManager.CommerceEffects.WestTradingPost | ResourceManager.CommerceEffects.EastTradingPost | ResourceManager.CommerceEffects.Marketplace | ResourceManager.CommerceEffects.ClandestineDockWest | ResourceManager.CommerceEffects.ClandestineDockEast | ResourceManager.CommerceEffects.Bilkis,
                 expectedResult);
+
+            expectedResult.bankCoins = 0;
+            expectedResult.leftCoins = 0;
+            expectedResult.rightCoins = 0;
+            Verify2(new Cost("WSBO"), new List<ResourceEffect> { glass, stone_clay, forum, caravansery, caravansery, },
+                new List<ResourceEffect> { }, new List<ResourceEffect> { },
+                ResourceManager.CommercePreferences.BuyFromRightNeighbor,
+                ResourceManager.CommerceEffects.BlackMarket1,
+                expectedResult);
+
         }
     }
 }

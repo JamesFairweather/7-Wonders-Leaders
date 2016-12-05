@@ -626,7 +626,7 @@ namespace SevenWonders
         /// <summary>
         /// build a structure from hand, given the Card id number and the Player
         /// </summary>
-        public void playCard(Player p, Card c, BuildAction buildAction, bool isAI, bool freeBuild = false, int nLeftCoins = 0, int nRightCoins = 0, bool usedBilkis = false)
+        public void playCard(Player p, Card c, BuildAction buildAction, bool isAI, bool freeBuild, int nLeftCoins, int nRightCoins, bool usedBilkis)
         {
             bool bFound = false;
 
@@ -938,13 +938,20 @@ namespace SevenWonders
             strCommerce += BuildResourceString("Right", p.rightNeighbour);
 
             strCommerce += string.Format("&coin={0}", p.coin);
-            if (p.hasWestTradingPost) strCommerce += "&hasWestTradingPost=";
-            if (p.hasEastTradingPost) strCommerce += "&hasEastTradingPost=";
-            if (p.hasMarketplace) strCommerce += string.Format("&hasMarketplace=");
-            if (p.hasClandestineDockWest) strCommerce += "&hasClandestineDockWest=";
-            if (p.hasClandestineDockEast) strCommerce += "&hasClandestineDockEast=";
-            if (p.hasSecretWarehouse) strCommerce += "&hasSecretWarehouse=";
-            if (p.nBlackMarket != 0) strCommerce += string.Format("&nBlackMarket={0}", p.nBlackMarket);
+
+            ResourceManager.CommerceEffects ce = p.resourceMgr.GetCommerceEffect();
+            if (ce.HasFlag(ResourceManager.CommerceEffects.WestTradingPost)) strCommerce += "&hasWestTradingPost=";
+            if (ce.HasFlag(ResourceManager.CommerceEffects.EastTradingPost)) strCommerce += "&hasEastTradingPost=";
+            if (ce.HasFlag(ResourceManager.CommerceEffects.Marketplace)) strCommerce += string.Format("&hasMarketplace=");
+            if (ce.HasFlag(ResourceManager.CommerceEffects.ClandestineDockWest)) strCommerce += "&hasClandestineDockWest=";
+            if (ce.HasFlag(ResourceManager.CommerceEffects.ClandestineDockEast)) strCommerce += "&hasClandestineDockEast=";
+            if (ce.HasFlag(ResourceManager.CommerceEffects.SecretWarehouse)) strCommerce += "&hasSecretWarehouse=";
+            int nBlackMarkets = 0;
+
+            if (ce.HasFlag(ResourceManager.CommerceEffects.BlackMarket1)) ++nBlackMarkets;
+            if (ce.HasFlag(ResourceManager.CommerceEffects.BlackMarket2)) ++nBlackMarkets;
+
+            if (nBlackMarkets != 0) strCommerce += string.Format("&nBlackMarket={0}", nBlackMarkets);
 
             if (p.currentStageOfWonder < p.playerBoard.numOfStages)
                 strCommerce += string.Format("&WonderStageCard={0}", Card.CardNameFromStringName(p.playerBoard.name, p.currentStageOfWonder + 1));
