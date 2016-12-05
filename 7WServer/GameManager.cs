@@ -956,13 +956,17 @@ namespace SevenWonders
             if (p.currentStageOfWonder < p.playerBoard.numOfStages)
                 strCommerce += string.Format("&WonderStageCard={0}", Card.CardNameFromStringName(p.playerBoard.name, p.currentStageOfWonder + 1));
 
+            /*
             Card bilkis = p.playedStructure.Find(x => x.Id == CardId.Bilkis);
             if (bilkis != null)
             {
-                // Tell the commmerce window that the last entry in the resource list for the player is for Bilkis
-                // and isn't due to another leader effect.
-                strCommerce += "&" + bilkis.Id + "=";
+                strCommerce += "&Bilkis=";
             }
+            */
+
+            // Tell the commmerce window that the last entry in the resource list for the player is for Bilkis
+            // and isn't due to another leader effect.
+            if (ce.HasFlag(ResourceManager.CommerceEffects.Bilkis)) strCommerce += "&Bilkis=";
 
             strCommerce += "&LeaderDiscountCards=";
 

@@ -173,8 +173,8 @@ namespace SevenWonders
         public GamePhase phase = GamePhase.None;
 
         //bilkis (0 is nothing, 1 is ore, 2 is stone, 3 is glass, 4 is papyrus, 5 is loom, 6 is wood, 7 is brick
-        public byte bilkis;
-        public bool hasBilkis;
+        // public byte bilkis;
+        // public bool hasBilkis;
 
         /// <summary>
         /// True if the player has played a card or wonder stage with a diplomacy effect for this
@@ -229,8 +229,7 @@ namespace SevenWonders
             newNickName = "";
 
             //set bilkis to nothing
-            bilkis = 0;
-            hasBilkis = false;
+            // hasBilkis = false;
 
             //set the Game Manager
             this.gm = gm;
@@ -301,6 +300,10 @@ namespace SevenWonders
                     case CardId.Halikarnassos_B_s2:
                     case CardId.Halikarnassos_B_s3:
                         phase = GamePhase.Halikarnassos;
+                        break;
+
+                    case CardId.Bilkis:
+                        resourceMgr.AddCommerceEffect(ResourceManager.CommerceEffects.Bilkis);
                         break;
 
                     case CardId.Solomon:
