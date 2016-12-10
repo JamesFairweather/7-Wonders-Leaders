@@ -559,7 +559,7 @@ namespace SevenWonders
             }
         }
 
-        int CountVictoryPoints(CoinsAndPointsEffect cpe)
+        public int CountVictoryPoints(CoinsAndPointsEffect cpe)
         {
             int sum = 0;
 
@@ -1074,12 +1074,16 @@ namespace SevenWonders
 
             if (ret.bAreResourceRequirementsMet)
             {
-                if (ret.leftCoins == 0 && ret.rightCoins == 0)
+                if ((ret.leftCoins == 0 && ret.rightCoins == 0) && (ret.bankCoins == 0 || (ret.bankCoins == cost.coin)))
                 {
                     if (coin < ret.bankCoins)
                         ret.buildable = CommerceOptions.Buildable.InsufficientCoins;
                     else
                         ret.buildable = CommerceOptions.Buildable.True;
+                }
+                else if (coin < ret.bankCoins)
+                {
+                    ret.buildable = CommerceOptions.Buildable.InsufficientCoins;
                 }
                 else
                 {

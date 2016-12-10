@@ -47,7 +47,7 @@ namespace SevenWonders
             if (gm.phase == GamePhase.LeaderDraft || gm.phase == GamePhase.LeaderRecruitment)
             {
                 // int[] favouredLeaders = { 216, 220, 222, 232, 200, 208, 205, 221, 214, 236, 213 };
-                CardId [] favouredLeaders = { CardId.Leonidas, CardId.Nero, CardId.Pericles, CardId.Tomyris, CardId.Alexander, CardId.Hannibal, CardId.Caesar, CardId.Nefertiti, CardId.Cleopatra, CardId.Zenobia, CardId.Justinian };
+                CardId [] favouredLeaders = { CardId.Nero, CardId.Tomyris, CardId.Alexander, CardId.Hannibal, CardId.Caesar, CardId.Nefertiti, CardId.Cleopatra, CardId.Zenobia, CardId.Justinian };
 
                 Card bestLeader = null;
 
@@ -309,8 +309,80 @@ namespace SevenWonders
                             break;
 
                         case StructureType.Guild:
-                            cardValues[i] = 60;
                             // calculate the value of this card.
+                            if (card.effect is CoinsAndPointsEffect)
+                            {
+                                // most guilds fall into this category: they count points based on something the neighboring cities.
+                                cardValues[i] = player.CountVictoryPoints(card.effect as CoinsAndPointsEffect) * 10;
+
+                                CoinsAndPointsEffect cpe = card.effect as CoinsAndPointsEffect;
+
+                                // account for the possibility that the neighboring cities will play more of these structures
+                                // during the 3rd age and thus increase the value of these guild cards.
+                                switch (cpe.classConsidered)
+                                {
+                                    case StructureType.RawMaterial:
+                                        // there are no Raw Materials cards available in the 3rd age.
+                                        break;
+
+                                    case StructureType.Goods:
+                                        // there are no Goods cards available in the 3rd age.
+                                        break;
+
+                                    case StructureType.Civilian:
+                                    case StructureType.Commerce:
+                                        cardValues[i] += (gm.nTurnsInEachAge - gm.currentTurn) * 2;
+                                        break;
+
+                                    case StructureType.Military:
+                                    case StructureType.Science:
+                                        cardValues[i] += ((gm.nTurnsInEachAge - gm.currentTurn) * (cardValues[i] / 20));
+                                        break;
+
+                                    case StructureType.Guild:
+                                        cardValues[i] += (gm.nTurnsInEachAge - gm.currentTurn);
+                                        break;
+
+                                    case StructureType.WonderStage:
+                                        // for the Builder's Guild, we'll assume a high probability of all wonder stages getting built.
+                                        cardValues[i] += (((player.playerBoard.numOfStages + player.leftNeighbour.playerBoard.numOfStages + player.rightNeighbour.playerBoard.numOfStages) * 10) - cardValues[i])/2;
+                                        break;
+
+                                    case StructureType.MilitaryLosses:
+                                    case StructureType.ConflictToken:
+                                        // Not sure what to do here.  I guess look at their shield strength.
+                                        break;
+
+                                    case StructureType.ThreeCoins:
+                                        // would be better to consider other factors too, such as ours and our neighbors' resource availability
+                                        // (i.e. how much we'll pay out and how much they are likely to pay us for the rest of the age).
+                                        cardValues[i] += (gm.nTurnsInEachAge - gm.currentTurn) * 3;
+                                        break;
+                                }
+                            }
+                            else if (card.Id == CardId.Shipowners_Guild)
+                            {
+                                // Shipowners guild counts 1 point for each RawMaterial, Goods, and Guild structure in the players' city.
+                                cardValues[i] = player.playedStructure.Where(x => x.structureType == StructureType.RawMaterial || x.structureType == StructureType.Goods || x.structureType == StructureType.Guild).Count() * 10;
+                            }
+                            else if (card.Id == CardId.Counterfeiters_Guild)
+                            {
+                                // Add 1 because all other players has to lose 3 coins which is the same as 1 VP.
+                                // Possible TODO: adjust the value based on whether players who are close in VP to this player
+                                // have many or few coins in their treasury.  Loss of coins cards hurt players with few
+                                // coins more than players with many.  This card could cause an opponent to lose up to 3 VP
+                                // if they have to take 3 debt tokens, which makes it more valuable to us.  Also, we could
+                                // consider the effect of another player playing this card on our own treasury.
+                                cardValues[i] = ((card.effect as LossOfCoinsEffect).victoryPoints + 1) * 10;
+                            }
+                            else if (card.Id == CardId.Scientists_Guild)
+                            {
+                                throw new NotImplementedException();
+                            }
+                            else
+                            {
+                                throw new NotImplementedException();
+                            }
                             break;
 
                         case StructureType.City:
